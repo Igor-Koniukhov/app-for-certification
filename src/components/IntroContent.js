@@ -1,7 +1,8 @@
 import React, {Fragment} from "react";
+import {login} from "../utils";
 
 
-const IntroContent = (props)=>{
+const IntroContent = ()=>{
     return(
         <Fragment>
             <h1>Welcome to App For Certification on platform NEAR!</h1>
@@ -19,7 +20,7 @@ const IntroContent = (props)=>{
                 Go ahead and click the button below to try it out:
             </p>
             <p style={{ textAlign: 'center', marginTop: '2.5em' }}>
-                <button onClick={props.login}>Sign in</button>
+                <button onClick={login}>Sign in</button>
             </p>
         </Fragment>
     )

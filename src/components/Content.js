@@ -1,12 +1,19 @@
-import React, {Fragment} from "react";
-
+import React, {Fragment, useContext, useEffect, useState} from "react";
+import {logout} from "../utils";
 import Notification from "./Notification";
 import FormForAnswer from "./FormForAnswer";
+import SourceQ from "./SourceQ";
 import Article from "./Article";
+import ArticleContext from "../store/article-context";
 
-const Content = (props)=> {
-    const [greeting, set_greeting] = React.useState()
-    const [showNotification, setShowNotification] = React.useState(false)
+const Content = (props) => {
+    const [greeting, setGreeting] = useState()
+    const [showNotification, setShowNotification] = useState(false)
+    const [buttonDisabledState, setButtonDisabledState]=useState(false)
+    const [successState, setSuccessState]=useState(false)
+
+    const artCtx = useContext(ArticleContext);
+
     const submitHandler = async (event) => {
         event.preventDefault()
         const {fieldset, greeting} = event.target.elements
@@ -15,7 +22,7 @@ const Content = (props)=> {
 
         try {
             await window.contract.set_greeting({
-                message: newGreeting
+                message: JSON.stringify(artCtx.answers)
             })
         } catch (e) {
             alert(
@@ -27,31 +34,54 @@ const Content = (props)=> {
         } finally {
             fieldset.disabled = false
         }
-        set_greeting(newGreeting)
+
+        setGreeting(JSON.parse(newGreeting))
         setShowNotification(true)
         setTimeout(() => {
             setShowNotification(false)
         }, 11000)
     };
-    React.useEffect(
+
+
+    useEffect(
         () => {
             if (window.walletConnection.isSignedIn()) {
                 window.contract.get_greeting({account_id: window.accountId})
                     .then(greetingFromContract => {
-                        set_greeting(greetingFromContract)
+                        setGreeting(greetingFromContract)
                     })
             }
         },
         []
     )
+    const buttonDisabled =(buttonDisabled, success)=>{
+        setButtonDisabledState(buttonDisabled)
+        setSuccessState(success)
+    }
+    const articles = SourceQ.map((content, index) =>
+        <Article
+            article={content.article}
+            key={content.article}
+            source={content}
+            index={index}
+            buttonDisabled={buttonDisabled}
+        />
+    )
+
     return (
         <Fragment>
-            <button className="link" style={{float: 'right'}} onClick={props.logout}>
+            <button className="link" style={{float: 'right'}} onClick={logout}>
                 Sign out
             </button>
-                <h1> You log in: {window.accountId} - {greeting} </h1>
-               <FormForAnswer submitHandler={submitHandler} greeting={greeting}/>
-                <Article/>
+
+            {articles}
+            {successState && buttonDisabledState && <div>
+                <p>Congrats! You pass test! </p>
+                <button>Get certificate!</button>
+            </div>}
+
+            <FormForAnswer submitHandler={submitHandler} greeting={greeting}/>
+            <h1> You log in: {window.accountId} - {greeting} </h1>
             {showNotification && <Notification networkId={props.networkId}/>}
         </Fragment>
     )

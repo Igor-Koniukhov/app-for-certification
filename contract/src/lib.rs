@@ -1,7 +1,8 @@
-
+use near_sdk::{AccountId, env, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, setup_alloc};
-use near_sdk::collections::LookupMap;
+use near_sdk::collections::{LookupMap};
+
+
 
 setup_alloc!();
 
@@ -9,25 +10,59 @@ setup_alloc!();
 // Note: the names of the structs are not important when calling the smart contract, but the function names are
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct Welcome {
+pub struct Contract {
     records: LookupMap<String, String>,
+   /* answers: UnorderedMap<AccountId, Ticket>*/
+
 }
 
-impl Default for Welcome {
-  fn default() -> Self {
-    Self {
-      records: LookupMap::new(b"a".to_vec()),
+impl Default for Contract {
+    fn default() -> Self {
+        Self {
+            records: LookupMap::new(b"a".to_vec()),
+
+        }
     }
-  }
 }
+
 
 #[near_bindgen]
-impl Welcome {
+impl Contract {
+
+   /* #[payable]
+    pub fn set_answer(
+        &mut self,
+        id: u8,
+        article_id: u8,
+        question: String,
+        options: [String; 4],
+        correct_answer: String,
+        is_correct: bool
+    ) -> Option<Ticket> {
+        let user = env::signer_account_id();
+        let answer: Ticket= Ticket{
+            id,
+            article_id,
+            question,
+            options,
+            correct_answer,
+            is_correct,
+            started,
+            finished: env::block_timestamp().to_string()
+        };
+        env::log(format!("answers '{:?}' for account '{}'",answer, user, ).as_bytes());
+        self.answers.insert(AccountId, &answer)
+
+
+
+
+    }
+*/
     pub fn set_greeting(&mut self, message: String) {
         let account_id = env::signer_account_id();
 
         // Use env::log to record logs permanently to the blockchain!
-        env::log(format!("Saving greeting '{}' for account '{}'", message, account_id,).as_bytes());
+        env::log(format!("Saving greeting '{}' for account '{}'", message, account_id, ).as_bytes());
 
 
         self.records.insert(&account_id, &message);
@@ -57,9 +92,10 @@ impl Welcome {
  */
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
+    use near_sdk::MockedBlockchain;
+
+    use super::*;
 
     // mock the context for testing, notice "signer_account_id" that was accessed above from env::
     fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
