@@ -4,51 +4,102 @@ import ArticleContext from "../store/article-context";
 
 
 const Article = (props) => {
+    const {
+        set_answer,
+        get_answers,
+        get_current_result
+    } = window.contract;
+
+    const {tickets} = props.source;
     const artCtx = useContext(ArticleContext);
     const filteredAnswers = artCtx.answers.filter(answer => answer.article_id === props.article);
-    const questionLength = props.source.questions.length
+    const questionLength = tickets.length
     const answersLength = filteredAnswers.length
     const buttonDisabled = questionLength !== answersLength
-    const [shufledQuestionsState, setShufledQuestions] = useState([])
+    const [shuffledQuestionsState, setShuffledQuestions] = useState([])
     const numberOfQuestions = artCtx.numberOfQuestions
     const numberOfAnswers = artCtx.answers.length
-    const isSuccess = numberOfQuestions===numberOfAnswers
+    const isSuccess = numberOfQuestions === numberOfAnswers
 
 
-    const [buttonDisabledState, setButtonDisabledState]=useState(buttonDisabled)
+    const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
 
-    let shufledQuestions = props.source.questions
+    let shuffledQuestions = tickets
         .map(value => ({value, sort: Math.random()}))
         .sort((a, b) => a.sort - b.sort)
         .map(({value}) => value)
 
 
     useEffect(() => {
-        setShufledQuestions(shufledQuestions)
-        artCtx.getNumbersOfQuestions(shufledQuestionsState.length)
-    }, [shufledQuestionsState.length]);
+        setShuffledQuestions(shuffledQuestions)
+        artCtx.getNumbersOfQuestions(shuffledQuestionsState.length)
+    }, [shuffledQuestionsState.length]);
 
-    useEffect(()=>{
-            setButtonDisabledState(buttonDisabled)
+    useEffect(() => {
+        setButtonDisabledState(buttonDisabled)
 
-    },[buttonDisabled])
+    }, [buttonDisabled])
+
+    const sentMessage = async (answer) => {
+        console.log(answer, " answer")
+        try {
+            await set_answer({
+                id: answer.id,
+                article_id: answer.article_id,
+                your_answer: answer.your_answer,
+                correct_answer: answer.correct_answer,
+                pass: answer.pass,
+
+            })
+        } catch (e) {
+            alert(
+                'Something went wrong! ' +
+                'Maybe you need to sign out and back in? ' +
+                'Check your browser console for more info.'
+            )
+            throw e
+        } finally {
+            setButtonDisabledState(true)
+            props.buttonDisabled(true, isSuccess)
+            console.log('sent')
+        }
+
+        await get_answers().then((data) => {
+            console.log(data, " this is gotten answers")
+        })
+    }
+
 
     const handlerSubmit = async (event) => {
         event.preventDefault();
-        console.log(filteredAnswers, props.article, " filteredanswers")
-        setButtonDisabledState(true)
-        props.buttonDisabled(true, isSuccess)
+
+
+
+        const sentTicket = async () => {
+            filteredAnswers.forEach((answer, i) => {
+                setTimeout(() => {
+                    sentMessage(answer)
+
+                }, 1000)
+            })
+            props.setShowNotification(true);
+            setTimeout(() => {
+                props.setShowNotification(false);
+            }, 4000);
+        };
+
+        await sentTicket();
     }
 
-    const list = shufledQuestionsState.map((item, index) =>
+    const list = shuffledQuestionsState.map((item, index) =>
         <QuestionItems
             article={props.article}
             index={index}
             key={item.id}
             id={item.id}
             question={item.question}
-            answers={item.answers}
-            correct={item.correct}
+            options={item.options}
+            correct_answer={item.correct_answer}
             isAllChoosen={!buttonDisabledState}
         />
     )
@@ -57,7 +108,11 @@ const Article = (props) => {
             <h1>{props.source.title}</h1>
             <p>{props.source.content}</p>
             {list}
-            <button id={`button-${props.article}`} disabled={buttonDisabledState}>Send result</button>
+            <button
+                id={`button-${props.article}`}
+                disabled={buttonDisabledState}>
+                Send result
+            </button>
         </form>
     )
 

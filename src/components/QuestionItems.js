@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import ArticleContext from "../store/article-context";
+import './QuestionItem.module.css'
 
 const QuestionItems = (props) => {
     const artCtx = useContext(ArticleContext);
@@ -20,7 +21,7 @@ const QuestionItems = (props) => {
         answer.id = props.id
         answer.article_id = props.article
         answer.your_answer = e.target.value
-        answer.correct_answer = props.correct
+        answer.correct_answer = props.correct_answer
         setAnswerState(answer)
         artCtx.article_id = props.article
         artCtx.addAnswer(answer, props.article, props.id);
@@ -30,7 +31,7 @@ const QuestionItems = (props) => {
         }
     }
 
-    let answers = props.answers
+    let answers = props.options
         .map(value => ({value, sort: Math.random()}))
         .sort((a, b) => a.sort - b.sort)
         .map(({value}) => value)
@@ -44,15 +45,18 @@ const QuestionItems = (props) => {
         <ol>
             <h3>{props.index + 1}. {props.question}</h3>
             {shufledAnswers.map((a, i) =>
-                <li key={i}><label htmlFor={props.id + "-" + i}>{a}</label>
+                <li key={i}>
                     <input
                         className={props.id + "-" + "checked"}
                         id={props.id + "-" + i}
                         type="radio"
+
                         value={a}
                         onChange={onChangeHandler}
                         disabled={buttonDisabled}
-                    /></li>)}
+                    />
+                    <label style={{paddingLeft: '10px'}} htmlFor={props.id + "-" + i}>{a}</label>
+                </li>)}
             {props.isAllChoosen && answerState.pass &&
                 <div style={{color: 'green'}}><p>Success! Your answer - {answerState.your_answer}</p>
                     <p>Correct answer - {answerState.correct_answer}</p>

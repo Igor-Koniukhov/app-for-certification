@@ -1,0 +1,32 @@
+input[type="radio"] {
+    appearance: none;
+    background-color: #fff;
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1em;
+    height: 1em;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+}
+input[type="radio"]:hover{
+    cursor: pointer;
+    background-color: #0072CE;
+    opacity: 0.4;
+}
+input[type="radio"]:checked:hover{
+    background-color: #0072CE;
+    opacity: unset;
+}
+input[type="radio"]:disabled:checked:hover{
+    background-color: #0072CE;
+    opacity: unset;
+}
+input[type="radio"]:disabled:hover{
+    background-color: unset;
+    opacity: unset;
+    cursor: unset;
+}
+input[type="radio"]:checked{
+    background-color: #0072CE;
+}

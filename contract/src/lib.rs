@@ -1,8 +1,15 @@
-use near_sdk::{AccountId, env, near_bindgen, setup_alloc};
+use near_sdk::{env, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap};
+use near_sdk::collections::{LookupMap, UnorderedMap};
+use near_sdk::serde::{Deserialize, Serialize};
+//use serde_json::Value::String;
 
 
+
+use crate::source::Section;
+use crate::source::source;
+
+mod source;
 
 setup_alloc!();
 
@@ -12,70 +19,157 @@ setup_alloc!();
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
     records: LookupMap<String, String>,
-   /* answers: UnorderedMap<AccountId, Ticket>*/
-
+    tickets: UnorderedMap<String, Vec<Section>>,
+    answers: UnorderedMap<String, Vec<Answer>>,
+    current_result: UnorderedMap<String, Result>,
 }
+
+const VALID_RESULT: u32 = 80;
 
 impl Default for Contract {
     fn default() -> Self {
         Self {
-            records: LookupMap::new(b"a".to_vec()),
-
+            records: LookupMap::new(b"s".to_vec()),
+            tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
+            answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
+            current_result: UnorderedMap::<String, Result>::new(b"c"),
         }
     }
+}
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct AnswerInfo {
+    pub id: u8,
+    pub article_id: u8,
+    pub your_answer: String,
+    pub correct_answer: String,
+    pub pass: bool,
+    pub finished: String,
+}
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Answer{
+    pub id: u8,
+    pub answer: AnswerInfo
+}
+
+
+
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Result {
+    pub number_of_questions: usize,
+    pub number_of_answers: u8,
+    pub number_of_correct_answers: u8,
+    pub is_valid: bool,
+}
+
+pub struct Certificate {
+    pub id: u8,
+    pub examine_id: u8,
+    pub current_attempt: u8,
+    pub is_valid: bool,
+    pub result: UnorderedMap<String, Result>,
 }
 
 
 #[near_bindgen]
 impl Contract {
+    pub fn get_tickets(&self) -> Option<Vec<Section>> {
+        let account_id = env::signer_account_id();
+        self.tickets.get(&account_id)
+    }
+    pub fn get_all_tickets(&self) -> Vec<(String, Vec<Section>)> {
+        self.tickets.to_vec()
+    }
 
-   /* #[payable]
+    pub fn set_tickets(&mut self) -> String {
+        let sections = source();
+        let account_id = env::signer_account_id();
+        let mut array_of_sections: Vec<Section> = vec![];
+        let key = format!("{}", account_id);
+        let mut result: Result = Result {
+            number_of_questions: 0,
+            number_of_answers: 0,
+            number_of_correct_answers: 0,
+            is_valid: false,
+        };
+        for section in sections {
+            env::log(format!("ticket '{:?}' ", section).as_bytes());
+            result.number_of_questions += section.tickets.len();
+            array_of_sections.push(section);
+        };
+        self.current_result.insert(&key, &result);
+
+        self.tickets.insert(&key, &array_of_sections);
+        String::from("Tickets is set up")
+    }
+
     pub fn set_answer(
         &mut self,
         id: u8,
         article_id: u8,
-        question: String,
-        options: [String; 4],
+        your_answer: String,
         correct_answer: String,
-        is_correct: bool
-    ) -> Option<Ticket> {
-        let user = env::signer_account_id();
-        let answer: Ticket= Ticket{
-            id,
-            article_id,
-            question,
-            options,
-            correct_answer,
-            is_correct,
-            started,
-            finished: env::block_timestamp().to_string()
+        pass: bool,
+    ) {
+        let mut answers: Vec<Answer> = vec![];
+        let mut key = format!("{}{}", &article_id, &id);
+        let answer: Answer=Answer{
+            id: key.parse().unwrap(),
+            answer: AnswerInfo {
+                id,
+                article_id,
+                your_answer,
+                correct_answer,
+                pass,
+                finished: env::block_timestamp().to_string(),
+            }
         };
-        env::log(format!("answers '{:?}' for account '{}'",answer, user, ).as_bytes());
-        self.answers.insert(AccountId, &answer)
 
-
-
-
-    }
-*/
-    pub fn set_greeting(&mut self, message: String) {
         let account_id = env::signer_account_id();
+        env::log(format!("answers '{:?}' for account '{}'", answer, account_id, ).as_bytes());
+        answers.push(answer);
 
-        // Use env::log to record logs permanently to the blockchain!
-        env::log(format!("Saving greeting '{}' for account '{}'", message, account_id, ).as_bytes());
+
+        self.answers.insert(&account_id, &answers);
 
 
-        self.records.insert(&account_id, &message);
+
+    }
+    pub fn set_current_result(
+        &mut self,
+        your_answer: String,
+        correct_answer: String,
+    ) {
+        let account_id = env::signer_account_id();
+        let mut result: Result = self.current_result.get(&account_id).unwrap();
+        result.number_of_answers += 1;
+        let is_coincide: bool = your_answer == correct_answer;
+        env::log(format!("is coincide '{:?}' ", is_coincide).as_bytes());
+
+
+        if is_coincide {
+            result.number_of_correct_answers += 1;
+        }
+        env::log(format!("result '{:?}' ", result).as_bytes());
+    }
+    pub fn get_current_result(&self, account_id: String) -> Result {
+        match self.current_result.get(&account_id) {
+            Some(result) => result,
+            None => Result {
+                number_of_questions: 0,
+                number_of_answers: 0,
+                number_of_correct_answers: 0,
+                is_valid: false,
+            },
+        }
     }
 
-    // `match` is similar to `switch` in other languages; here we use it to default to "Hello" if
-    // self.records.get(&account_id) is not yet defined.
-    // Learn more: https://doc.rust-lang.org/book/ch06-02-match.html#matching-with-optiont
-    pub fn get_greeting(&self, account_id: String) -> String {
-        match self.records.get(&account_id) {
-            Some(greeting) => greeting,
-            None => "Hello".to_string(),
-        }
+    pub fn get_answers(&self) -> Option<Vec<Answer>> {
+        let account_id = env::signer_account_id();
+        self.answers.get(&account_id)
     }
 }
 

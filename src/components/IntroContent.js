@@ -1,5 +1,4 @@
 import React, {Fragment} from "react";
-import {login} from "../utils";
 
 
 const IntroContent = ()=>{
@@ -19,9 +18,7 @@ const IntroContent = ()=>{
             <p>
                 Go ahead and click the button below to try it out:
             </p>
-            <p style={{ textAlign: 'center', marginTop: '2.5em' }}>
-                <button onClick={login}>Sign in</button>
-            </p>
+
         </Fragment>
     )
 }
