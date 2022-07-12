@@ -9,7 +9,6 @@ import getConfig from './config';
 import Certificate from "./pages/Certificate";
 import Layout from "./components/layout/Layout";
 
-
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
 
@@ -18,30 +17,30 @@ export default function App() {
     const isSignedIn = window.walletConnection.isSignedIn();
 
     useEffect(() => {
-        if (pageIsLoad) {
-            const setTickets = async () => {
-                await set_tickets().then((data) => {
-                    console.log(data)
-                });
-            };
-            setTickets();
+        const setTickets = async () => {
+            await set_tickets().then((data) => {
+                console.log(data)
+            });
+        };
+        setTickets();
+    }, [isSignedIn]);
+
+    useEffect(() => {
+        if (isSignedIn) {
+            pageIsLoad = false;
+            return
         }
-        pageIsLoad = false
-    }, [pageIsLoad]);
+    }, [isSignedIn]);
 
     return (
         <Layout>
             <Switch>
-                {
-                    !isSignedIn &&
-                    <IntroContent/>
-                }
-                {
-                    isSignedIn &&
-                    <Route path='/' exact>
-                        <Content isLoad={pageIsLoad} networkId={networkId}/>
-                    </Route>
-                }
+                {!isSignedIn && <IntroContent/>}
+                {isSignedIn &&
+                    <Content
+                        isLoad={pageIsLoad}
+                        networkId={networkId}
+                    />}
                 <Route path='/certificate'>
                     <Certificate/>
                 </Route>

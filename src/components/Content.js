@@ -5,38 +5,67 @@ import Notification from "./UI/Notification";
 import Article from "./Article";
 import LoadingSpinner from "./UI/LoadingSpinner";
 
+let isLoaded = true;
 
 const Content = (props) => {
     const {
-        get_answers,
-        get_tickets
-    } = window.contract
-    const {isLoad} = props
+        get_tickets,
+        set_user_collection_answers,
+        get_user_collection_answers
+    } = window.contract;
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
-    const [ticketsState, setTicketsState] = useState([]);
+    let [ticketsState, setTicketsState] = useState([]);
     const history = useHistory();
-
+    const success = successState && buttonDisabledState;
+    const ticketError = ticketsState === null || ticketsState === undefined
+    if (ticketError){
+        ticketsState=[];
+    }
 
     useEffect(() => {
-        const getTickets = async () => {
-            await get_tickets().then((data) => {
-                setTicketsState(data)
-            })
-        };
-        getTickets();
-    }, [isLoad]);
+            const getTickets = async () => {
+                await get_tickets().then((data) => {
+                    setTicketsState(data)
+                })
+            };
+            getTickets();
+
+    }, [isLoaded, ticketsState.length]);
+
+    useEffect(() => {
+        if (isLoaded) {
+            isLoaded = false;
+            return
+        }
+    }, [isLoaded]);
+
+    const isTicketLoad = ticketsState.length === 0;
+    const isTicketSucceed = !ticketError && !isTicketLoad
+
+    useEffect(() => {
+        if (success){
+            const setCollectionOfAnswers = async () => {
+                await set_user_collection_answers().then((data) => {
+                    console.log(data, 'set_user_collection_answers')
+                })
+            }
+            setCollectionOfAnswers();
+        }
+
+    }, [success]);
 
 
     const getCertificateHandler = async (event) => {
         event.preventDefault()
-        await get_answers().then((data) => {
-            console.log(data)
-        });
+        const getUserCollectionOfAnswers = async () => {
+            get_user_collection_answers().then((data) => {
+                console.log(data, 'get_user_collection_answers')
+            })
+        }
+        getUserCollectionOfAnswers();
         history.push('/certificate')
-
-
     };
 
     const buttonDisabled = (buttonDisabled, success) => {
@@ -58,8 +87,7 @@ const Content = (props) => {
         <Fragment>
             {articles}
             {
-                successState &&
-                buttonDisabledState &&
+                success &&
                 <div>
                     <p>Congrats! You pass test! </p>
                     <button onClick={getCertificateHandler}>Get certificate!</button>
@@ -69,7 +97,7 @@ const Content = (props) => {
                 showNotification &&
                 <Notification networkId={props.networkId}/>}
             {
-                ticketsState.length === 0 &&
+                !isTicketSucceed &&
                 (
                     <div className='backdrop'>
                         <LoadingSpinner/>

@@ -6,8 +6,6 @@ import ArticleContext from "../store/article-context";
 const Article = (props) => {
     const {
         set_answer,
-        get_answers,
-        get_current_result
     } = window.contract;
 
     const {tickets} = props.source;
@@ -20,15 +18,12 @@ const Article = (props) => {
     const numberOfQuestions = artCtx.numberOfQuestions
     const numberOfAnswers = artCtx.answers.length
     const isSuccess = numberOfQuestions === numberOfAnswers
-
-
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
 
     let shuffledQuestions = tickets
         .map(value => ({value, sort: Math.random()}))
         .sort((a, b) => a.sort - b.sort)
         .map(({value}) => value)
-
 
     useEffect(() => {
         setShuffledQuestions(shuffledQuestions)
@@ -37,11 +32,9 @@ const Article = (props) => {
 
     useEffect(() => {
         setButtonDisabledState(buttonDisabled)
-
-    }, [buttonDisabled])
+    }, [buttonDisabled]);
 
     const sentMessage = async (answer) => {
-        console.log(answer, " answer")
         try {
             await set_answer({
                 id: answer.id,
@@ -49,7 +42,6 @@ const Article = (props) => {
                 your_answer: answer.your_answer,
                 correct_answer: answer.correct_answer,
                 pass: answer.pass,
-
             })
         } catch (e) {
             alert(
@@ -61,33 +53,22 @@ const Article = (props) => {
         } finally {
             setButtonDisabledState(true)
             props.buttonDisabled(true, isSuccess)
-            console.log('sent')
+            console.log('SENT!')
         }
-
-        await get_answers().then((data) => {
-            console.log(data, " this is gotten answers")
-        })
-    }
-
-
+    };
     const handlerSubmit = async (event) => {
         event.preventDefault();
 
-
-
         const sentTicket = async () => {
             filteredAnswers.forEach((answer, i) => {
-                setTimeout(() => {
-                    sentMessage(answer)
-
-                }, 1000)
+                sentMessage(answer)
             })
             props.setShowNotification(true);
-            setTimeout(() => {
+            const setTimeNotification = setTimeout(() => {
                 props.setShowNotification(false);
             }, 4000);
+            clearTimeout(setTimeNotification);
         };
-
         await sentTicket();
     }
 

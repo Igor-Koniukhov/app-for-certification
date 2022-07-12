@@ -1,13 +1,17 @@
+extern crate time;
+
+use std::fmt::format;
+
 use near_sdk::{env, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap};
 use near_sdk::serde::{Deserialize, Serialize};
-//use serde_json::Value::String;
-
-
 
 use crate::source::Section;
 use crate::source::source;
+
+//use serde_json::Value::String;
+
 
 mod source;
 
@@ -18,20 +22,25 @@ setup_alloc!();
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
+    id_answers: UnorderedMap<String, Vec<String>>,
     records: LookupMap<String, String>,
     tickets: UnorderedMap<String, Vec<Section>>,
-    answers: UnorderedMap<String, Vec<Answer>>,
+    answers: UnorderedMap<String, Answer>,
+    user_collection_answers: UnorderedMap<String, Vec<Answer>>,
     current_result: UnorderedMap<String, Result>,
 }
 
 const VALID_RESULT: u32 = 80;
 
+
 impl Default for Contract {
     fn default() -> Self {
         Self {
+            id_answers: UnorderedMap::<String, Vec<String>>::new(b"s"),
             records: LookupMap::new(b"s".to_vec()),
             tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
-            answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
+            answers: UnorderedMap::<String, Answer>::new(b"a"),
+            user_collection_answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
             current_result: UnorderedMap::<String, Result>::new(b"c"),
         }
     }
@@ -39,21 +48,14 @@ impl Default for Contract {
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
-pub struct AnswerInfo {
+pub struct Answer {
     pub id: u8,
     pub article_id: u8,
     pub your_answer: String,
     pub correct_answer: String,
     pub pass: bool,
-    pub finished: String,
-}
-#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Answer{
-    pub id: u8,
-    pub answer: AnswerInfo
-}
 
+}
 
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
@@ -85,25 +87,32 @@ impl Contract {
     }
 
     pub fn set_tickets(&mut self) -> String {
-        let sections = source();
         let account_id = env::signer_account_id();
+        let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
-        let key = format!("{}", account_id);
-        let mut result: Result = Result {
-            number_of_questions: 0,
-            number_of_answers: 0,
-            number_of_correct_answers: 0,
-            is_valid: false,
-        };
+        let mut array_of_id: Vec<String> = vec![];
+
         for section in sections {
-            env::log(format!("ticket '{:?}' ", section).as_bytes());
-            result.number_of_questions += section.tickets.len();
             array_of_sections.push(section);
         };
-        self.current_result.insert(&key, &result);
+        self.tickets.insert(&account_id, &array_of_sections);
 
-        self.tickets.insert(&key, &array_of_sections);
+        let sections = self.tickets.get(&account_id).unwrap();
+        for tickets in sections {
+                for ticket in tickets.tickets {
+                    array_of_id.push(format!("{}{}{}", account_id, ticket.article_id, ticket.id))
+                }
+
+        }
+        self.id_answers.insert(&account_id, &array_of_id);
+
+
+
         String::from("Tickets is set up")
+    }
+    pub fn get_id_answers(&self) -> Option<Vec<String>> {
+        let account_id = env::signer_account_id();
+        self.id_answers.get(&account_id)
     }
 
     pub fn set_answer(
@@ -114,30 +123,43 @@ impl Contract {
         correct_answer: String,
         pass: bool,
     ) {
-        let mut answers: Vec<Answer> = vec![];
-        let mut key = format!("{}{}", &article_id, &id);
-        let answer: Answer=Answer{
-            id: key.parse().unwrap(),
-            answer: AnswerInfo {
-                id,
-                article_id,
-                your_answer,
-                correct_answer,
-                pass,
-                finished: env::block_timestamp().to_string(),
-            }
+        let answer: Answer = Answer {
+            id,
+            article_id,
+            your_answer,
+            correct_answer,
+            pass,
+
         };
 
         let account_id = env::signer_account_id();
         env::log(format!("answers '{:?}' for account '{}'", answer, account_id, ).as_bytes());
-        answers.push(answer);
-
-
-        self.answers.insert(&account_id, &answers);
-
-
-
+        let key = format!("{}{}{}", &account_id, &answer.article_id, &answer.id);
+        self.answers.insert(&key, &answer);
     }
+    pub fn set_user_collection_answers(&mut self) -> String {
+        let account_id = env::signer_account_id();
+        let mut array_of_answers_by_id: Vec<Answer> = vec![];
+        let array_answer_id = self.id_answers.get(&account_id).unwrap();
+
+        self.answers.iter().enumerate().for_each(|(i, answer)| {
+            env::log(format!(" from loop'{:?}{:?}'", i, answer).as_bytes());
+            array_answer_id.iter().enumerate().for_each(|(i, id)| {
+                if *id == answer.0 {
+                    array_of_answers_by_id.push(answer.1.clone())
+                }
+            })
+        });
+
+        self.user_collection_answers.insert(&account_id, &array_of_answers_by_id);
+        format!("array from loop{:?}", array_of_answers_by_id)
+    }
+
+    pub fn get_user_collection_answers(self) -> Option<Vec<Answer>> {
+        let account_id = env::signer_account_id();
+        self.user_collection_answers.get(&account_id)
+    }
+
     pub fn set_current_result(
         &mut self,
         your_answer: String,
@@ -148,7 +170,6 @@ impl Contract {
         result.number_of_answers += 1;
         let is_coincide: bool = your_answer == correct_answer;
         env::log(format!("is coincide '{:?}' ", is_coincide).as_bytes());
-
 
         if is_coincide {
             result.number_of_correct_answers += 1;
@@ -167,9 +188,8 @@ impl Contract {
         }
     }
 
-    pub fn get_answers(&self) -> Option<Vec<Answer>> {
-        let account_id = env::signer_account_id();
-        self.answers.get(&account_id)
+    pub fn get_answers(&self) -> Vec<(String, Answer)> {
+        self.answers.to_vec()
     }
 }
 

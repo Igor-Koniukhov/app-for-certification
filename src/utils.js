@@ -25,8 +25,10 @@ export async function initContract() {
             'set_tickets',
             'set_answer',
             'get_answers',
-            'set_current_result',
-            'get_current_result'],
+            'get_id_answers',
+            'set_user_collection_answers',
+           'get_user_collection_answers',
+            ],
     })
 }
 

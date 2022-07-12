@@ -168,6 +168,20 @@ pub fn source() -> Vec<Section> {
                     started: "".to_string(),
                     finished: "".to_string(),
                 },
+                Ticket {
+                    id: 4,
+                    article_id: 3,
+                    question: "If test results are within +/-2 standard deviations, the ratio of test results beyond the +/-2 SD limit will be 1 out of".to_string(),
+                    options: Vec::from(
+                        ["3".to_string(),
+                            "5".to_string(),
+                            "20".to_string(),
+                            "300".to_string()]),
+                    correct_answer: "5".to_string(),
+                    pass: false,
+                    started: "".to_string(),
+                    finished: "".to_string(),
+                },
             ],
         },
     ];
