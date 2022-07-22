@@ -1,11 +1,13 @@
 import React, { useReducer} from "react";
 import ArticleContext from "./article-context";
 
-const defaultArticleState ={
+
+const defaultArticleState={
     article: 0,
     answers: [],
     chapter: {},
-    numberOfQuestions:0
+    numberOfQuestions: 0,
+    isSent: false
 }
 
 const articleReducer = (state, action) =>{
@@ -21,18 +23,33 @@ const articleReducer = (state, action) =>{
             answers: updatedAnswers,
             article: currentIdArticle,
             chapter: updatedChapter,
-            numberOfQuestions: state.numberOfQuestions
-
+            numberOfQuestions:state.numberOfQuestions,
+            isSent: state.isSent
         }
     }
 
     if(action.type==='GET_NUMBERS_OF_QUESTIONS'){
         const updatedNumbersOfQuestions= state.numberOfQuestions + action.length
         return {
-            ...defaultArticleState,
-            numberOfQuestions: updatedNumbersOfQuestions
+            answers: state.answers,
+            article: state.article,
+            chapter: state.chapter,
+            numberOfQuestions: updatedNumbersOfQuestions,
+            isSent: state.isSent
         }
     }
+    if(action.type === 'SET_STATUS'){
+        const updatedStatus = action.isSent
+        return {
+            answers: state.answers,
+            article: state.article,
+            chapter: state.chapter,
+            numberOfQuestions: state.numberOfQuestions,
+            isSent: updatedStatus
+        }
+
+    }
+
     return defaultArticleState;
 }
 
@@ -52,15 +69,22 @@ const getNumbersOfQuestionsHandler=(length)=>{
             length: length
         })
     }
-
+const setRequestStatusHandler = (isSent) =>{
+        dispatchArticleAction({
+            type: 'SET_STATUS',
+            isSent: isSent
+        })
+}
 
     const articleContext = {
         article: articleState.article,
         answers: articleState.answers,
         chapter: articleState.chapter,
         numberOfQuestions: articleState.numberOfQuestions,
+        isSent: articleState.isSent,
         addAnswer: addAnswersHandler,
-        getNumbersOfQuestions: getNumbersOfQuestionsHandler
+        getNumbersOfQuestions: getNumbersOfQuestionsHandler,
+        setRequestStatus: setRequestStatusHandler
     }
     return <ArticleContext.Provider value={articleContext}>
         {props.children}

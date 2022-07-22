@@ -5,8 +5,10 @@ const ArticleContext = React.createContext({
     answers:[],
     chapter: {},
     numberOfQuestions:0,
+    isSent: false,
     addAnswer: (article, article_id, answer)=>{},
     getNumbersOfQuestions:(length)=>{},
+    setRequestStatus: (status)=>{},
 })
 
 export default ArticleContext;

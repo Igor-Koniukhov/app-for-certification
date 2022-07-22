@@ -20,6 +20,9 @@ const Article = (props) => {
     const isSuccess = numberOfQuestions === numberOfAnswers
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
 
+
+
+
     let shuffledQuestions = tickets
         .map(value => ({value, sort: Math.random()}))
         .sort((a, b) => a.sort - b.sort)

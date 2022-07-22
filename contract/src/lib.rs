@@ -2,7 +2,7 @@ extern crate time;
 
 use std::fmt::format;
 
-use near_sdk::{env, near_bindgen, setup_alloc};
+use near_sdk::{env, log, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap};
 use near_sdk::serde::{Deserialize, Serialize};
@@ -28,6 +28,7 @@ pub struct Contract {
     answers: UnorderedMap<String, Answer>,
     user_collection_answers: UnorderedMap<String, Vec<Answer>>,
     current_result: UnorderedMap<String, Result>,
+    attempt: i8,
 }
 
 const VALID_RESULT: u32 = 80;
@@ -42,6 +43,7 @@ impl Default for Contract {
             answers: UnorderedMap::<String, Answer>::new(b"a"),
             user_collection_answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
             current_result: UnorderedMap::<String, Result>::new(b"c"),
+            attempt: 0,
         }
     }
 }
@@ -57,6 +59,12 @@ pub struct Answer {
 
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Response {
+    pub ok: bool,
+    pub message: String,
+}
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -99,13 +107,11 @@ impl Contract {
 
         let sections = self.tickets.get(&account_id).unwrap();
         for tickets in sections {
-                for ticket in tickets.tickets {
-                    array_of_id.push(format!("{}{}{}", account_id, ticket.article_id, ticket.id))
-                }
-
+            for ticket in tickets.tickets {
+                array_of_id.push(format!("{}{}{}", account_id, ticket.article_id, ticket.id))
+            }
         }
         self.id_answers.insert(&account_id, &array_of_id);
-
 
 
         String::from("Tickets is set up")
@@ -191,6 +197,32 @@ impl Contract {
     pub fn get_answers(&self) -> Vec<(String, Answer)> {
         self.answers.to_vec()
     }
+
+    pub fn get_num(&self) -> i8 {
+        return self.attempt;
+    }
+
+    pub fn increment(&mut self) -> Response {
+
+        if self.attempt == 3 {
+            return Response {
+                ok: false,
+                message: String::from("You have 3 attempt already! "),
+            };
+        }
+        self.attempt += 1;
+        log!("Attempt {}", self.attempt);
+        Response {
+            ok: true,
+            message: String::from("Success! "),
+        }
+    }
+
+
+    pub fn reset(&mut self) {
+        self.attempt = 0;
+        log!("Reset attempt");
+    }
 }
 
 /*
@@ -255,5 +287,21 @@ mod tests {
             "Hello".to_string(),
             contract.get_greeting("francis.near".to_string())
         );
+    }
+
+    #[test]
+    fn increment() {
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Counter { val: 0 };
+        contract.increment();
+        assert_eq!(1, contract.get_num());
+    }
+
+    #[test]
+    fn increment_and_reset() {
+        let mut contract = Counter { val: 0 };
+        contract.increment();
+        contract.reset();
+        assert_eq!(0, contract.get_num());
     }
 }

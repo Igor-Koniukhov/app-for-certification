@@ -1,9 +1,9 @@
-import React, {Fragment, useEffect, useState} from "react";
+import React, {Fragment, useContext, useEffect, useState} from "react";
 import {useHistory} from "react-router-dom";
-
 import Notification from "./UI/Notification";
 import Article from "./Article";
 import LoadingSpinner from "./UI/LoadingSpinner";
+import ArticleContext from "../store/article-context";
 
 let isLoaded = true;
 
@@ -11,8 +11,10 @@ const Content = (props) => {
     const {
         get_tickets,
         set_user_collection_answers,
-        get_user_collection_answers
+        get_user_collection_answers,
+        increment,
     } = window.contract;
+    const {setRequestStatus} = useContext(ArticleContext);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
@@ -20,17 +22,17 @@ const Content = (props) => {
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
-    if (ticketError){
-        ticketsState=[];
+    if (ticketError) {
+        ticketsState = [];
     }
 
     useEffect(() => {
-            const getTickets = async () => {
-                await get_tickets().then((data) => {
-                    setTicketsState(data)
-                })
-            };
-            getTickets();
+        const getTickets = async () => {
+            await get_tickets().then((data) => {
+                setTicketsState(data)
+            })
+        };
+        getTickets();
 
     }, [isLoaded, ticketsState.length]);
 
@@ -45,7 +47,7 @@ const Content = (props) => {
     const isTicketSucceed = !ticketError && !isTicketLoad
 
     useEffect(() => {
-        if (success){
+        if (success) {
             const setCollectionOfAnswers = async () => {
                 await set_user_collection_answers().then((data) => {
                     console.log(data, 'set_user_collection_answers')
@@ -53,18 +55,18 @@ const Content = (props) => {
             }
             setCollectionOfAnswers();
         }
-
     }, [success]);
 
 
     const getCertificateHandler = async (event) => {
         event.preventDefault()
-        const getUserCollectionOfAnswers = async () => {
-            get_user_collection_answers().then((data) => {
-                console.log(data, 'get_user_collection_answers')
-            })
-        }
-        getUserCollectionOfAnswers();
+
+        await get_user_collection_answers().then((data) => {
+            console.log(data, 'get_user_collection_answers')
+        })
+        const {ok, message} = await increment({args: {}})
+        console.log(ok, message, " ok")
+        setRequestStatus(ok);
         history.push('/certificate')
     };
 
@@ -82,6 +84,7 @@ const Content = (props) => {
             setShowNotification={setShowNotification}
         />
     )
+
 
     return (
         <Fragment>
