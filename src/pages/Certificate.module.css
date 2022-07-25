@@ -1,0 +1,95 @@
+.frame{
+    position: relative;
+    top: 30px;
+    max-width: 945px;
+    width: 100%;
+    height: 1240px;
+    margin: 0 auto;
+    box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.2);
+    border: unset;
+}
+.header-title{
+    display: block;
+    position: relative;
+    top: 100px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 2;
+    text-transform: uppercase;
+    text-align: center;
+    color:#c5a649;
+    font-family: 'Jomolhari', serif;
+}
+.issued{
+    display: block;
+    position: relative;
+    top: 250px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 2;
+    text-transform: uppercase;
+    text-align: center;
+    color:#c5a649;
+    font-family: 'Jomolhari', serif;
+}
+.mint-button{
+    display: block;
+    position: relative;
+    top: 130px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 2;
+
+    font-family: 'Jomolhari', serif;
+}
+
+
+.frame::before {
+    display: flex;
+    content: '';
+    background-image: url(../img/frame-certificate-stamp.png);
+    background-repeat: no-repeat;
+    background-size: inherit;
+    background-position: top;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -10;
+    background-color: #41464b;
+
+}
+@media screen and (max-width: 900px) {
+    .frame{
+        position: relative;
+        max-width: 945px;
+        width: 100%;
+        height: 1240px;
+        margin: 0 auto;
+    }
+    .frame::before {
+        display: flex;
+        content: '';
+        background-image: url(../img/frame-certificate-stamp.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: top;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 0;
+        background-color: unset;
+
+    }
+}
+
+
+
+
+

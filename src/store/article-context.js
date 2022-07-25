@@ -9,6 +9,7 @@ const ArticleContext = React.createContext({
     addAnswer: (article, article_id, answer)=>{},
     getNumbersOfQuestions:(length)=>{},
     setRequestStatus: (status)=>{},
+    setCollectionAnswers:()=>{},
 })
 
 export default ArticleContext;

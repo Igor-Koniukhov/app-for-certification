@@ -1,4 +1,4 @@
-import React, {Fragment, useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState} from "react";
 import {useHistory} from "react-router-dom";
 import Notification from "./UI/Notification";
 import Article from "./Article";
@@ -57,12 +57,12 @@ const Content = (props) => {
     }, [success]);
 
 
-    const getCertificateHandler = async (event) => {
+    const getResultsHandler = async (event) => {
         event.preventDefault()
         const {ok, message} = await increment({ account_id: window.accountId })
         console.log(message)
         setRequestStatus(ok);
-        history.push('/certificate')
+        history.push('/results')
     };
 
     const buttonDisabled = (buttonDisabled, success) => {
@@ -90,7 +90,7 @@ const Content = (props) => {
                     <p>Congrats! You pass test! </p>
                     <button
                         className= 'btn btn-success'
-                        onClick={getCertificateHandler}>Get results</button>
+                        onClick={getResultsHandler}>Get results</button>
                 </div>}
 
             {

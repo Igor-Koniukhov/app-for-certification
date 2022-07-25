@@ -14,11 +14,7 @@ const Footer = ()=>{
                     </NavLink>
 
                 </li>
-                <li>
-                    <NavLink to='/certificate'  className="nav-link px-2 text-white">
-                        Certificate
-                    </NavLink>
-                </li>
+
                 <li>
                     <NavLink to='/source' activeClassName='active' className="nav-link px-2 text-white">
                         Source

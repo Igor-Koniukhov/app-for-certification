@@ -8,7 +8,7 @@ const IntroContent = () => {
         <div id="carouselExampleSlidesOnly" className="carousel slide" data-bs-ride="carousel">
             <div className="carousel-inner">
                 <div className="carousel-item active ">
-                    <div className="certificate-blank">
+                    <div className="certificate-blank-black">
 
                     </div>
 
@@ -20,7 +20,7 @@ const IntroContent = () => {
                     </div>
                 </div>
                 <div className="carousel-item">
-                    <div className="certificate-blank">
+                    <div className="certificate-blank-black">
 
 
                     </div>

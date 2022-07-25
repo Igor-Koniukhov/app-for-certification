@@ -45,7 +45,7 @@ const MainNavigation = () => {
                         <div>{window.accountId}</div>
 
                     </div>
-                    { !isSignedIn && <h1 className="header-title">Certificator</h1>}
+                    { !isSignedIn && <h1 className="main-title">Certificator</h1>}
                     {isSignedIn &&
                         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                             <li>
@@ -56,10 +56,11 @@ const MainNavigation = () => {
                             </li>
 
                             <li>
-                                <NavLink to='/certificate' className="nav-link px-2 text-white">
-                                    Certificate
+                                <NavLink to='/results' className="nav-link px-2 text-white">
+                                    Results
                                 </NavLink>
                             </li>
+
                             <li>
                                 <NavLink to='/source' activeClassName='active' className="nav-link px-2 text-white">
                                     Source

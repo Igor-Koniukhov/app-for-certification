@@ -1,6 +1,6 @@
 import React from "react";
 
-const Result = (props) => {
+const ResultItem = (props) => {
 
     return (
         <div>
@@ -16,4 +16,4 @@ const Result = (props) => {
     )
 }
 
-export default Result;
+export default ResultItem;

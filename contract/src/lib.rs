@@ -5,7 +5,7 @@ use std::fmt::format;
 
 use near_sdk::{AccountId, env, log, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap};
+use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::serde::{Deserialize, Serialize};
 
 use crate::source::Section;
@@ -23,7 +23,7 @@ setup_alloc!();
 pub struct Contract {
     id_answers: UnorderedMap<String, Vec<String>>,
     tickets: UnorderedMap<String, Vec<Section>>,
-    answers: UnorderedMap<String, Answer>,
+    answers: UnorderedMap<String, Answer >,
     user_collection_answers: UnorderedMap<String, Vec<Answer>>,
     current_result: UnorderedMap<String, Result>,
     attempt: UnorderedMap<String, u8>,
@@ -66,20 +66,13 @@ pub struct Response {
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Result {
-    pub number_of_questions: usize,
-    pub number_of_answers: u8,
+    pub attempt: u8,
+    pub answers: Vec<Answer>,
+    pub number_of_questions: u8,
     pub number_of_correct_answers: u8,
+    pub number_of_incorrect_answers: u8,
     pub is_valid: bool,
 }
-
-pub struct Certificate {
-    pub id: u8,
-    pub examine_id: u8,
-    pub current_attempt: u8,
-    pub is_valid: bool,
-    pub result: UnorderedMap<String, Result>,
-}
-
 
 #[near_bindgen]
 impl Contract {
@@ -87,9 +80,6 @@ impl Contract {
     pub fn get_tickets(&self) -> Option<Vec<Section>> {
         let account_id = env::signer_account_id();
         self.tickets.get(&account_id)
-    }
-    pub fn get_all_tickets(&self) -> Vec<(String, Vec<Section>)> {
-        self.tickets.to_vec()
     }
 
     pub fn set_tickets(&mut self) -> String {
@@ -153,7 +143,6 @@ impl Contract {
     }
 
     pub fn set_user_collection_answers(&mut self, account_id: String) -> String {
-
         let array_answer_id = self.id_answers.get(&account_id).unwrap();
         let mut existing_collection_asnswers = self.get_existing_collection_answers(&account_id);
         env::log(format!("self.answers '{:?}'", self.answers.to_vec()).as_bytes());

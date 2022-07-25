@@ -29,7 +29,8 @@ export async function initContract() {
             'set_user_collection_answers',
            'get_user_collection_answers',
             'increment',
-            'reset'
+            'reset',
+            'nft_mint'
             ],
     })
 }

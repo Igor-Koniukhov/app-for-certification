@@ -1,14 +1,13 @@
 import 'regenerator-runtime/runtime';
 import React, {useEffect} from 'react';
 import {Route, Switch} from "react-router-dom";
-
 import './global.css'
 import IntroContent from "./components/IntroContent";
 import Content from "./components/Content";
 import getConfig from './config';
-import Certificate from "./pages/Certificate";
+import Results from "./pages/Results";
 import Layout from "./components/layout/Layout";
-import Footer from "./components/layout/Footer";
+import Certificate from "./pages/Certificate";
 
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
@@ -45,6 +44,9 @@ export default function App() {
                         />
                     </Route>}
 
+                <Route path='/results'>
+                    <Results/>
+                </Route>
                 <Route path='/certificate'>
                     <Certificate/>
                 </Route>

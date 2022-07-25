@@ -97,7 +97,7 @@ const Article = (props) => {
                 className={`${buttonDisabled? 'btn btn-secondary me-2': 'btn btn-success'}`}
                 id={`button-${props.article}`}
                 disabled={buttonDisabledState}>
-                Send result
+                Send
             </button>
         </form>
     )

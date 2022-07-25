@@ -49,6 +49,18 @@ const articleReducer = (state, action) =>{
         }
 
     }
+    if(action.type === 'SET_ANSWERS'){
+        const updatedAnswers= action.answers
+        return {
+            answers: updatedAnswers,
+            article: state.article,
+            chapter: state.chapter,
+            numberOfQuestions: state.numberOfQuestions,
+            isSent: state.isSent
+        }
+
+    }
+
 
     return defaultArticleState;
 }
@@ -75,6 +87,12 @@ const setRequestStatusHandler = (isSent) =>{
             isSent: isSent
         })
 }
+const setCollectionAnswersHandler =(answers)=>{
+        dispatchArticleAction({
+            type: 'SET_ANSWERS',
+            answers: answers,
+        })
+}
 
     const articleContext = {
         article: articleState.article,
@@ -84,7 +102,8 @@ const setRequestStatusHandler = (isSent) =>{
         isSent: articleState.isSent,
         addAnswer: addAnswersHandler,
         getNumbersOfQuestions: getNumbersOfQuestionsHandler,
-        setRequestStatus: setRequestStatusHandler
+        setRequestStatus: setRequestStatusHandler,
+        setCollectionAnswers: setCollectionAnswersHandler,
     }
     return <ArticleContext.Provider value={articleContext}>
         {props.children}
