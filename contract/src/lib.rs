@@ -145,11 +145,11 @@ impl Contract {
     pub fn set_user_collection_answers(&mut self, account_id: String) -> String {
         let array_answer_id = self.id_answers.get(&account_id).unwrap();
         let mut existing_collection_asnswers = self.get_existing_collection_answers(&account_id);
-        env::log(format!("self.answers '{:?}'", self.answers.to_vec()).as_bytes());
+
         self.answers.iter().enumerate().for_each(|(i, answer)| {
-            env::log(format!(" from loop'{:?}{:?}'", i, answer).as_bytes());
             array_answer_id.iter().enumerate().for_each(|(i, id)| {
                 if *id == answer.0 {
+                    env::log(format!(" from loop{:?}", answer.1).as_bytes());
                     existing_collection_asnswers.push(answer.1.clone())
                 }
             })
@@ -170,7 +170,7 @@ impl Contract {
         self.user_collection_answers.get(&account_id)
     }
 
-    pub fn set_current_result(
+   /* pub fn set_current_result(
         &mut self,
         your_answer: String,
         correct_answer: String,
@@ -185,13 +185,16 @@ impl Contract {
             result.number_of_correct_answers += 1;
         }
         env::log(format!("result '{:?}' ", result).as_bytes());
-    }
+    }*/
+
     pub fn get_current_result(&self, account_id: String) -> Result {
         match self.current_result.get(&account_id) {
             Some(result) => result,
             None => Result {
+                attempt: 0,
+                answers: vec![],
                 number_of_questions: 0,
-                number_of_answers: 0,
+                number_of_incorrect_answers: 0,
                 number_of_correct_answers: 0,
                 is_valid: false,
             },
