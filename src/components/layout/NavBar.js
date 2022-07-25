@@ -1,64 +1,97 @@
-import {NavLink} from "react-router-dom";
+import {NavLink, useHistory} from "react-router-dom";
 import './NavBar.module.css';
 import {login, logout} from "../../utils";
-import React, {useContext, useEffect, useState} from "react";
+import React, {Fragment, useContext, useEffect, useState} from "react";
 import ArticleContext from "../../store/article-context";
 import errorHelper from "../helper/errorHelper";
 
 
-
 const MainNavigation = () => {
-    const [countState, setCountState]=useState(0);
+    const [countState, setCountState] = useState(0);
     const isSignedIn = window.walletConnection.isSignedIn();
     const ctx = useContext(ArticleContext);
-    console.log(ctx.isSent, " isSent")
-
+    const history = useHistory();
     const {
         get_num
-    }=window.contract
+    } = window.contract
 
     const getCounter = async () => {
-        let count = await get_num({args: {}})
+        let count = await get_num({account_id: window.accountId})
             .catch(err => errorHelper(err))
         setCountState(count === undefined ? 'calculating...' : count)
     }
-    const {isSent}=ctx
+    const {isSent} = ctx
     useEffect(() => {
-            getCounter()
-            console.log(isSent)
-        ctx.isSent=false
+        getCounter()
+        ctx.isSent = false
 
     }, [isSent]);
 
+    const isHomePage = isSignedIn && history.location.pathname !== '/';
+    useEffect(() => {
+        if (!isHomePage) {
+            history.push('/')
+        }
+    }, [isSignedIn])
 
     return (
-        <header className='header'>
-            <div className='account'>{window.accountId}</div>
-            <nav className='nav'>
-                <ul>
-                    <li>
+
+        <Fragment>
+
+            <header className="p-3 text-bg-dark">
+
+                <div className="d-flex flex-wrap align-items-center justify-content-around ">
+                    <div className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                        <div>{window.accountId}</div>
+
+                    </div>
+                    { !isSignedIn && <h1 className="header-title">Certificator</h1>}
+                    {isSignedIn &&
+                        <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                            <li>
+
+                                <NavLink to='/' className="nav-link px-2 text-white">
+                                    Home
+                                </NavLink>
+                            </li>
+
+                            <li>
+                                <NavLink to='/certificate' className="nav-link px-2 text-white">
+                                    Certificate
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink to='/source' activeClassName='active' className="nav-link px-2 text-white">
+                                    Source
+                                </NavLink>
+                            </li>
+
+                        </ul>}
+                    {
+                        isSignedIn &&
+                        <div className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none mx-5">
+                            Attempt: <strong>{countState}</strong>
+                        </div>
+                    }
+
+
+                    <div className="text-start">
                         {
                             isSignedIn &&
-                            <NavLink to='/source' activeClassName='active'>
-                                Source
-                            </NavLink>
+                            <button type="button" className="btn btn-warning logout" onClick={logout}>Logout</button>
                         }
-                    </li>
 
-                </ul>
-                {
-                    isSignedIn &&
-                    <button className='nav-btn' onClick={logout}>Sign out</button>
-                }
-                {
-                    !isSignedIn &&
-                    <button onClick={login}>Sign in</button>
-                }
-            </nav>
+                        {
+                            !isSignedIn &&
+                            <button type="button" className="btn btn-outline-light me-2" onClick={login}>Login</button>
+                        }
+                    </div>
+                </div>
 
-            {isSignedIn && <div>{countState}</div>}
+            </header>
 
-        </header>
+        </Fragment>
+
     )
 };
 export default MainNavigation;

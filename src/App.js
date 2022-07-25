@@ -8,6 +8,7 @@ import Content from "./components/Content";
 import getConfig from './config';
 import Certificate from "./pages/Certificate";
 import Layout from "./components/layout/Layout";
+import Footer from "./components/layout/Footer";
 
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
@@ -37,10 +38,13 @@ export default function App() {
             <Switch>
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
-                    <Content
-                        isLoad={pageIsLoad}
-                        networkId={networkId}
-                    />}
+                    <Route path='/' exact>
+                        <Content
+                            isLoad={pageIsLoad}
+                            networkId={networkId}
+                        />
+                    </Route>}
+
                 <Route path='/certificate'>
                     <Certificate/>
                 </Route>

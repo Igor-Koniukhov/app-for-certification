@@ -1,16 +1,15 @@
 extern crate time;
 
+use std::borrow::Borrow;
 use std::fmt::format;
 
-use near_sdk::{env, log, near_bindgen, setup_alloc};
+use near_sdk::{AccountId, env, log, near_bindgen, setup_alloc};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap};
 use near_sdk::serde::{Deserialize, Serialize};
 
 use crate::source::Section;
 use crate::source::source;
-
-//use serde_json::Value::String;
 
 
 mod source;
@@ -23,12 +22,11 @@ setup_alloc!();
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
     id_answers: UnorderedMap<String, Vec<String>>,
-    records: LookupMap<String, String>,
     tickets: UnorderedMap<String, Vec<Section>>,
     answers: UnorderedMap<String, Answer>,
     user_collection_answers: UnorderedMap<String, Vec<Answer>>,
     current_result: UnorderedMap<String, Result>,
-    attempt: i8,
+    attempt: UnorderedMap<String, u8>,
 }
 
 const VALID_RESULT: u32 = 80;
@@ -38,12 +36,11 @@ impl Default for Contract {
     fn default() -> Self {
         Self {
             id_answers: UnorderedMap::<String, Vec<String>>::new(b"s"),
-            records: LookupMap::new(b"s".to_vec()),
             tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
             answers: UnorderedMap::<String, Answer>::new(b"a"),
             user_collection_answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
             current_result: UnorderedMap::<String, Result>::new(b"c"),
-            attempt: 0,
+            attempt: UnorderedMap::<String, u8>::new(b"i"),
         }
     }
 }
@@ -86,6 +83,7 @@ pub struct Certificate {
 
 #[near_bindgen]
 impl Contract {
+
     pub fn get_tickets(&self) -> Option<Vec<Section>> {
         let account_id = env::signer_account_id();
         self.tickets.get(&account_id)
@@ -106,18 +104,26 @@ impl Contract {
         self.tickets.insert(&account_id, &array_of_sections);
 
         let sections = self.tickets.get(&account_id).unwrap();
+        let attempt =self.get_num(&account_id);
         for tickets in sections {
             for ticket in tickets.tickets {
-                array_of_id.push(format!("{}{}{}", account_id, ticket.article_id, ticket.id))
+                array_of_id.push(format!("{}{}{}{}", account_id, ticket.article_id, ticket.id, attempt))
             }
         }
-        self.id_answers.insert(&account_id, &array_of_id);
-
-
+        let mut existing_array =self.get_existing_array(&account_id);
+        existing_array.append(&mut array_of_id);
+        self.id_answers.insert(&account_id, &existing_array);
+        env::log(format!("array of id in set tickets '{:?}'", &existing_array, ).as_bytes());
         String::from("Tickets is set up")
     }
-    pub fn get_id_answers(&self) -> Option<Vec<String>> {
-        let account_id = env::signer_account_id();
+
+    pub fn get_existing_array(&mut self, account_id: &AccountId) -> Vec<String> {
+        match self.id_answers.get(&account_id) {
+            Some(array) => array,
+            None =>vec![],
+        }
+    }
+    pub fn get_id_answers(&self, account_id: String) -> Option<Vec<String>> {
         self.id_answers.get(&account_id)
     }
 
@@ -128,6 +134,7 @@ impl Contract {
         your_answer: String,
         correct_answer: String,
         pass: bool,
+        account_id: String
     ) {
         let answer: Answer = Answer {
             id,
@@ -137,32 +144,40 @@ impl Contract {
             pass,
 
         };
-
-        let account_id = env::signer_account_id();
+        let attempt = self.get_num(&account_id);
         env::log(format!("answers '{:?}' for account '{}'", answer, account_id, ).as_bytes());
-        let key = format!("{}{}{}", &account_id, &answer.article_id, &answer.id);
+        let key = format!("{}{}{}{}", &account_id, &answer.article_id, &answer.id, &attempt);
+        env::log(format!("key ---- '{}'", key).as_bytes());
         self.answers.insert(&key, &answer);
-    }
-    pub fn set_user_collection_answers(&mut self) -> String {
-        let account_id = env::signer_account_id();
-        let mut array_of_answers_by_id: Vec<Answer> = vec![];
-        let array_answer_id = self.id_answers.get(&account_id).unwrap();
 
+    }
+
+    pub fn set_user_collection_answers(&mut self, account_id: String) -> String {
+
+        let array_answer_id = self.id_answers.get(&account_id).unwrap();
+        let mut existing_collection_asnswers = self.get_existing_collection_answers(&account_id);
+        env::log(format!("self.answers '{:?}'", self.answers.to_vec()).as_bytes());
         self.answers.iter().enumerate().for_each(|(i, answer)| {
             env::log(format!(" from loop'{:?}{:?}'", i, answer).as_bytes());
             array_answer_id.iter().enumerate().for_each(|(i, id)| {
                 if *id == answer.0 {
-                    array_of_answers_by_id.push(answer.1.clone())
+                    existing_collection_asnswers.push(answer.1.clone())
                 }
             })
         });
 
-        self.user_collection_answers.insert(&account_id, &array_of_answers_by_id);
-        format!("array from loop{:?}", array_of_answers_by_id)
+        self.user_collection_answers.insert(&account_id, &existing_collection_asnswers);
+        format!("array from loop{:?}", existing_collection_asnswers)
     }
 
-    pub fn get_user_collection_answers(self) -> Option<Vec<Answer>> {
-        let account_id = env::signer_account_id();
+    pub fn get_existing_collection_answers(&mut self, account_id: &AccountId) -> Vec<Answer> {
+        match self.user_collection_answers.get(&account_id) {
+            Some(array) => array,
+            None =>vec![],
+        }
+    }
+
+    pub fn get_user_collection_answers(self, account_id: String) -> Option<Vec<Answer>> {
         self.user_collection_answers.get(&account_id)
     }
 
@@ -170,8 +185,8 @@ impl Contract {
         &mut self,
         your_answer: String,
         correct_answer: String,
+        account_id: String,
     ) {
-        let account_id = env::signer_account_id();
         let mut result: Result = self.current_result.get(&account_id).unwrap();
         result.number_of_answers += 1;
         let is_coincide: bool = your_answer == correct_answer;
@@ -198,20 +213,25 @@ impl Contract {
         self.answers.to_vec()
     }
 
-    pub fn get_num(&self) -> i8 {
-        return self.attempt;
+    pub fn get_num(&self, account_id: &String) -> u8 {
+        match self.attempt.get(&account_id) {
+            Some(attempt) => attempt,
+            None => 0,
+        }
     }
 
-    pub fn increment(&mut self) -> Response {
+    pub fn increment(&mut self, account_id: String) -> Response {
+        let current_attempt = self.get_num(&account_id).clone();
+        let attempt = current_attempt + 1;
 
-        if self.attempt == 3 {
+        if current_attempt == 3 {
             return Response {
                 ok: false,
                 message: String::from("You have 3 attempt already! "),
             };
         }
-        self.attempt += 1;
-        log!("Attempt {}", self.attempt);
+        self.attempt.insert(&account_id, &attempt);
+        log!("Attempt {}", attempt);
         Response {
             ok: true,
             message: String::from("Success! "),
@@ -220,7 +240,8 @@ impl Contract {
 
 
     pub fn reset(&mut self) {
-        self.attempt = 0;
+        let account_id = env::signer_account_id();
+        self.attempt.remove(&account_id);
         log!("Reset attempt");
     }
 }

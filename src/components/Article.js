@@ -45,6 +45,7 @@ const Article = (props) => {
                 your_answer: answer.your_answer,
                 correct_answer: answer.correct_answer,
                 pass: answer.pass,
+                account_id: window.accountId,
             })
         } catch (e) {
             alert(
@@ -93,6 +94,7 @@ const Article = (props) => {
             <p>{props.source.content}</p>
             {list}
             <button
+                className={`${buttonDisabled? 'btn btn-secondary me-2': 'btn btn-success'}`}
                 id={`button-${props.article}`}
                 disabled={buttonDisabledState}>
                 Send result

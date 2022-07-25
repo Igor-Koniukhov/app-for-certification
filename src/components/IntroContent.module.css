@@ -1,0 +1,43 @@
+.certificate-blank{
+    position: relative;
+}
+.certificate-blank::before{
+    display: block;
+    content: '';
+    background-image: url(../img/certificate-blank-black.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position:center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 0;
+    height: 100vh;
+    background-color: #41464b;
+
+}
+.carousel-inner{
+   height: 100vh;
+
+}
+
+.certificate-content{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-size: contain;
+    background-position: center;
+    top: 310px;
+    color: #e6fcfc;
+    z-index: 10;
+    height: 100%;
+    width: inherit;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+
+
+
+}

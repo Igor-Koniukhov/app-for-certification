@@ -1,25 +1,33 @@
-import React, {Fragment} from "react";
+import React from "react";
+import './IntroContent.module.css';
 
 
-const IntroContent = ()=>{
-    return(
-        <Fragment>
-            <h1>Welcome to App For Certification on platform NEAR!</h1>
-            <p>
-                To make use of the NEAR blockchain, you need to sign in. The button
-                below will sign you in using NEAR Wallet.
-            </p>
-            <p>
-                By default, when your app runs in "development" mode, it connects
-                to a test network ("testnet") wallet. This works just like the main
-                network ("mainnet") wallet, but the NEAR Tokens on testnet aren't
-                convertible to other currencies – they're just for testing!
-            </p>
-            <p>
-                Go ahead and click the button below to try it out:
-            </p>
+const IntroContent = () => {
+    return (
 
-        </Fragment>
+        <div id="carouselExampleSlidesOnly" className="carousel slide" data-bs-ride="carousel">
+            <div className="carousel-inner">
+                <div className="carousel-item active ">
+                    <div className="certificate-blank">
+
+                    </div>
+
+                </div>
+                <div className="carousel-item ">
+                    <div className="certificate-blank">
+
+
+                    </div>
+                </div>
+                <div className="carousel-item">
+                    <div className="certificate-blank">
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
     )
 }
 

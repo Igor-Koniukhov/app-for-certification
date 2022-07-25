@@ -11,7 +11,6 @@ const Content = (props) => {
     const {
         get_tickets,
         set_user_collection_answers,
-        get_user_collection_answers,
         increment,
     } = window.contract;
     const {setRequestStatus} = useContext(ArticleContext);
@@ -49,7 +48,7 @@ const Content = (props) => {
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
-                await set_user_collection_answers().then((data) => {
+                await set_user_collection_answers({ account_id: window.accountId }).then((data) => {
                     console.log(data, 'set_user_collection_answers')
                 })
             }
@@ -60,12 +59,8 @@ const Content = (props) => {
 
     const getCertificateHandler = async (event) => {
         event.preventDefault()
-
-        await get_user_collection_answers().then((data) => {
-            console.log(data, 'get_user_collection_answers')
-        })
-        const {ok, message} = await increment({args: {}})
-        console.log(ok, message, " ok")
+        const {ok, message} = await increment({ account_id: window.accountId })
+        console.log(message)
         setRequestStatus(ok);
         history.push('/certificate')
     };
@@ -87,13 +82,15 @@ const Content = (props) => {
 
 
     return (
-        <Fragment>
+        <div className="container pb-5 pt-5 wrapper">
             {articles}
             {
                 success &&
                 <div>
                     <p>Congrats! You pass test! </p>
-                    <button onClick={getCertificateHandler}>Get certificate!</button>
+                    <button
+                        className= 'btn btn-success'
+                        onClick={getCertificateHandler}>Get results</button>
                 </div>}
 
             {
@@ -106,7 +103,7 @@ const Content = (props) => {
                         <LoadingSpinner/>
                     </div>
                 )}
-        </Fragment>
+        </div>
     )
 }
 
