@@ -8,6 +8,7 @@ import getConfig from './config';
 import Results from "./pages/Results";
 import Layout from "./components/layout/Layout";
 import Certificate from "./pages/Certificate";
+import Home from "./pages/Home"
 
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
@@ -39,11 +40,14 @@ export default function App() {
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
                     <Route path='/' exact>
-                        <Content
-                            isLoad={pageIsLoad}
-                            networkId={networkId}
-                        />
+                        <Home/>
                     </Route>}
+                <Route path='/exam'>
+                    <Content
+                        isLoad={pageIsLoad}
+                        networkId={networkId}
+                    />
+                </Route>}
 
                 <Route path='/results'>
                     <Results/>

@@ -1,37 +1,100 @@
 extern crate time;
 
-use std::borrow::Borrow;
-use std::fmt::format;
-
-use near_sdk::{AccountId, env, log, near_bindgen, setup_alloc};
+use std::collections::HashMap;
+use near_sdk::{
+    AccountId,
+    Balance,
+    CryptoHash,
+    env,
+    log,
+    near_bindgen,
+    PanicOnDefault,
+    Promise,
+    PromiseOrValue,
+    /*setup_alloc,*/
+};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::UnorderedMap;
+use near_sdk::collections::{
+    LazyOption,
+    LookupMap,
+    UnorderedMap,
+    UnorderedSet
+};
+use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
+
+use crate::internal::*;
+pub use crate::metadata::*;
+pub use crate::mint::*;
+pub use crate::nft_core::*;
+pub use crate::approval::*;
+pub use crate::royalty::*;
+pub use crate::events::*;
 
 use crate::source::Section;
 use crate::source::source;
 
+mod internal;
+mod approval;
+mod enumeration;
+mod metadata;
+mod mint;
+mod nft_core;
+mod royalty;
+mod events;
 mod source;
 
-setup_alloc!();
+/*setup_alloc!();*/
+
+/// This spec can be treated like a version of the standard.
+pub const NFT_METADATA_SPEC: &str = "1.0.0";
+/// This is the name of the NFT standard we're using
+pub const NFT_STANDARD_NAME: &str = "nep171";
 
 // Structs in Rust are similar to other languages, and may include impl keyword as shown below
 // Note: the names of the structs are not important when calling the smart contract, but the function names are
 #[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    id_answers: UnorderedMap<String, Vec<String>>,
-    tickets: UnorderedMap<String, Vec<Section>>,
+    //contract owner
+    pub owner_id: AccountId,
+
+    //keeps track of all the token IDs for a given account
+    pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
+
+    //keeps track of the token struct for a given token ID
+    pub tokens_by_id: LookupMap<TokenId, Token>,
+
+    //keeps track of the token metadata for a given token ID
+    pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>,
+
+    //keeps track of the metadata for the contract
+    pub metadata: LazyOption<NFTContractMetadata>,
+    id_answers: UnorderedMap<AccountId, Vec<String>>,
+    tickets: UnorderedMap<AccountId, Vec<Section>>,
     answers: UnorderedMap<String, Answer>,
-    result: UnorderedMap<String, Result>,
-    user_collection_answers: UnorderedMap<String, Vec<Answer>>,
-    attempt: UnorderedMap<String, u8>,
+    result: UnorderedMap<AccountId, Result>,
+    user_collection_answers: UnorderedMap<AccountId, Vec<Answer>>,
+    attempt: UnorderedMap<AccountId, u8>,
+}
+
+/// Helper structure for keys of the persistent collections.
+#[derive(BorshSerialize)]
+pub enum StorageKey {
+    TokensPerOwner,
+    TokenPerOwnerInner { account_id_hash: CryptoHash },
+    TokensById,
+    TokenMetadataById,
+    NFTContractMetadata,
+    TokensPerType,
+    TokensPerTypeInner { token_type_hash: CryptoHash },
+    TokenTypesLocked,
 }
 
 const VALID_RESULT: f32 = 70 as f32;
 
 
-impl Default for Contract {
+/*impl Default for Contract {
     fn default() -> Self {
         Self {
             id_answers: UnorderedMap::<String, Vec<String>>::new(b"s"),
@@ -42,7 +105,7 @@ impl Default for Contract {
             attempt: UnorderedMap::<String, u8>::new(b"i"),
         }
     }
-}
+}*/
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -76,11 +139,66 @@ pub struct Result {
 
 #[near_bindgen]
 impl Contract {
-    pub fn get_tickets(&self, account_id: String) -> Option<Vec<Section>> {
+    /*
+       initialization function (can only be called once).
+       this initializes the contract with default metadata so the
+       user doesn't have to manually type metadata.
+   */
+    #[init]
+    pub fn new_default_meta(owner_id: AccountId) -> Self {
+        //calls the other function "new: with some default metadata and the owner_id passed in
+        Self::new(
+            owner_id,
+            NFTContractMetadata {
+                spec: "nft-1.0.0".to_string(),
+                name: "NFT Contract For Certification".to_string(),
+                symbol: "CERTIFICATOR".to_string(),
+                icon: None,
+                base_uri: None,
+                reference: None,
+                reference_hash: None,
+            },
+        )
+    }
+
+    /*
+        initialization function (can only be called once).
+        this initializes the contract with metadata that was passed in and
+        the owner_id.
+    */
+    #[init]
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+        //create a variable of type Self with all the fields initialized.
+        let this = Self {
+            //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
+            tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
+            tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
+            token_metadata_by_id: UnorderedMap::new(
+                StorageKey::TokenMetadataById.try_to_vec().unwrap(),
+            ),
+            //set the owner_id field equal to the passed in owner_id.
+            owner_id,
+            metadata: LazyOption::new(
+                StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+                Some(&metadata),
+            ),
+            id_answers: UnorderedMap::<AccountId, Vec<String>>::new(b"s"),
+            tickets: UnorderedMap::<AccountId, Vec<Section>>::new(b"t"),
+            answers: UnorderedMap::<String, Answer>::new(b"a"),
+            result: UnorderedMap::<AccountId, Result>::new(b"r"),
+            user_collection_answers: UnorderedMap::<AccountId, Vec<Answer>>::new(b"a"),
+            attempt: UnorderedMap::<AccountId, u8>::new(b"i"),
+        };
+
+        //return the Contract object
+        this
+    }
+
+    pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
         self.tickets.get(&account_id)
     }
 
-    pub fn set_tickets(&mut self, account_id: String) -> String {
+    pub fn set_tickets(&mut self, account_id: AccountId) -> String {
         let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
         let mut array_of_id: Vec<String> = vec![];
@@ -110,7 +228,7 @@ impl Contract {
             None => vec![],
         }
     }
-    pub fn get_id_answers(&self, account_id: String) -> Option<Vec<String>> {
+    pub fn get_id_answers(&self, account_id: AccountId) -> Option<Vec<String>> {
         self.id_answers.get(&account_id)
     }
 
@@ -121,7 +239,7 @@ impl Contract {
         your_answer: String,
         correct_answer: String,
         pass: bool,
-        account_id: String,
+        account_id: AccountId,
     ) {
         let answer: Answer = Answer {
             id,
@@ -135,7 +253,7 @@ impl Contract {
         self.answers.insert(&key, &answer);
     }
 
-    pub fn set_user_collection_answers(&mut self, account_id: String) -> String {
+    pub fn set_user_collection_answers(&mut self, account_id: AccountId) -> String {
         let array_answer_id = self.id_answers.get(&account_id).unwrap();
         let mut existing_collection_asnswers = self.get_existing_collection_answers(&account_id);
 
@@ -158,13 +276,13 @@ impl Contract {
         }
     }
 
-    pub fn get_user_collection_answers(self, account_id: String) -> Option<Vec<Answer>> {
+    pub fn get_user_collection_answers(self, account_id: AccountId) -> Option<Vec<Answer>> {
         self.user_collection_answers.get(&account_id)
     }
 
     pub fn set_current_result(
         &mut self,
-        account_id: String,
+        account_id: AccountId,
         answers: Vec<Answer>,
     ) {
         let current_attempt = self.get_num(&account_id).clone();
@@ -190,10 +308,9 @@ impl Contract {
             is_valid: score >= VALID_RESULT as f32,
         };
         self.result.insert(&account_id, &result);
-
     }
 
-    pub fn get_current_result(&self, account_id: &String) -> Result {
+    pub fn get_current_result(&self, account_id: AccountId) -> Result {
         match self.result.get(&account_id) {
             Some(result) => result,
             None => Result {
@@ -212,14 +329,14 @@ impl Contract {
         self.answers.to_vec()
     }
 
-    pub fn get_num(&self, account_id: &String) -> u8 {
+    pub fn get_num(&self, account_id: &AccountId) -> u8 {
         match self.attempt.get(&account_id) {
             Some(attempt) => attempt,
             None => 0,
         }
     }
 
-    pub fn increment(&mut self, account_id: String) -> Response {
+    pub fn increment(&mut self, account_id: AccountId) -> Response {
         let current_attempt = self.get_num(&account_id).clone();
         let attempt = current_attempt + 1;
 
