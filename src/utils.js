@@ -30,7 +30,9 @@ export async function initContract() {
            'get_user_collection_answers',
             'increment',
             'reset',
-            'nft_mint'
+            'nft_mint',
+            'set_current_result',
+            'get_current_result'
             ],
     })
 }

@@ -19,10 +19,14 @@ const MainNavigation = () => {
         let count = await get_num({account_id: window.accountId})
             .catch(err => errorHelper(err))
         setCountState(count === undefined ? 'calculating...' : count)
+
     }
+
     const {isSent} = ctx
+
     useEffect(() => {
         getCounter()
+
         ctx.isSent = false
 
     }, [isSent]);

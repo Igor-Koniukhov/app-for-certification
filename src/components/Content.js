@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useHistory} from "react-router-dom";
 import Notification from "./UI/Notification";
 import Article from "./Article";
@@ -12,8 +12,10 @@ const Content = (props) => {
         get_tickets,
         set_user_collection_answers,
         increment,
+        get_current_result,
+        set_current_result,
     } = window.contract;
-    const {setRequestStatus} = useContext(ArticleContext);
+    const {setRequestStatus, answers,} = useContext(ArticleContext);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
@@ -27,9 +29,10 @@ const Content = (props) => {
 
     useEffect(() => {
         const getTickets = async () => {
-            await get_tickets().then((data) => {
-                setTicketsState(data)
-            })
+            await get_tickets({account_id: window.accountId})
+                .then((data) => {
+                    setTicketsState(data)
+                })
         };
         getTickets();
 
@@ -48,7 +51,12 @@ const Content = (props) => {
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
-                await set_user_collection_answers({ account_id: window.accountId }).then((data) => {
+                await set_user_collection_answers({account_id: window.accountId})
+                    .then((data) => {
+                    set_current_result({
+                        account_id: window.accountId,
+                        answers: answers,
+                    })
                     console.log(data, 'set_user_collection_answers')
                 })
             }
@@ -59,9 +67,11 @@ const Content = (props) => {
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
-        const {ok, message} = await increment({ account_id: window.accountId })
+        const {ok, message} = await increment({account_id: window.accountId})
+
         console.log(message)
         setRequestStatus(ok);
+
         history.push('/results')
     };
 
@@ -89,8 +99,9 @@ const Content = (props) => {
                 <div>
                     <p>Congrats! You pass test! </p>
                     <button
-                        className= 'btn btn-success'
-                        onClick={getResultsHandler}>Get results</button>
+                        className='btn btn-success'
+                        onClick={getResultsHandler}>Get results
+                    </button>
                 </div>}
 
             {

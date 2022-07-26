@@ -18,9 +18,10 @@ export default function App() {
 
     useEffect(() => {
         const setTickets = async () => {
-            await set_tickets().then((data) => {
-                console.log(data)
-            });
+            await set_tickets({account_id: window.accountId})
+                .then((data) => {
+                    console.log(data)
+                });
         };
         setTickets();
     }, [isSignedIn]);

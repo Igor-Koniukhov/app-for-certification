@@ -12,7 +12,6 @@ const defaultArticleState={
 
 const articleReducer = (state, action) =>{
     if (action.type ==='ADD_ANSWER'){
-
         const currentIdArticle = action.article
         const updatedAnswers = [...state.answers, action.answer]
         const updatedChapter={}
@@ -51,6 +50,7 @@ const articleReducer = (state, action) =>{
     }
     if(action.type === 'SET_ANSWERS'){
         const updatedAnswers= action.answers
+
         return {
             answers: updatedAnswers,
             article: state.article,
@@ -60,7 +60,6 @@ const articleReducer = (state, action) =>{
         }
 
     }
-
 
     return defaultArticleState;
 }
@@ -91,11 +90,15 @@ const setCollectionAnswersHandler =(answers)=>{
         dispatchArticleAction({
             type: 'SET_ANSWERS',
             answers: answers,
+
         })
+
 }
+
 
     const articleContext = {
         article: articleState.article,
+        attempt: articleState.attempt,
         answers: articleState.answers,
         chapter: articleState.chapter,
         numberOfQuestions: articleState.numberOfQuestions,

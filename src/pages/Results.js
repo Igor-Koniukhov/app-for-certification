@@ -9,8 +9,10 @@ const Certificate = () => {
     const history = useHistory();
     const {isLoaded, setCollectionAnswers} = useContext(ArticleContext);
     let [stateAnswers, setStateAnswers] = useState([])
+    const [stateResult, setStateResult]=useState({})
     const {
-        get_user_collection_answers
+        get_user_collection_answers,
+        get_current_result,
     } = window.contract;
     const answerError = stateAnswers === null || stateAnswers === undefined;
     const isAnswersGot = !answerError && stateAnswers.length > 0;
@@ -18,7 +20,17 @@ const Certificate = () => {
     if (answerError) {
         stateAnswers = []
     }
+    useEffect(()=>{
+        const getResults = async ()=>{
+            await get_current_result({account_id: window.accountId})
+                .then((data) => {
+                setStateResult(data)
+                console.log(data, "results")
+            })
+        }
+        getResults();
 
+    }, [isLoaded])
     const getAnswers = async () => {
         await get_user_collection_answers({account_id: window.accountId}).then((data) => {
             setStateAnswers(data)
@@ -73,7 +85,7 @@ const getCertificateHandler = ()=>{
                     {resultPassed}
                     {resultFailed.length !== 0 && <h3>Not passed answers: </h3>}
                     {resultFailed}
-                    <button className="btn btn-warning mt-3" onClick={getCertificateHandler}>Get Certificate</button>
+                    {!stateResult.is_valid &&<button className="btn btn-warning mt-3" onClick={getCertificateHandler}>Get Certificate</button>}
                 </Fragment> :
                 <div className='backdrop'>
                     <LoadingSpinner/>

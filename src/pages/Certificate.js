@@ -3,7 +3,10 @@ import ArticleContext from "../store/article-context";
 import "./Certificate.module.css"
 
 const Certificate = () => {
-    const {nft_mint} = window.contract
+    const {
+        nft_mint,
+        get_current_result
+    } = window.contract
     let {answers} = useContext(ArticleContext);
     const answerError = answers === null || answers === undefined
     console.log(answers)
@@ -14,6 +17,7 @@ const Certificate = () => {
     const [enteredRef, setUpdatedRef] = useState('')
     const [enteredTitle, setUpdatedTitle] = useState('')
     const [stateDate, setStateDate]=useState('');
+    const [stateResult, setStateResult]=useState({})
 
 
     const descriptionHandler = (event) => {
@@ -64,8 +68,17 @@ const Certificate = () => {
 
     today = dd + '/' + mm + '/' + yyyy;
     useEffect(()=>{
+        const getResults = async ()=>{
+            await get_current_result({account_id: window.accountId}).then((data) => {
+                setStateResult(data)
+                console.log(data, "results")
+            })
+        }
+        getResults();
         setStateDate(today)
     }, [answers])
+
+    console.log(stateResult)
     return (
         <Fragment>
             <div className="container-frame frame stamp">
@@ -73,7 +86,7 @@ const Certificate = () => {
                 <h2 className="header-title">Owner:</h2>
                 <h3 className="header-title">{window.accountId}</h3>
                 <h6 className="header-title">number of points scored:</h6>
-                <h6 className="header-title">85</h6>
+                <h6 className="header-title">{stateResult.score}</h6>
                 <h6 className="header-title">
                     certificate issued by
                     <strong className="text-decoration-underline"> certificator</strong>

@@ -74,7 +74,7 @@ pub fn source() -> Vec<Section> {
                     finished: "".to_string(),
                 }],
         },
-        /*Section {
+        Section {
             article: 2,
             title: "Chemical test 1".to_string(),
             tickets: vec![
@@ -121,8 +121,8 @@ pub fn source() -> Vec<Section> {
                     finished: "".to_string(),
                 },
             ],
-        },*/
-       /* Section {
+        },
+        Section {
             article: 3,
             title: "Chemical test 1".to_string(),
             tickets: vec![
@@ -183,7 +183,7 @@ pub fn source() -> Vec<Section> {
                     finished: "".to_string(),
                 },
             ],
-        },*/
+        },
     ];
     sections
 }
