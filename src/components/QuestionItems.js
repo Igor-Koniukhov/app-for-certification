@@ -14,15 +14,12 @@ const QuestionItems = (props) => {
         correct_answer: "",
         pass: false
     }
-
-    const [answerState, setAnswerState] = useState(answer)
     const onChangeHandler = (e) => {
         setButtonDisabled(true);
         answer.id = props.id
         answer.article_id = props.article
         answer.your_answer = e.target.value
         answer.correct_answer = props.correct_answer
-        setAnswerState(answer)
         artCtx.article_id = props.article
         artCtx.addAnswer(answer, props.article, props.id);
 
@@ -50,21 +47,13 @@ const QuestionItems = (props) => {
                         className={props.id + "-" + "checked"}
                         id={props.id + "-" + i}
                         type="radio"
-
                         value={a}
                         onChange={onChangeHandler}
                         disabled={buttonDisabled}
                     />
                     <label style={{paddingLeft: '10px'}} htmlFor={props.id + "-" + i}>{a}</label>
                 </li>)}
-            {props.isAllChoosen && answerState.pass &&
-                <div style={{color: 'green'}}><p>Success! Your answer - {answerState.your_answer}</p>
-                    <p>Correct answer - {answerState.correct_answer}</p>
-                </div>}
-            {props.isAllChoosen && !answerState.pass && answerState.your_answer.trim().length > 0 &&
-                <div><p style={{color: 'red'}}>Fail! Your answer - {answerState.your_answer}</p>
-                    <p style={{color: 'green'}}>Correct answer - {answerState.correct_answer}</p>
-                </div>}
+
         </ol>
     )
 }

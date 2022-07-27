@@ -16,9 +16,8 @@ const Footer = ()=>{
                 </li>
 
                 <li>
-                    <NavLink to='/source' activeClassName='active' className="nav-link px-2 text-white">
-                        Source
-                    </NavLink>
+                    <a href='https://github.com/Igor-Koniukhov/app-for-certification'
+                       className="nav-link px-2 text-white"> SourceCode</a>
                 </li>
             </ul>}
             <p className="text-center text-muted">© 2022 Company, Inc</p>

@@ -1,6 +1,7 @@
 extern crate time;
 
 use std::collections::HashMap;
+
 use near_sdk::{
     AccountId,
     Balance,
@@ -11,26 +12,24 @@ use near_sdk::{
     PanicOnDefault,
     Promise,
     PromiseOrValue,
-    /*setup_alloc,*/
 };
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{
     LazyOption,
     LookupMap,
     UnorderedMap,
-    UnorderedSet
+    UnorderedSet,
 };
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 
+pub use crate::approval::*;
+pub use crate::events::*;
 use crate::internal::*;
 pub use crate::metadata::*;
 pub use crate::mint::*;
 pub use crate::nft_core::*;
-pub use crate::approval::*;
 pub use crate::royalty::*;
-pub use crate::events::*;
-
 use crate::source::Section;
 use crate::source::source;
 
@@ -44,15 +43,14 @@ mod royalty;
 mod events;
 mod source;
 
-/*setup_alloc!();*/
-
+// for validation attempt of exam
+const VALID_RESULT: f32 = 70 as f32;
 /// This spec can be treated like a version of the standard.
 pub const NFT_METADATA_SPEC: &str = "1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
 
-// Structs in Rust are similar to other languages, and may include impl keyword as shown below
-// Note: the names of the structs are not important when calling the smart contract, but the function names are
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
@@ -70,12 +68,18 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
-    id_answers: UnorderedMap<AccountId, Vec<String>>,
+
+    pub id_answers: UnorderedMap<AccountId, Vec<String>>,
+
     tickets: UnorderedMap<AccountId, Vec<Section>>,
-    answers: UnorderedMap<String, Answer>,
-    result: UnorderedMap<AccountId, Result>,
-    user_collection_answers: UnorderedMap<AccountId, Vec<Answer>>,
-    attempt: UnorderedMap<AccountId, u8>,
+
+    pub answers: UnorderedMap<String, Answer>,
+
+    pub result: UnorderedMap<AccountId, Result>,
+
+    pub user_collection_answers: UnorderedMap<AccountId, Vec<Answer>>,
+
+    pub attempt: UnorderedMap<AccountId, u8>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -91,21 +95,6 @@ pub enum StorageKey {
     TokenTypesLocked,
 }
 
-const VALID_RESULT: f32 = 70 as f32;
-
-
-/*impl Default for Contract {
-    fn default() -> Self {
-        Self {
-            id_answers: UnorderedMap::<String, Vec<String>>::new(b"s"),
-            tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
-            answers: UnorderedMap::<String, Answer>::new(b"a"),
-            result: UnorderedMap::<String, Result>::new(b"r"),
-            user_collection_answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
-            attempt: UnorderedMap::<String, u8>::new(b"i"),
-        }
-    }
-}*/
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -139,11 +128,7 @@ pub struct Result {
 
 #[near_bindgen]
 impl Contract {
-    /*
-       initialization function (can only be called once).
-       this initializes the contract with default metadata so the
-       user doesn't have to manually type metadata.
-   */
+    //this initializes the contract with default metadata (can only be called once).
     #[init]
     pub fn new_default_meta(owner_id: AccountId) -> Self {
         //calls the other function "new: with some default metadata and the owner_id passed in
@@ -161,11 +146,6 @@ impl Contract {
         )
     }
 
-    /*
-        initialization function (can only be called once).
-        this initializes the contract with metadata that was passed in and
-        the owner_id.
-    */
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized.
@@ -189,15 +169,12 @@ impl Contract {
             user_collection_answers: UnorderedMap::<AccountId, Vec<Answer>>::new(b"a"),
             attempt: UnorderedMap::<AccountId, u8>::new(b"i"),
         };
-
         //return the Contract object
         this
     }
 
-    pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
-        self.tickets.get(&account_id)
-    }
 
+//set_tickets - set tickets from source when exam is started
     pub fn set_tickets(&mut self, account_id: AccountId) -> String {
         let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
@@ -220,6 +197,9 @@ impl Contract {
         existing_array.append(&mut array_of_id);
         self.id_answers.insert(&account_id, &existing_array);
         String::from("Tickets is set up")
+    }
+    pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
+        self.tickets.get(&account_id)
     }
 
     pub fn get_existing_array(&mut self, account_id: &AccountId) -> Vec<String> {
@@ -284,7 +264,7 @@ impl Contract {
         &mut self,
         account_id: AccountId,
         answers: Vec<Answer>,
-    ) {
+    ) -> Response {
         let current_attempt = self.get_num(&account_id).clone();
         let attempt = current_attempt + 1;
         let mut num_correct: Vec<bool> = vec![];
@@ -308,6 +288,12 @@ impl Contract {
             is_valid: score >= VALID_RESULT as f32,
         };
         self.result.insert(&account_id, &result);
+        let response: Response = Response {
+            ok: true,
+            message: "Result is set".to_string(),
+            attempt,
+        };
+        response
     }
 
     pub fn get_current_result(&self, account_id: AccountId) -> Result {

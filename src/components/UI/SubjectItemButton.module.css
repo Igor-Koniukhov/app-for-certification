@@ -1,0 +1,28 @@
+.img-btn{
+    position: relative;
+    z-index: 2;
+    margin: 3px;
+}
+
+.img-btn:hover{
+    cursor: pointer;
+    background-color: rgba(0,0,0,0.3)
+}
+.img-cover{
+    position: relative;
+}
+
+.img-cover::before{
+    content: '';
+    display: block;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    top:0;
+    bottom:0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.3);
+    z-index: 3;
+}

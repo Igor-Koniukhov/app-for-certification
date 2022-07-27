@@ -12,10 +12,10 @@ const Content = (props) => {
         get_tickets,
         set_user_collection_answers,
         increment,
-        get_current_result,
         set_current_result,
     } = window.contract;
-    const {setRequestStatus, answers,} = useContext(ArticleContext);
+    const {setRequestStatus, answers} = useContext(ArticleContext);
+    const [stateResultMessage, setStateResultMessage]=useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
@@ -56,8 +56,13 @@ const Content = (props) => {
                     set_current_result({
                         account_id: window.accountId,
                         answers: answers,
+                    }).then((data)=>{
+                        const {ok, message}=data
+                        setStateResultMessage(ok)
+                        console.log(message)
                     })
-                    console.log(data, 'set_user_collection_answers')
+
+
                 })
             }
             setCollectionOfAnswers();
@@ -95,7 +100,7 @@ const Content = (props) => {
         <div className="container pb-5 pt-5 wrapper">
             {articles}
             {
-                success &&
+                success && stateResultMessage &&
                 <div>
                     <p>Congrats! You pass test! </p>
                     <button
@@ -114,6 +119,13 @@ const Content = (props) => {
                         <LoadingSpinner/>
                     </div>
                 )}
+            {success && !stateResultMessage &&
+                (
+                    <div className='backdrop'>
+                        <LoadingSpinner/>
+                    </div>
+                )
+            }
         </div>
     )
 }

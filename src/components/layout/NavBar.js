@@ -19,11 +19,9 @@ const MainNavigation = () => {
         let count = await get_num({account_id: window.accountId})
             .catch(err => errorHelper(err))
         setCountState(count === undefined ? 'calculating...' : count)
-
     }
 
     const {isSent} = ctx
-
     useEffect(() => {
         getCounter()
 
@@ -49,7 +47,7 @@ const MainNavigation = () => {
                         <div>{window.accountId}</div>
 
                     </div>
-                    { !isSignedIn && <h1 className="main-title">Certificator</h1>}
+                    {!isSignedIn && <h1 className="main-title">Certificator</h1>}
                     {isSignedIn &&
                         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                             <li>
@@ -66,9 +64,9 @@ const MainNavigation = () => {
                             </li>
 
                             <li>
-                                <NavLink to='/source' activeClassName='active' className="nav-link px-2 text-white">
-                                    Source
-                                </NavLink>
+                                <a href='https://github.com/Igor-Koniukhov/app-for-certification'
+                                   className="nav-link px-2 text-white"> SourceCode</a>
+
                             </li>
 
                         </ul>}

@@ -1,22 +1,47 @@
 import React, {Fragment} from "react";
-import {useHistory} from "react-router-dom";
-const Home = ()=>{
-    const {new_default_meta} = window.contract;
-    const history = useHistory();
-    const moveToExamHandler = ()=>{
-        const initContract = async ()=>{
-            await new_default_meta({owner_id: window.accountId}).then((data)=>{
-                console.log(data)
-            })
+
+import "./Home.module.css";
+import ChemistryImage from "../img/subject/IUPAC-feature-image.png";
+import PhysicImage from "../img/subject/physic.png";
+import SociologyImage from "../img/subject/sociology.png";
+import MicroBiologyImage from "../img/subject/microbiology.png"
+import SubjectItemButton from "../components/UI/SubjectItemButton";
+
+const Home = () => {
+
+    const subjectRange = [
+        {
+            path: '/chemistry',
+            img: ChemistryImage,
+        },
+        {
+            path: '/physic',
+            img: PhysicImage,
+        },
+        {
+            path: '/sociology',
+            img: SociologyImage,
+        },
+        {
+            path: '/microbiology',
+            img: MicroBiologyImage
         }
-        initContract();
+    ]
 
-        history.push('/exam')
-
-    }
     return (
         <Fragment>
-            <button className="btn btn-warning" onClick={moveToExamHandler}>Move to exame</button>
+            <div className="container text-center pt-5">
+                <div className="row">
+                    {subjectRange.map((sbj, index) =>
+                        <SubjectItemButton
+                            key={index}
+                            image={sbj.img}
+                            path={sbj.path}
+                        />
+                    )}
+                </div>
+            </div>
+
         </Fragment>
     )
 

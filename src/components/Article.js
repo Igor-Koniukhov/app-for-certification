@@ -19,8 +19,7 @@ const Article = (props) => {
     const numberOfAnswers = artCtx.answers.length
     const isSuccess = numberOfQuestions === numberOfAnswers
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
-
-
+    const [stateStatusSending, setStateStatusSending] = useState('sent')
 
 
     let shuffledQuestions = tickets
@@ -68,13 +67,13 @@ const Article = (props) => {
                 sentMessage(answer)
             })
             props.setShowNotification(true);
-            const setTimeNotification = setTimeout(() => {
+            setTimeout(() => {
                 props.setShowNotification(false);
             }, 4000);
-            clearTimeout(setTimeNotification);
         };
         await sentTicket();
     }
+
 
     const list = shuffledQuestionsState.map((item, index) =>
         <QuestionItems
@@ -88,16 +87,21 @@ const Article = (props) => {
             isAllChoosen={!buttonDisabledState}
         />
     )
+    const sendEventHandler = () => {
+        setStateStatusSending('sending...')
+    }
     return (
         <form onSubmit={handlerSubmit}>
             <h1>{props.source.title}</h1>
             <p>{props.source.content}</p>
             {list}
             <button
-                className={`${buttonDisabled? 'btn btn-secondary me-2': 'btn btn-success'}`}
+                className={`${buttonDisabled ? 'btn btn-secondary me-2' : 'btn btn-success'}`}
                 id={`button-${props.article}`}
-                disabled={buttonDisabledState}>
-                Send
+                disabled={buttonDisabledState}
+                onClick={sendEventHandler}
+            >
+                { !buttonDisabledState ? stateStatusSending : buttonDisabled ? stateStatusSending :'succeed!'}
             </button>
         </form>
     )

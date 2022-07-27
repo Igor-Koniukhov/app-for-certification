@@ -42,7 +42,7 @@ export default function App() {
                     <Route path='/' exact>
                         <Home/>
                     </Route>}
-                <Route path='/exam'>
+                <Route path='/chemistry'>
                     <Content
                         isLoad={pageIsLoad}
                         networkId={networkId}
