@@ -106,7 +106,6 @@ const Certificate = () => {
         );
 
     };
-
     useEffect(() => {
         const getResults = async () => {
             await get_current_result({account_id: window.accountId}).then((data) => {

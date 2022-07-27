@@ -58,12 +58,6 @@ const MainNavigation = () => {
                             </li>
 
                             <li>
-                                <NavLink to='/results' className="nav-link px-2 text-white">
-                                    Results
-                                </NavLink>
-                            </li>
-
-                            <li>
                                 <a href='https://github.com/Igor-Koniukhov/app-for-certification'
                                    className="nav-link px-2 text-white"> SourceCode</a>
 
