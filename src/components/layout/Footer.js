@@ -8,13 +8,12 @@ const Footer = ()=>{
             {
                 isSignedIn &&
             <ul className="nav justify-content-center border-bottom pb-3 mb-3">
-                <li>
+                {/*<li>
                     <NavLink to='/'  className="nav-link px-2 text-white">
                         Home
                     </NavLink>
 
-                </li>
-
+                </li>*/}
                 <li>
                     <a href='https://github.com/Igor-Koniukhov/app-for-certification'
                        className="nav-link px-2 text-white"> SourceCode</a>
