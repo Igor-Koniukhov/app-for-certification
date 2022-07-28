@@ -11,6 +11,7 @@ const MainNavigation = () => {
     const isSignedIn = window.walletConnection.isSignedIn();
     const ctx = useContext(ArticleContext);
     const history = useHistory();
+
     const {
         get_num
     } = window.contract
@@ -28,13 +29,8 @@ const MainNavigation = () => {
         ctx.isSent = false
 
     }, [isSent]);
+const isHomepage = history.location.pathname === '/'
 
-    const isHomePage = isSignedIn && history.location.pathname !== '/';
-    useEffect(() => {
-        if (!isHomePage) {
-            history.push('/')
-        }
-    }, [isSignedIn])
 
     return (
 
@@ -56,7 +52,7 @@ const MainNavigation = () => {
                     {
                         isSignedIn &&
                         <div className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none mx-5">
-                            Attempt: <strong>{countState}</strong>
+                            {!isHomepage &&  <span>Attempt: <strong>{ countState}</strong> </span>}
                         </div>
                     }
                     <div className="text-start">

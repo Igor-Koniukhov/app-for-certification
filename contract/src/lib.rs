@@ -174,7 +174,7 @@ impl Contract {
     }
 
 
-//set_tickets - set tickets from source when exam is started
+    //set_tickets - set tickets from source when exam is started
     pub fn set_tickets(&mut self, account_id: AccountId) -> String {
         let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
@@ -200,6 +200,9 @@ impl Contract {
     }
     pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
         self.tickets.get(&account_id)
+    }
+    pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
+        self.token_metadata_by_id.to_vec()
     }
 
     pub fn get_existing_array(&mut self, account_id: &AccountId) -> Vec<String> {

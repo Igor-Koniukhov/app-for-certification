@@ -31,48 +31,22 @@ const Certificate = () => {
     });
     const {
         nft_mint,
-        get_current_result
+        get_current_result,
+        get_token_metadate,
     } = window.contract
     const [stateDate, setStateDate] = useState('');
     const [stateResult, setStateResult] = useState({})
     const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
+    const [stateTokenMetadate, setStateTokenMetadate]=useState([])
 
-    const a = navigator.mediaDevices.getDisplayMedia;
-    const takeScreenShot = async () => {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-            video: {mediaSource: 'screen'}
-        });
-        const track = stream.getVideoTracks()[0];
-        const image = new ImageCapture(track);
-        const bitmap = await image.grabFrame();
-        track.stop();
-        const canvas = document.getElementById('screenshot');
-        canvas.width = bitmap.width;
-        canvas.height = bitmap.height;
-        const context = canvas.getContext('2d');
-        context.drawImage(bitmap, 0, 0, 790, bitmap.height / 2);
-        const img = canvas.toDataURL();
-        const res = await fetch(img);
-        const buff = await res.arrayBuffer();
-        const file = [
-            new File([buff], 'photo_${new Date()}.jpg', {
-                type: 'image/jpeg'
-            })
-        ];
-        return file;
-    };
-    const takePicture = () => {
-        a ? takeScreenShot() : {};
-    }
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
+
 
     useEffect(() => {
         toJpeg(node, {quality: 0.8})
             .then((dataUrl) => {
                 setStateDataUrl(dataUrl)
-                const img = new Image();
-                img.src = dataUrl;
             })
             .catch((error) => {
                 console.error('oops, something went wrong!', error);
@@ -92,7 +66,7 @@ const Certificate = () => {
     const mintNFT = async () => {
         await nft_mint(
             {
-                token_id: `${Math.random()}-${window.accountId}`,
+                token_id: `${stateResult.attempt}-${window.accountId}`,
                 metadata: {
                     title: window.accountId,
                     description: description,
@@ -115,6 +89,16 @@ const Certificate = () => {
         getResults();
         setStateDate(today)
     }, [isResult])
+    useEffect(() => {
+        const getTokenMetadata = async () => {
+            await get_token_metadate({}).then((data) => {
+                setStateTokenMetadate(data)
+            })
+        }
+        getTokenMetadata();
+
+    }, [isResult])
+    console.log(stateTokenMetadate)
 
 
     return (

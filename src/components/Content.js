@@ -15,7 +15,7 @@ const Content = (props) => {
         set_current_result,
     } = window.contract;
     const {setRequestStatus, answers} = useContext(ArticleContext);
-    const [stateResultMessage, setStateResultMessage]=useState(false);
+    const [stateResultMessage, setStateResultMessage] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
@@ -23,9 +23,12 @@ const Content = (props) => {
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
+    const isTicketLoad = ticketsState.length === 0;
+    const isTicketSucceed = !ticketError && !isTicketLoad
     if (ticketError) {
         ticketsState = [];
     }
+
 
     useEffect(() => {
         const getTickets = async () => {
@@ -38,6 +41,7 @@ const Content = (props) => {
 
     }, [isLoaded, ticketsState.length]);
 
+
     useEffect(() => {
         if (isLoaded) {
             isLoaded = false;
@@ -45,25 +49,23 @@ const Content = (props) => {
         }
     }, [isLoaded]);
 
-    const isTicketLoad = ticketsState.length === 0;
-    const isTicketSucceed = !ticketError && !isTicketLoad
 
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
                 await set_user_collection_answers({account_id: window.accountId})
                     .then((data) => {
-                    set_current_result({
-                        account_id: window.accountId,
-                        answers: answers,
-                    }).then((data)=>{
-                        const {ok, message}=data
-                        setStateResultMessage(ok)
-                        console.log(message)
+                        set_current_result({
+                            account_id: window.accountId,
+                            answers: answers,
+                        }).then((data) => {
+                            const {ok, message} = data
+                            setStateResultMessage(ok)
+                            console.log(message)
+                        })
+
+
                     })
-
-
-                })
             }
             setCollectionOfAnswers();
         }
