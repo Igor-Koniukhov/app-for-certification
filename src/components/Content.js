@@ -14,7 +14,7 @@ const Content = (props) => {
         increment,
         set_current_result,
     } = window.contract;
-    const {setRequestStatus, answers} = useContext(ArticleContext);
+    const {setRequestStatus, answers, metadata} = useContext(ArticleContext);
     const [stateResultMessage, setStateResultMessage] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
@@ -30,7 +30,7 @@ const Content = (props) => {
     const isTicketLoad = ticketsState.length === 0;
     const isTicketSucceed = !ticketError && !isTicketLoad
 
-
+    console.log(metadata)
 
     useEffect(() => {
         const getTickets = async () => {

@@ -1,4 +1,4 @@
-import {useHistory} from "react-router-dom";
+import {useHistory, NavLink} from "react-router-dom";
 import './NavBar.module.css';
 import {login, logout} from "../../utils";
 import React, {Fragment, useContext, useEffect, useState} from "react";
@@ -11,7 +11,7 @@ const MainNavigation = () => {
     const isSignedIn = window.walletConnection.isSignedIn();
     const ctx = useContext(ArticleContext);
     const history = useHistory();
-
+    const {isSent, isMeta, setAttempt} = ctx
     const {
         get_num
     } = window.contract
@@ -20,9 +20,10 @@ const MainNavigation = () => {
         let count = await get_num({account_id: window.accountId})
             .catch(err => errorHelper(err))
         setCountState(count === undefined ? 'calculating...' : count)
+        setAttempt(count);
     }
 
-    const {isSent} = ctx
+
     useEffect(() => {
         getCounter()
 
@@ -48,6 +49,15 @@ const isHomepage = history.location.pathname === '/'
                                 <a href='https://github.com/Igor-Koniukhov/app-for-certification'
                                    className="nav-link px-2 text-white"> SourceCode</a>
                             </li>
+
+                            { isMeta &&
+                                <li>
+                                    <NavLink to='/nft-collections' className="nav-link px-2 text-white">
+                                        NFT-collection
+                                    </NavLink>
+
+                                </li>
+                            }
                         </ul>}
                     {
                         isSignedIn &&

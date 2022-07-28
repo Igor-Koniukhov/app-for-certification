@@ -2,7 +2,10 @@ import React from 'react';
 
 const ArticleContext = React.createContext({
     article:0,
+    attempt:0,
     answers:[],
+    metadata:[],
+    isMeta: false,
     chapter: {},
     numberOfQuestions:0,
     isSent: false,
@@ -10,6 +13,8 @@ const ArticleContext = React.createContext({
     getNumbersOfQuestions:(length)=>{},
     setRequestStatus: (status)=>{},
     setCollectionAnswers:(answer)=>{},
+    setMetadate:(metatada)=>{},
+    setAttempt:(attepmt)=>{},
 })
 
 export default ArticleContext;

@@ -1,8 +1,9 @@
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import React, {Fragment, useEffect, useRef, useState, useContext} from "react";
 import "./Certificate.module.css"
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 import {useReactToPrint} from "react-to-print";
 import {toJpeg} from 'html-to-image';
+import ArticleContext from "../store/article-context";
 
 const BN = require("bn.js");
 const pageStyle = `
@@ -29,6 +30,11 @@ const Certificate = () => {
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     });
+    const {setMetadate, isMeta }=useContext(ArticleContext)
+
+
+
+
     const {
         nft_mint,
         get_current_result,
@@ -42,6 +48,7 @@ const Certificate = () => {
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
 
+    console.log(isMeta, " isMeta")
 
     useEffect(() => {
         toJpeg(node, {quality: 0.8})
@@ -93,6 +100,10 @@ const Certificate = () => {
         const getTokenMetadata = async () => {
             await get_token_metadate({}).then((data) => {
                 setStateTokenMetadate(data)
+                if (data.length > 0){
+                    setMetadate(data, true)
+                }
+
             })
         }
         getTokenMetadata();
@@ -118,11 +129,7 @@ const Certificate = () => {
                             <strong className="text-decoration-underline"> certificator</strong>
                         </h6>
                         <h6 className="header-title">date: {stateDate} </h6>
-
-
                     </div>
-
-
                     <div/>
                 </div>
             </div>
@@ -165,14 +172,7 @@ const Certificate = () => {
                     <LoadingSpinner/>
                 </div>
             }
-            <div className="container pt-5">
-                <div className="row  justify-content-center">
 
-
-
-
-                </div>
-            </div>
         </Fragment>
 
 

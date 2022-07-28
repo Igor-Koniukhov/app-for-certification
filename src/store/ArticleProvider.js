@@ -4,7 +4,10 @@ import ArticleContext from "./article-context";
 
 const defaultArticleState={
     article: 0,
+    attempt: 0,
     answers: [],
+    metadata:[],
+    isMeta: false,
     chapter: {},
     numberOfQuestions: 0,
     isSent: false
@@ -20,7 +23,10 @@ const articleReducer = (state, action) =>{
         }
         return {
             answers: updatedAnswers,
+            attempt: state.attempt,
             article: currentIdArticle,
+            isMeta: state.isMeta,
+            metadata: state.metadata,
             chapter: updatedChapter,
             numberOfQuestions:state.numberOfQuestions,
             isSent: state.isSent
@@ -31,7 +37,10 @@ const articleReducer = (state, action) =>{
         const updatedNumbersOfQuestions= state.numberOfQuestions + action.length
         return {
             answers: state.answers,
+            attempt: state.attempt,
             article: state.article,
+            isMeta: state.isMeta,
+            metadata: state.metadata,
             chapter: state.chapter,
             numberOfQuestions: updatedNumbersOfQuestions,
             isSent: state.isSent
@@ -41,7 +50,10 @@ const articleReducer = (state, action) =>{
         const updatedStatus = action.isSent
         return {
             answers: state.answers,
+            attempt: state.attempt,
             article: state.article,
+            isMeta: state.isMeta,
+            metadata: state.metadata,
             chapter: state.chapter,
             numberOfQuestions: state.numberOfQuestions,
             isSent: updatedStatus
@@ -53,7 +65,41 @@ const articleReducer = (state, action) =>{
 
         return {
             answers: updatedAnswers,
+            attempt: state.attempt,
             article: state.article,
+            isMeta: state.isMeta,
+            metadata: state.metadata,
+            chapter: state.chapter,
+            numberOfQuestions: state.numberOfQuestions,
+            isSent: state.isSent
+        }
+
+    }
+    if(action.type === 'SET_METADATA'){
+        const updatedMetaData= action.metadata
+        const isMeta = action.isMeta
+
+        return {
+            answers: state.answers,
+            attempt: state.attempt,
+            article: state.article,
+            isMeta: isMeta,
+            metadata: updatedMetaData,
+            chapter: state.chapter,
+            numberOfQuestions: state.numberOfQuestions,
+            isSent: state.isSent
+        }
+
+    }
+    if(action.type === 'SET_ATTEMPT'){
+        const updateAttempt= action.attempt
+
+        return {
+            answers: state.answers,
+            attempt: updateAttempt,
+            article: state.article,
+            isMeta: state.isMeta,
+            metadata: state.metadata,
             chapter: state.chapter,
             numberOfQuestions: state.numberOfQuestions,
             isSent: state.isSent
@@ -90,16 +136,30 @@ const setCollectionAnswersHandler =(answers)=>{
         dispatchArticleAction({
             type: 'SET_ANSWERS',
             answers: answers,
-
         })
 
-}
 
+}
+const setMetadataHandler = (metadata, isMeta)=>{
+        dispatchArticleAction({
+            type:'SET_METADATA',
+            metadata: metadata,
+            isMeta: isMeta,
+        })
+}
+const setAttemptHandler =(attempt)=>{
+        dispatchArticleAction({
+            type: 'SET_ATTEMPT',
+            attempt: attempt,
+        })
+}
 
     const articleContext = {
         article: articleState.article,
         attempt: articleState.attempt,
         answers: articleState.answers,
+        isMeta: articleState.isMeta,
+        metadata: articleState.metadata,
         chapter: articleState.chapter,
         numberOfQuestions: articleState.numberOfQuestions,
         isSent: articleState.isSent,
@@ -107,6 +167,8 @@ const setCollectionAnswersHandler =(answers)=>{
         getNumbersOfQuestions: getNumbersOfQuestionsHandler,
         setRequestStatus: setRequestStatusHandler,
         setCollectionAnswers: setCollectionAnswersHandler,
+        setMetadate: setMetadataHandler,
+        setAttempt: setAttemptHandler,
     }
     return <ArticleContext.Provider value={articleContext}>
         {props.children}

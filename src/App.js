@@ -9,6 +9,7 @@ import Results from "./pages/Results";
 import Layout from "./components/layout/Layout";
 import Certificate from "./pages/Certificate";
 import Home from "./pages/Home"
+import NFTCollections from "./pages/NFTCollections";
 
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
@@ -54,6 +55,9 @@ export default function App() {
                 </Route>
                 <Route path='/certificate'>
                     <Certificate/>
+                </Route>
+                <Route path='/nft-collections'>
+                    <NFTCollections/>
                 </Route>
             </Switch>
         </Layout>
