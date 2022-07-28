@@ -33,11 +33,13 @@ const Home = () => {
             <div className="container text-center pt-5">
                 <div className="row">
                     {subjectRange.map((sbj, index) =>
-                        <SubjectItemButton
-                            key={index}
-                            image={sbj.img}
-                            path={sbj.path}
-                        />
+                            <SubjectItemButton
+                                key={index}
+                                image={sbj.img}
+                                path={sbj.path}
+                            />
+
+
                     )}
                 </div>
             </div>

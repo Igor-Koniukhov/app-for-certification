@@ -23,11 +23,12 @@ const Content = (props) => {
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
-    const isTicketLoad = ticketsState.length === 0;
-    const isTicketSucceed = !ticketError && !isTicketLoad
     if (ticketError) {
         ticketsState = [];
     }
+    const isTicketLoad = ticketsState.length === 0;
+    const isTicketSucceed = !ticketError && !isTicketLoad
+
 
 
     useEffect(() => {
@@ -63,14 +64,11 @@ const Content = (props) => {
                             setStateResultMessage(ok)
                             console.log(message)
                         })
-
-
                     })
             }
             setCollectionOfAnswers();
         }
     }, [success]);
-
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
@@ -97,12 +95,10 @@ const Content = (props) => {
         />
     )
 
-
     return (
         <div className="container pb-5 pt-5 wrapper">
             {articles}
-            {
-                success && stateResultMessage &&
+            { success && stateResultMessage &&
                 <div>
                     <p>Congrats! You pass test! </p>
                     <button
@@ -110,7 +106,6 @@ const Content = (props) => {
                         onClick={getResultsHandler}>Get results
                     </button>
                 </div>}
-
             {
                 showNotification &&
                 <Notification networkId={props.networkId}/>}

@@ -98,7 +98,7 @@ const Certificate = () => {
         getTokenMetadata();
 
     }, [isResult])
-    console.log(stateTokenMetadate)
+    console.log(stateTokenMetadate, " stateTokenMetadate")
 
 
     return (
