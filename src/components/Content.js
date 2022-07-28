@@ -20,6 +20,7 @@ const Content = (props) => {
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
     let [ticketsState, setTicketsState] = useState([]);
+    const [stateGettingResult, setStateGettingResult]=useState('Get results')
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
@@ -72,6 +73,7 @@ const Content = (props) => {
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
+        setStateGettingResult('getting...')
         const {ok, message} = await increment({account_id: window.accountId})
 
         console.log(message)
@@ -103,7 +105,7 @@ const Content = (props) => {
                     <p>Congrats! You pass test! </p>
                     <button
                         className='btn btn-success'
-                        onClick={getResultsHandler}>Get results
+                        onClick={getResultsHandler}>{ success ? stateGettingResult : 'Got'}
                     </button>
                 </div>}
             {

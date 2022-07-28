@@ -20,6 +20,7 @@ const Article = (props) => {
     const isSuccess = numberOfQuestions === numberOfAnswers
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
     const [stateStatusSending, setStateStatusSending] = useState('sent')
+    const [stateButtonColor, setStateButtonColor]= useState('btn btn-secondary me-2')
 
 
     let shuffledQuestions = tickets
@@ -89,6 +90,7 @@ const Article = (props) => {
     )
     const sendEventHandler = () => {
         setStateStatusSending('sending...')
+        setStateButtonColor('btn btn-warning me-2')
     }
     return (
         <form onSubmit={handlerSubmit}>
@@ -96,7 +98,7 @@ const Article = (props) => {
             <p>{props.source.content}</p>
             {list}
             <button
-                className={`${buttonDisabled ? 'btn btn-secondary me-2' : 'btn btn-success'}`}
+                className={`${!buttonDisabledState ? stateButtonColor :  buttonDisabled ? stateButtonColor :'btn btn-success me-2'}`}
                 id={`button-${props.article}`}
                 disabled={buttonDisabledState}
                 onClick={sendEventHandler}
