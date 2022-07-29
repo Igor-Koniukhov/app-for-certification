@@ -6,18 +6,18 @@ import ArticleContext from "../store/article-context";
 const Article = (props) => {
     const {
         set_answer,
+        get_answers,
     } = window.contract;
 
     const {tickets} = props.source;
-    const artCtx = useContext(ArticleContext);
-    const filteredAnswers = artCtx.answers.filter(answer => answer.article_id === props.article);
+    const cnx = useContext(ArticleContext);
+    const filteredAnswers = cnx.answers.filter(answer => answer.article_id === props.article);
     const questionLength = tickets.length
     const answersLength = filteredAnswers.length
     const buttonDisabled = questionLength !== answersLength
     const [shuffledQuestionsState, setShuffledQuestions] = useState([])
-    const numberOfQuestions = artCtx.numberOfQuestions
-    const numberOfAnswers = artCtx.answers.length
-    const isSuccess = numberOfQuestions === numberOfAnswers
+    const numberOfAnswers = cnx.answers.length
+    const isSuccess = cnx.numberOfQuestions === numberOfAnswers
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
     const [stateStatusSending, setStateStatusSending] = useState('sent')
     const [stateButtonColor, setStateButtonColor]= useState('btn btn-secondary me-2')
@@ -30,7 +30,7 @@ const Article = (props) => {
 
     useEffect(() => {
         setShuffledQuestions(shuffledQuestions)
-        artCtx.getNumbersOfQuestions(shuffledQuestionsState.length)
+        cnx.getNumbersOfQuestions(shuffledQuestionsState.length)
     }, [shuffledQuestionsState.length]);
 
     useEffect(() => {
@@ -41,6 +41,7 @@ const Article = (props) => {
         try {
             await set_answer({
                 id: answer.id,
+                attempt: cnx.attempt,
                 article_id: answer.article_id,
                 your_answer: answer.your_answer,
                 correct_answer: answer.correct_answer,
@@ -63,7 +64,7 @@ const Article = (props) => {
     const handlerSubmit = async (event) => {
         event.preventDefault();
 
-        const sentTicket = async () => {
+        const sentAnswers = async () => {
             filteredAnswers.forEach((answer, i) => {
                 sentMessage(answer)
             })
@@ -72,7 +73,16 @@ const Article = (props) => {
                 props.setShowNotification(false);
             }, 4000);
         };
-        await sentTicket();
+        console.log(" answers")
+        const getAnswers = async () => {
+
+            await get_answers({}).then((data)=>{
+                console.log(data, " answers")
+            })
+
+        };
+        await getAnswers();
+        await sentAnswers();
     }
 
 

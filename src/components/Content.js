@@ -14,7 +14,7 @@ const Content = (props) => {
         increment,
         set_current_result,
     } = window.contract;
-    const {setRequestStatus, answers, metadata} = useContext(ArticleContext);
+    const cnx = useContext(ArticleContext);
     const [stateResultMessage, setStateResultMessage] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
@@ -30,7 +30,6 @@ const Content = (props) => {
     const isTicketLoad = ticketsState.length === 0;
     const isTicketSucceed = !ticketError && !isTicketLoad
 
-    console.log(metadata)
 
     useEffect(() => {
         const getTickets = async () => {
@@ -57,14 +56,9 @@ const Content = (props) => {
             const setCollectionOfAnswers = async () => {
                 await set_user_collection_answers({account_id: window.accountId})
                     .then((data) => {
-                        set_current_result({
-                            account_id: window.accountId,
-                            answers: answers,
-                        }).then((data) => {
-                            const {ok, message} = data
-                            setStateResultMessage(ok)
-                            console.log(message)
-                        })
+                        if (data !==undefined && data !== null && data.length > 0){
+                            setStateResultMessage(true)
+                        }
                     })
             }
             setCollectionOfAnswers();
@@ -75,9 +69,13 @@ const Content = (props) => {
         event.preventDefault()
         setStateGettingResult('getting...')
         const {ok, message} = await increment({account_id: window.accountId})
-
         console.log(message)
-        setRequestStatus(ok);
+        cnx.setRequestStatus(ok);
+        await set_current_result({
+            account_id: window.accountId,
+            answers: cnx.answers,
+            attempt: cnx.attempt,
+        })
 
         history.push('/results')
     };
@@ -100,9 +98,8 @@ const Content = (props) => {
     return (
         <div className="container pb-5 pt-5 wrapper">
             {articles}
-            { success && stateResultMessage &&
+            {
                 <div>
-                    <p>Congrats! You pass test! </p>
                     <button
                         className='btn btn-success'
                         onClick={getResultsHandler}>{ success ? stateGettingResult : 'Got'}

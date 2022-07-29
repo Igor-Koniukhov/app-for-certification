@@ -25,15 +25,11 @@ const pageStyle = `
 `;
 
 const Certificate = () => {
-
     const componentRef = useRef();
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     });
     const {setMetadate, isMeta }=useContext(ArticleContext)
-
-
-
 
     const {
         nft_mint,
@@ -48,8 +44,6 @@ const Certificate = () => {
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
 
-    console.log(isMeta, " isMeta")
-
     useEffect(() => {
         toJpeg(node, {quality: 0.8})
             .then((dataUrl) => {
@@ -59,8 +53,6 @@ const Certificate = () => {
                 console.error('oops, something went wrong!', error);
             });
     }, [isResult])
-
-    console.log(stateDataUrl, " state")
 
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
@@ -109,8 +101,6 @@ const Certificate = () => {
         getTokenMetadata();
 
     }, [isResult])
-    console.log(stateTokenMetadate, " stateTokenMetadate")
-
 
     return (
         <Fragment>

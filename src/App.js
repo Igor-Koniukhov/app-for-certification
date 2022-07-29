@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime';
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
 import {Route, Switch} from "react-router-dom";
 import './global.css'
 import IntroContent from "./components/IntroContent";
@@ -10,17 +10,20 @@ import Layout from "./components/layout/Layout";
 import Certificate from "./pages/Certificate";
 import Home from "./pages/Home"
 import NFTCollections from "./pages/NFTCollections";
+import ArticleContext from "./store/article-context";
+
 
 const {networkId} = getConfig(process.env.NODE_ENV || 'development')
 let pageIsLoad = true;
 
 export default function App() {
+    const{attempt}=useContext(ArticleContext);
     const {set_tickets} = window.contract;
     const isSignedIn = window.walletConnection.isSignedIn();
 
     useEffect(() => {
         const setTickets = async () => {
-            await set_tickets({account_id: window.accountId})
+            await set_tickets({account_id: window.accountId, attempt: attempt})
                 .then((data) => {
                     console.log(data)
                 });

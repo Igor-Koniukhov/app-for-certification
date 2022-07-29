@@ -22,6 +22,7 @@ use near_sdk::collections::{
 };
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
+use itertools::Itertools;
 
 pub use crate::approval::*;
 pub use crate::events::*;
@@ -175,7 +176,7 @@ impl Contract {
 
 
     //set_tickets - set tickets from source when exam is started
-    pub fn set_tickets(&mut self, account_id: AccountId) -> String {
+    pub fn set_tickets(&mut self, account_id: AccountId, attempt: u8) -> String {
         let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
         let mut array_of_id: Vec<String> = vec![];
@@ -186,7 +187,7 @@ impl Contract {
         self.tickets.insert(&account_id, &array_of_sections);
 
         let sections = self.tickets.get(&account_id).unwrap();
-        let attempt = self.get_num(&account_id);
+
         for tickets in sections {
             for ticket in tickets.tickets {
                 array_of_id.push(format!("{}{}{}{}", account_id, ticket.article_id, ticket.id, attempt))
@@ -195,7 +196,10 @@ impl Contract {
 
         let mut existing_array = self.get_existing_array(&account_id);
         existing_array.append(&mut array_of_id);
-        self.id_answers.insert(&account_id, &existing_array);
+        let unique_elements = existing_array.iter().cloned().unique().collect_vec();
+        env::log(format!("unique elements {:?}", unique_elements).as_bytes());
+
+        self.id_answers.insert(&account_id, &unique_elements);
         String::from("Tickets is set up")
     }
     pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
@@ -218,6 +222,7 @@ impl Contract {
     pub fn set_answer(
         &mut self,
         id: u8,
+        attempt: u8,
         article_id: u8,
         your_answer: String,
         correct_answer: String,
@@ -231,45 +236,44 @@ impl Contract {
             correct_answer,
             pass,
         };
-        let attempt = self.get_num(&account_id);
-        let key = format!("{}{}{}{}", &account_id, &answer.article_id, &answer.id, &attempt);
+
+        let key = format!("{}{}{}{}", &account_id, &answer.article_id, &answer.id, attempt);
         self.answers.insert(&key, &answer);
     }
 
     pub fn set_user_collection_answers(&mut self, account_id: AccountId) -> String {
-        let array_answer_id = self.id_answers.get(&account_id).unwrap();
-        let mut existing_collection_asnswers = self.get_existing_collection_answers(&account_id);
+        let array_answer_id = self.get_existing_array(&account_id);
+
+        env::log(format!("array id {:?}", array_answer_id).as_bytes());
+        env::log(format!("array answers collection {:?}", self.answers.to_vec()).as_bytes());
+        let mut existing_collection_answers = self.get_user_collection_answers(&account_id);
 
         self.answers.iter().enumerate().for_each(|(i, answer)| {
             array_answer_id.iter().enumerate().for_each(|(_, id)| {
                 if *id == answer.0 {
-                    existing_collection_asnswers.push(answer.1.clone())
+                    existing_collection_answers.push(answer.1.clone())
                 }
             })
         });
 
-        self.user_collection_answers.insert(&account_id, &existing_collection_asnswers);
-        format!("{:?}", existing_collection_asnswers)
+        self.user_collection_answers.insert(&account_id, &existing_collection_answers);
+        format!("{:?}", existing_collection_answers)
     }
 
-    pub fn get_existing_collection_answers(&mut self, account_id: &AccountId) -> Vec<Answer> {
+    pub fn get_user_collection_answers(&self, account_id: &AccountId) -> Vec<Answer> {
         match self.user_collection_answers.get(&account_id) {
             Some(array) => array,
             None => vec![],
         }
     }
 
-    pub fn get_user_collection_answers(self, account_id: AccountId) -> Option<Vec<Answer>> {
-        self.user_collection_answers.get(&account_id)
-    }
-
     pub fn set_current_result(
         &mut self,
         account_id: AccountId,
         answers: Vec<Answer>,
+        attempt: u8,
     ) -> Response {
-        let current_attempt = self.get_num(&account_id).clone();
-        let attempt = current_attempt + 1;
+        env::log(format!("attempt from set_current_result {}", attempt).as_bytes());
         let mut num_correct: Vec<bool> = vec![];
         let mut num_in_correct: Vec<bool> = vec![];
         for answer in &answers {
