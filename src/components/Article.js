@@ -37,15 +37,13 @@ const Article = (props) => {
         setButtonDisabledState(buttonDisabled)
     }, [buttonDisabled]);
 
-    const sentMessage = async (answer) => {
+    const sentMessage = async (answers) => {
+        console.log(answers, cnx.attempt, cnx.article)
         try {
             await set_answer({
-                id: answer.id,
                 attempt: cnx.attempt,
-                article_id: answer.article_id,
-                your_answer: answer.your_answer,
-                correct_answer: answer.correct_answer,
-                pass: answer.pass,
+                article: cnx.article,
+                answers: answers,
                 account_id: window.accountId,
             })
         } catch (e) {
@@ -65,17 +63,15 @@ const Article = (props) => {
         event.preventDefault();
 
         const sentAnswers = async () => {
-            filteredAnswers.forEach((answer, i) => {
-                sentMessage(answer)
-            })
+                sentMessage(filteredAnswers)
+
             props.setShowNotification(true);
             setTimeout(() => {
                 props.setShowNotification(false);
             }, 4000);
         };
-        console.log(" answers")
-        const getAnswers = async () => {
 
+        const getAnswers = async () => {
             await get_answers({}).then((data)=>{
                 console.log(data, " answers")
             })

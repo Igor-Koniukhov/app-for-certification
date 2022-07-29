@@ -54,9 +54,12 @@ const Content = (props) => {
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
-                await set_user_collection_answers({account_id: window.accountId})
-                    .then((data) => {
-                        if (data !==undefined && data !== null && data.length > 0){
+                 await set_current_result({
+                    account_id: window.accountId,
+                    answers: cnx.answers,
+                    attempt: cnx.attempt,
+                }).then((data) => {
+                        if (data.ok){
                             setStateResultMessage(true)
                         }
                     })
@@ -71,11 +74,7 @@ const Content = (props) => {
         const {ok, message} = await increment({account_id: window.accountId})
         console.log(message)
         cnx.setRequestStatus(ok);
-        await set_current_result({
-            account_id: window.accountId,
-            answers: cnx.answers,
-            attempt: cnx.attempt,
-        })
+
 
         history.push('/results')
     };
@@ -98,15 +97,15 @@ const Content = (props) => {
     return (
         <div className="container pb-5 pt-5 wrapper">
             {articles}
-            {
+            { success && stateResultMessage &&
                 <div>
                     <button
-                        className='btn btn-success'
+                        className='btn btn-success mt-4'
                         onClick={getResultsHandler}>{ success ? stateGettingResult : 'Got'}
                     </button>
                 </div>}
             {
-                showNotification &&
+                showNotification  &&
                 <Notification networkId={props.networkId}/>}
             {
                 !isTicketSucceed &&

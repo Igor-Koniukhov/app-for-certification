@@ -11,7 +11,7 @@ const Certificate = () => {
     let [stateAnswers, setStateAnswers] = useState([])
     const [stateResult, setStateResult]=useState({})
     const {
-        get_user_collection_answers,
+        get_answers,
         get_current_result,
     } = window.contract;
     const answerError = stateAnswers === null || stateAnswers === undefined;
@@ -25,21 +25,16 @@ const Certificate = () => {
             await get_current_result({account_id: window.accountId})
                 .then((data) => {
                 setStateResult(data)
+                    setStateAnswers(data.answers)
+                    setCollectionAnswers(data.answers);
+                    console.log(data, " data", data.answers, " answers")
                 console.log(data, "results")
             })
         }
         getResults();
 
     }, [isLoaded])
-    const getAnswers = async () => {
-        await get_user_collection_answers({account_id: window.accountId}).then((data) => {
-            setStateAnswers(data)
-            setCollectionAnswers(data);
-        })
-    }
-    useEffect(() => {
-        getAnswers()
-    }, [isLoaded]);
+
 
     let passed = stateAnswers.filter((value) =>
         value.pass === true

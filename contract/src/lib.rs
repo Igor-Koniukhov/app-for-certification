@@ -2,6 +2,7 @@ extern crate time;
 
 use std::collections::HashMap;
 
+use itertools::Itertools;
 use near_sdk::{
     AccountId,
     Balance,
@@ -22,7 +23,6 @@ use near_sdk::collections::{
 };
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use itertools::Itertools;
 
 pub use crate::approval::*;
 pub use crate::events::*;
@@ -70,15 +70,13 @@ pub struct Contract {
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
 
-    pub id_answers: UnorderedMap<AccountId, Vec<String>>,
+    pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
 
     tickets: UnorderedMap<AccountId, Vec<Section>>,
 
-    pub answers: UnorderedMap<String, Answer>,
+    pub answers: UnorderedMap<String, Vec<Answer>>,
 
     pub result: UnorderedMap<AccountId, Result>,
-
-    pub user_collection_answers: UnorderedMap<AccountId, Vec<Answer>>,
 
     pub attempt: UnorderedMap<AccountId, u8>,
 }
@@ -163,11 +161,11 @@ impl Contract {
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
             ),
-            id_answers: UnorderedMap::<AccountId, Vec<String>>::new(b"s"),
+
+            id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(b"s"),
             tickets: UnorderedMap::<AccountId, Vec<Section>>::new(b"t"),
-            answers: UnorderedMap::<String, Answer>::new(b"a"),
+            answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
             result: UnorderedMap::<AccountId, Result>::new(b"r"),
-            user_collection_answers: UnorderedMap::<AccountId, Vec<Answer>>::new(b"a"),
             attempt: UnorderedMap::<AccountId, u8>::new(b"i"),
         };
         //return the Contract object
@@ -179,27 +177,12 @@ impl Contract {
     pub fn set_tickets(&mut self, account_id: AccountId, attempt: u8) -> String {
         let sections = source();
         let mut array_of_sections: Vec<Section> = vec![];
-        let mut array_of_id: Vec<String> = vec![];
 
         for section in sections {
             array_of_sections.push(section);
         };
         self.tickets.insert(&account_id, &array_of_sections);
 
-        let sections = self.tickets.get(&account_id).unwrap();
-
-        for tickets in sections {
-            for ticket in tickets.tickets {
-                array_of_id.push(format!("{}{}{}{}", account_id, ticket.article_id, ticket.id, attempt))
-            }
-        }
-
-        let mut existing_array = self.get_existing_array(&account_id);
-        existing_array.append(&mut array_of_id);
-        let unique_elements = existing_array.iter().cloned().unique().collect_vec();
-        env::log(format!("unique elements {:?}", unique_elements).as_bytes());
-
-        self.id_answers.insert(&account_id, &unique_elements);
         String::from("Tickets is set up")
     }
     pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
@@ -208,64 +191,18 @@ impl Contract {
     pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
         self.token_metadata_by_id.to_vec()
     }
-
-    pub fn get_existing_array(&mut self, account_id: &AccountId) -> Vec<String> {
-        match self.id_answers.get(&account_id) {
-            Some(array) => array,
-            None => vec![],
-        }
-    }
-    pub fn get_id_answers(&self, account_id: AccountId) -> Option<Vec<String>> {
-        self.id_answers.get(&account_id)
-    }
-
     pub fn set_answer(
         &mut self,
-        id: u8,
         attempt: u8,
-        article_id: u8,
-        your_answer: String,
-        correct_answer: String,
-        pass: bool,
+        article: u8,
+        answers: Vec<Answer>,
         account_id: AccountId,
     ) {
-        let answer: Answer = Answer {
-            id,
-            article_id,
-            your_answer,
-            correct_answer,
-            pass,
-        };
+        let key_attempt = format!("{}{}{}-", attempt, article, account_id);
 
-        let key = format!("{}{}{}{}", &account_id, &answer.article_id, &answer.id, attempt);
-        self.answers.insert(&key, &answer);
+        self.answers.insert(&key_attempt, &answers);
     }
 
-    pub fn set_user_collection_answers(&mut self, account_id: AccountId) -> String {
-        let array_answer_id = self.get_existing_array(&account_id);
-
-        env::log(format!("array id {:?}", array_answer_id).as_bytes());
-        env::log(format!("array answers collection {:?}", self.answers.to_vec()).as_bytes());
-        let mut existing_collection_answers = self.get_user_collection_answers(&account_id);
-
-        self.answers.iter().enumerate().for_each(|(i, answer)| {
-            array_answer_id.iter().enumerate().for_each(|(_, id)| {
-                if *id == answer.0 {
-                    existing_collection_answers.push(answer.1.clone())
-                }
-            })
-        });
-
-        self.user_collection_answers.insert(&account_id, &existing_collection_answers);
-        format!("{:?}", existing_collection_answers)
-    }
-
-    pub fn get_user_collection_answers(&self, account_id: &AccountId) -> Vec<Answer> {
-        match self.user_collection_answers.get(&account_id) {
-            Some(array) => array,
-            None => vec![],
-        }
-    }
 
     pub fn set_current_result(
         &mut self,
@@ -318,8 +255,20 @@ impl Contract {
         }
     }
 
-    pub fn get_answers(&self) -> Vec<(String, Answer)> {
+    pub fn get_answers_by_key(&self, key: &String) -> Vec<Answer> {
+        match self.answers.get(&key) {
+            Some(answerArray) => answerArray,
+            None => vec![]
+        }
+    }
+    pub fn get_answers(&self) -> Vec<(String, Vec<Answer>)> {
         self.answers.to_vec()
+    }
+    pub fn get_id_attempts(&self, accaunt_id: &AccountId) -> Vec<String> {
+        match self.id_attempts.get(&accaunt_id) {
+            Some(keyArray) => keyArray,
+            None => vec![]
+        }
     }
 
     pub fn get_num(&self, account_id: &AccountId) -> u8 {

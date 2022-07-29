@@ -39,7 +39,7 @@ const Certificate = () => {
     const [stateDate, setStateDate] = useState('');
     const [stateResult, setStateResult] = useState({})
     const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
-    const [stateTokenMetadate, setStateTokenMetadate]=useState([])
+
 
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
@@ -91,7 +91,6 @@ const Certificate = () => {
     useEffect(() => {
         const getTokenMetadata = async () => {
             await get_token_metadate({}).then((data) => {
-                setStateTokenMetadate(data)
                 if (data.length > 0){
                     setMetadate(data, true)
                 }

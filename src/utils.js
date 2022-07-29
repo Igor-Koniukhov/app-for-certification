@@ -32,8 +32,6 @@ export async function initContract() {
             'set_tickets',
             'set_answer',
             'get_id_answers',
-            'set_user_collection_answers',
-           'get_user_collection_answers',
             'increment',
             'reset',
             'nft_mint',
