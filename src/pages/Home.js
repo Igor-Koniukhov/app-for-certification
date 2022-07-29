@@ -30,16 +30,20 @@ const Home = () => {
 
     return (
         <Fragment>
-            <div className="container text-center pt-5">
-                <div className="row">
+            <div className="container text-center pt-5 ">
+                <h1>Welcome to Examinator</h1>
+                <p>Choose your subject and start exam</p>
+                <small>At that moment, working only on chemistry exams. On click start initialization of the Contract
+                    that fiche added temperately for the test-net period. If after initialization spinner time is to
+                    long - reload the page.
+                </small>
+                <div className="row justify-content-center">
                     {subjectRange.map((sbj, index) =>
-                            <SubjectItemButton
-                                key={index}
-                                image={sbj.img}
-                                path={sbj.path}
-                            />
-
-
+                        <SubjectItemButton
+                            key={index}
+                            image={sbj.img}
+                            path={sbj.path}
+                        />
                     )}
                 </div>
             </div>
