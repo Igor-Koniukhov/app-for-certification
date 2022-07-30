@@ -170,9 +170,6 @@ input:focus {
 code {
   color: var(--gray);
 }
-
-
-
 aside {
   animation: notify ease-in-out 10s;
   background-color: var(--shadow);

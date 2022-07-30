@@ -31,8 +31,8 @@ pub use crate::metadata::*;
 pub use crate::mint::*;
 pub use crate::nft_core::*;
 pub use crate::royalty::*;
-use crate::source::Section;
-use crate::source::source;
+use crate::chemistry::Section;
+use crate::chemistry::chemistry;
 
 mod internal;
 mod approval;
@@ -42,7 +42,7 @@ mod mint;
 mod nft_core;
 mod royalty;
 mod events;
-mod source;
+mod chemistry;
 
 // for validation attempt of exam
 const VALID_RESULT: f32 = 70 as f32;
@@ -174,8 +174,8 @@ impl Contract {
 
 
     //set_tickets - set tickets from source when exam is started
-    pub fn set_tickets(&mut self, account_id: AccountId, attempt: u8) -> String {
-        let sections = source();
+    pub fn set_tickets(&mut self, account_id: AccountId) -> String {
+        let sections = chemistry();
         let mut array_of_sections: Vec<Section> = vec![];
 
         for section in sections {

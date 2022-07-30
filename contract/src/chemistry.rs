@@ -23,7 +23,7 @@ pub struct Section {
     pub tickets: Vec<Ticket>,
 }
 
-pub fn source() -> Vec<Section> {
+pub fn chemistry() -> Vec<Section> {
     let sections: Vec<Section> = vec![
         Section {
             article: 1,
