@@ -5,23 +5,16 @@ import LoadingSpinner from "./LoadingSpinner";
 
 
 const SubjectItemButton = (props) => {
-    const {new_default_meta} = window.contract;
-    const history = useHistory();
     const [stateSpinner, setStateSpinner] = useState(false);
+    const history = useHistory();
+
 
     const moveToExamHandler = () => {
         setStateSpinner(true)
-        const initContract = async () => {
-            await new_default_meta({owner_id: window.accountId}).then((data) => {
-                if (data !== undefined || data !== null) {
-                    setStateSpinner(false)
-                    history.push(props.path)
-                }
-            })
+        history.push(props.path)
+        setStateSpinner(false)
 
-        }
 
-        initContract();
     }
     let title = props.path.substring(1).toUpperCase();
 

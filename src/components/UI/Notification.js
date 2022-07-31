@@ -1,7 +1,7 @@
 import React from "react";
 
-const Notification =(props)=>{
-    const urlPrefix = `https://explorer.${props.networkId}.near.org/accounts`
+const Notification =()=>{
+
     return (
                 <aside style={{
                     display: 'flex',
@@ -16,12 +16,12 @@ const Notification =(props)=>{
                     backgroundColor: 'green'
 
                 }}>
-                    <a target="_blank" rel="noreferrer" href={`${urlPrefix}/${window.accountId}`}>
+
                         {window.accountId}
-                    </a>
-                    <a target="_blank" rel="noreferrer" href={`${urlPrefix}/${window.contract.contractId}`}>
+
+
                         {window.contract.contractId}
-                    </a>
+
                     <footer>
                         <div>✔ Succeeded</div>
                     </footer>

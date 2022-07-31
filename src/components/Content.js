@@ -9,8 +9,7 @@ let isLoaded = true;
 
 const Content = (props) => {
     const {
-        get_tickets,
-        set_user_collection_answers,
+        get_tickets_by_subject_name,
         increment,
         set_current_result,
     } = window.contract;
@@ -31,15 +30,15 @@ const Content = (props) => {
     const isTicketSucceed = !ticketError && !isTicketLoad
 
 
+
     useEffect(() => {
         const getTickets = async () => {
-            await get_tickets({account_id: window.accountId})
+            await get_tickets_by_subject_name({name: props.subjectName})
                 .then((data) => {
                     setTicketsState(data)
                 })
         };
         getTickets();
-
     }, [isLoaded, ticketsState.length]);
 
 
@@ -106,7 +105,7 @@ const Content = (props) => {
                 </div>}
             {
                 showNotification  &&
-                <Notification networkId={props.networkId}/>}
+                <Notification />}
             {
                 !isTicketSucceed &&
                 (

@@ -46,6 +46,12 @@ const isHomepage = history.location.pathname === '/'
                     {isSignedIn &&
                         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                             <li>
+                                <NavLink to='/' className="nav-link px-2 text-white">
+                                    Subjects
+                                </NavLink>
+
+                            </li>
+                            <li>
                                 <a href='https://github.com/Igor-Koniukhov/app-for-certification'
                                    className="nav-link px-2 text-white"> SourceCode</a>
                             </li>

@@ -1,27 +1,6 @@
-use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::serde::Serialize;
+mod subjects_struct;
 
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Debug, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Ticket {
-    pub id: u8,
-    pub article_id: u8,
-    pub question: String,
-    pub options: Vec<String>,
-    pub correct_answer: String,
-    pub pass: bool,
-    pub started: String,
-    pub finished: String,
-}
-
-
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Debug, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Section {
-    pub article: u8,
-    pub title: String,
-    pub tickets: Vec<Ticket>,
-}
+pub use crate::subjects_struct::{Section, Ticket};
 
 pub fn chemistry() -> Vec<Section> {
     let sections: Vec<Section> = vec![
@@ -76,7 +55,7 @@ pub fn chemistry() -> Vec<Section> {
         },
         Section {
             article: 2,
-            title: "Chemical test 1".to_string(),
+            title: "Chemical test 2".to_string(),
             tickets: vec![
                 Ticket {
                     id: 1,
@@ -124,7 +103,7 @@ pub fn chemistry() -> Vec<Section> {
         },
         Section {
             article: 3,
-            title: "Chemical test 1".to_string(),
+            title: "Chemical test 3".to_string(),
             tickets: vec![
                 Ticket {
                     id: 1,

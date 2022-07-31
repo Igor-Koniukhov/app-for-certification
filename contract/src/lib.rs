@@ -1,6 +1,7 @@
 extern crate time;
 
 use std::collections::HashMap;
+use std::ops::Index;
 
 use itertools::Itertools;
 use near_sdk::{
@@ -25,24 +26,38 @@ use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 
 pub use crate::approval::*;
+use crate::chemistry::chemistry;
+use crate::chemistry::Section;
 pub use crate::events::*;
 use crate::internal::*;
 pub use crate::metadata::*;
+use crate::microbiology::microbiology;
 pub use crate::mint::*;
 pub use crate::nft_core::*;
+use crate::physic::physic;
 pub use crate::royalty::*;
-use crate::chemistry::Section;
-use crate::chemistry::chemistry;
+use crate::sociology::sociology;
 
 mod internal;
 mod approval;
 mod enumeration;
 mod metadata;
+
 mod mint;
 mod nft_core;
 mod royalty;
 mod events;
+
+#[path = "subjects/chemistry.rs"]
 mod chemistry;
+#[path = "subjects/physic.rs"]
+mod physic;
+#[path = "subjects/sociology.rs"]
+mod sociology;
+#[path = "subjects/microbiology.rs"]
+mod microbiology;
+#[path = "subjects/subjects_struct.rs"]
+mod subjects_struct;
 
 // for validation attempt of exam
 const VALID_RESULT: f32 = 70 as f32;
@@ -50,6 +65,7 @@ const VALID_RESULT: f32 = 70 as f32;
 pub const NFT_METADATA_SPEC: &str = "1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
+
 
 
 #[near_bindgen]
@@ -72,7 +88,7 @@ pub struct Contract {
 
     pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
 
-    tickets: UnorderedMap<AccountId, Vec<Section>>,
+    tickets: UnorderedMap<String, Vec<Section>>,
 
     pub answers: UnorderedMap<String, Vec<Answer>>,
 
@@ -163,7 +179,7 @@ impl Contract {
             ),
 
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(b"s"),
-            tickets: UnorderedMap::<AccountId, Vec<Section>>::new(b"t"),
+            tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
             answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
             result: UnorderedMap::<AccountId, Result>::new(b"r"),
             attempt: UnorderedMap::<AccountId, u8>::new(b"i"),
@@ -174,19 +190,22 @@ impl Contract {
 
 
     //set_tickets - set tickets from source when exam is started
-    pub fn set_tickets(&mut self, account_id: AccountId) -> String {
-        let sections = chemistry();
+    pub fn set_tickets(
+        &mut self,
+        key_subject: String,
+        sections: Vec<Section>,
+    ) -> String {
         let mut array_of_sections: Vec<Section> = vec![];
 
         for section in sections {
             array_of_sections.push(section);
         };
-        self.tickets.insert(&account_id, &array_of_sections);
+        self.tickets.insert(&key_subject, &array_of_sections);
 
         String::from("Tickets is set up")
     }
-    pub fn get_tickets(&self, account_id: AccountId) -> Option<Vec<Section>> {
-        self.tickets.get(&account_id)
+    pub fn get_tickets(&self, key_subject: String) -> Vec<Section> {
+        self.tickets.get(&key_subject).unwrap()
     }
     pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
         self.token_metadata_by_id.to_vec()
@@ -202,7 +221,33 @@ impl Contract {
 
         self.answers.insert(&key_attempt, &answers);
     }
+    pub fn set_subjects(&mut self) -> Response {
+        let chemistry = chemistry();
+        let physic = physic();
+        let sociology = sociology();
+        let microbiology = microbiology();
 
+        self.set_tickets(String::from("chemistry"), chemistry);
+        self.set_tickets(String::from("physic"), physic);
+        self.set_tickets(String::from("sociology"), sociology);
+        self.set_tickets(String::from("microbiology"), microbiology);
+
+        Response {
+            ok: true,
+            message: "Subjects is set up".to_string(),
+            attempt: 0,
+        }
+    }
+    pub fn get_all_tickets_of_subjects(&self) -> Vec<(String, Vec<Section>)> {
+        self.tickets.to_vec()
+    }
+
+    pub fn get_tickets_by_subject_name(&self, name: &String) -> Vec<Section> {
+        match self.tickets.get(&name) {
+            Some(tickets) => tickets,
+            None => vec![]
+        }
+    }
 
     pub fn set_current_result(
         &mut self,
