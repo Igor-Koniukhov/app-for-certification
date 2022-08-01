@@ -194,6 +194,23 @@ impl Contract {
         }
     }
 
+    pub fn set_subjects(&mut self) -> Response {
+        let chemistry = chemistry();
+        let physic = physic();
+        let sociology = sociology();
+        let microbiology = microbiology();
+
+        self.set_tickets(String::from("chemistry"), chemistry);
+        self.set_tickets(String::from("physic"), physic);
+        self.set_tickets(String::from("sociology"), sociology);
+        self.set_tickets(String::from("microbiology"), microbiology);
+
+        Response {
+            ok: true,
+            message: "Subjects is set up".to_string(),
+            attempt: 0,
+        }
+    }
     //set_tickets - set tickets from source when exam is started
     pub fn set_tickets(
         &mut self,
@@ -223,23 +240,7 @@ impl Contract {
 
         self.answers.insert(&key_attempt, &answers);
     }
-    pub fn set_subjects(&mut self) -> Response {
-        let chemistry = chemistry();
-        let physic = physic();
-        let sociology = sociology();
-        let microbiology = microbiology();
 
-        self.set_tickets(String::from("chemistry"), chemistry);
-        self.set_tickets(String::from("physic"), physic);
-        self.set_tickets(String::from("sociology"), sociology);
-        self.set_tickets(String::from("microbiology"), microbiology);
-
-        Response {
-            ok: true,
-            message: "Subjects is set up".to_string(),
-            attempt: 0,
-        }
-    }
 
     pub fn set_current_result(
         &mut self,
