@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 import React, {useContext, useEffect} from 'react';
-import {Route, Switch} from "react-router-dom";
+import {Redirect, Route, Switch} from "react-router-dom";
 import './global.css'
 import IntroContent from "./components/IntroContent";
 import Sociology from "./pages/subjects/Sociology";
@@ -30,7 +30,8 @@ export default function App() {
             <Switch>
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
-                    <Route path='/subjects' exact>
+                    <Route path='/' exact>
+                        <Redirect to='/subjects'/>
                         <Home/>
                     </Route>}
                 <Route path='/chemistry'>
