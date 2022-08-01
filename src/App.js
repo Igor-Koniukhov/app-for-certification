@@ -30,7 +30,7 @@ export default function App() {
             <Switch>
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
-                    <Route path='/' exact>
+                    <Route path='/subjects' exact>
                         <Home/>
                     </Route>}
                 <Route path='/chemistry'>
