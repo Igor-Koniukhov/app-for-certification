@@ -336,13 +336,13 @@ impl Contract {
         let current_attempt = self.get_num(&account_id).clone();
         let attempt = current_attempt + 1;
 
-        if current_attempt == 3 {
+        /*if current_attempt == 3 {
             return Response {
                 ok: false,
                 message: String::from("You have 3 attempt already! "),
                 attempt: current_attempt,
             };
-        }
+        }*/
         self.attempt.insert(&account_id, &attempt);
         log!("Attempt {}", attempt);
         Response {
