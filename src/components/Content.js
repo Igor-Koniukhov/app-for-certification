@@ -55,6 +55,7 @@ const Content = (props) => {
             const setCollectionOfAnswers = async () => {
                  await set_current_result({
                     account_id: window.accountId,
+                     subject_name: props.subjectName,
                     answers: cnx.answers,
                     attempt: cnx.attempt,
                 }).then((data) => {
@@ -84,6 +85,7 @@ const Content = (props) => {
     }
     const articles = ticketsState.map((content, index) =>
         <Article
+            subJectName={props.subjectName}
             article={content.article}
             key={content.article}
             source={content}

@@ -41,6 +41,7 @@ const Article = (props) => {
         console.log(answers, cnx.attempt, cnx.article)
         try {
             await set_answer({
+                subject_name: props.subJectName,
                 attempt: cnx.attempt,
                 article: cnx.article,
                 answers: answers,

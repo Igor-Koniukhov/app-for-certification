@@ -67,7 +67,7 @@ const Certificate = () => {
             {
                 token_id: `${stateResult.attempt}-${window.accountId}`,
                 metadata: {
-                    title: window.accountId,
+                    title:`${stateResult.subject_name}-${window.accountId}`,
                     description: description,
                     media: stateDataUrl,
                 },
@@ -109,10 +109,11 @@ const Certificate = () => {
                 <div>
                     <div className="container-frame frame stamp">
                         <h1 className="header-title">Certificate</h1>
+                        <p className="header-title">for achievement in exam of {stateResult.subject_name}</p>
                         <h2 className="header-title">Owner:</h2>
                         <h3 className="header-title">{window.accountId}</h3>
-                        <h6 className="header-title">number of points scored:</h6>
-                        <h6 className="header-title header-title_font-size">{stateResult.score}</h6>
+                        <h4 className="header-title">number of points scored:</h4>
+                        <h5 className="header-title header-title_font-size">{stateResult.score}</h5>
                         <h6 className="header-title">
                             certificate issued by
                             <strong className="text-decoration-underline"> certificator</strong>
@@ -143,6 +144,7 @@ const Certificate = () => {
             <div id="screenshot" >
                 <div className="container-frame-nft frame-nft stamp-nft">
                     <h1 className="header-title-nft">Certificate</h1>
+                    <p className="p-header-title-nft">for achievement in exam of {stateResult.subject_name}</p>
                     <h2 className="header-title-nft">Owner:</h2>
                     <h3 className="header-title-nft">{window.accountId}</h3>
                     <h6 className="header-title-nft">number of points scored:</h6>

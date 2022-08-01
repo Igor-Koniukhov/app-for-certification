@@ -67,12 +67,13 @@ pub const NFT_METADATA_SPEC: &str = "1.0.0";
 pub const NFT_STANDARD_NAME: &str = "nep171";
 
 
-
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
     //contract owner
     pub owner_id: AccountId,
+
+    pub is_init: bool,
 
     //keeps track of all the token IDs for a given account
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
@@ -132,6 +133,7 @@ pub struct Response {
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Result {
+    pub subject_name: String,
     pub attempt: u8,
     pub answers: Vec<Answer>,
     pub number_of_questions: u8,
@@ -165,6 +167,7 @@ impl Contract {
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized.
         let this = Self {
+            is_init: true,
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
@@ -187,7 +190,9 @@ impl Contract {
         //return the Contract object
         this
     }
-
+    pub fn get_status_init(&self) -> bool {
+        self.is_init
+    }
 
     //set_tickets - set tickets from source when exam is started
     pub fn set_tickets(
@@ -212,12 +217,13 @@ impl Contract {
     }
     pub fn set_answer(
         &mut self,
+        subject_name: String,
         attempt: u8,
         article: u8,
         answers: Vec<Answer>,
         account_id: AccountId,
     ) {
-        let key_attempt = format!("{}{}{}-", attempt, article, account_id);
+        let key_attempt = format!("{}{}-{}-{}", attempt, article, subject_name, account_id);
 
         self.answers.insert(&key_attempt, &answers);
     }
@@ -252,6 +258,7 @@ impl Contract {
     pub fn set_current_result(
         &mut self,
         account_id: AccountId,
+        subject_name: String,
         answers: Vec<Answer>,
         attempt: u8,
     ) -> Response {
@@ -268,6 +275,7 @@ impl Contract {
         let score: f32 = (num_correct.len() * 100 / (num_correct.len() + num_in_correct.len())) as f32;
         let sum_answers: u8 = (num_correct.len() + num_in_correct.len()) as u8;
         let result: Result = Result {
+            subject_name,
             attempt,
             answers,
             number_of_questions: sum_answers,
@@ -289,6 +297,7 @@ impl Contract {
         match self.result.get(&account_id) {
             Some(result) => result,
             None => Result {
+                subject_name: String::from(""),
                 attempt: 0,
                 answers: vec![],
                 number_of_questions: 0,

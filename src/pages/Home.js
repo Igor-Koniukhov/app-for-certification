@@ -9,13 +9,22 @@ import SubjectItemButton from "../components/UI/SubjectItemButton";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Home = () => {
-    const {new_default_meta} = window.contract;
+    const {new_default_meta, get_status_init} = window.contract;
     const [stateSpinner, setStateSpinner] = useState(false);
     const {
         set_subjects,
     } = window.contract;
-    const [stateResponseStatus, setStateResponseStatus] = useState(false);
     const [stateIsInit, setStateIsInit]=useState(false);
+
+    useEffect(()=>{
+        const isInit = async () =>{
+            await get_status_init({}).then((data)=>{
+                setStateIsInit(data)
+                }
+            )
+        }
+        isInit();
+    }, [stateIsInit])
 
     const subjectRange = [
         {
@@ -46,24 +55,20 @@ const Home = () => {
                 }
             }).then(()=>{
                 const setSubjects = async () => {
-                    await set_subjects({}).then((data) => {
-                        console.log(data.message)
-                        setStateResponseStatus(data.ok)
-                    })
+                    await set_subjects({})
                 }
                 setSubjects();
             })
         }
-
         initContract();
     }
 
-    console.log(stateResponseStatus)
+
     return (
         <Fragment>
             <div className="container text-center pt-5 ">
                 <h1>Welcome to Examinator</h1>
-                {
+                { stateIsInit &&
                     <Fragment>
                     <p>Choose your subject and start exam</p>
                     <small>At that moment, working only on chemistry exams. On click start initialization of the
@@ -81,8 +86,7 @@ const Home = () => {
                         )}
                     </div>
                 </Fragment>}
-
-                {
+                {!stateIsInit &&
 
                     <button className="btn btn-danger mt-4" onClick={initContractHandler}>Init contract</button>
                 }

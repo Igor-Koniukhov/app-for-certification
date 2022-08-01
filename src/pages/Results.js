@@ -10,6 +10,7 @@ const Certificate = () => {
     const {isLoaded, setCollectionAnswers} = useContext(ArticleContext);
     let [stateAnswers, setStateAnswers] = useState([])
     const [stateResult, setStateResult]=useState({})
+    const [stateSubjectName, setStateSubjectName]=useState('');
     const {
         get_answers,
         get_current_result,
@@ -27,6 +28,7 @@ const Certificate = () => {
                 setStateResult(data)
                     setStateAnswers(data.answers)
                     setCollectionAnswers(data.answers);
+                    setStateSubjectName(data.subject_name);
                     console.log(data, " data", data.answers, " answers")
                 console.log(data, "results")
             })
@@ -72,10 +74,10 @@ const getCertificateHandler = ()=>{
 
     return <div className="container">
         <Fragment>
+            <h1 className="text-capitalize">{stateSubjectName} test results:</h1>
             {
                 isAnswersGot ?
                 <Fragment>
-                    <h1>Results</h1>
                     {resultPassed.length !== 0 && <h3>Passed answers: </h3>}
                     {resultPassed}
                     {resultFailed.length !== 0 && <h3>Not passed answers: </h3>}
