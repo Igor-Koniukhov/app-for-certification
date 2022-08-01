@@ -29,7 +29,7 @@ export default function App() {
             <Switch>
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
-                    <Route path='/certificator' exact>
+                    <Route path='/app-for-certification' exact>
                         <Home/>
                     </Route>}
                 <Route path='/chemistry'>
