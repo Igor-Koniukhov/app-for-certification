@@ -95,6 +95,7 @@ const Content = (props) => {
 
     return (
         <div className="container pb-5 pt-5 wrapper">
+            <h1>{props.subjectName.toUpperCase()}</h1>
             {articles}
             { success && stateResultMessage &&
                 <div>

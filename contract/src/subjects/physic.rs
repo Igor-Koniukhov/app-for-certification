@@ -5,7 +5,7 @@ pub fn physic() -> Vec<Section> {
     let sections: Vec<Section> = vec![
         Section {
             article: 1,
-            title: "Physic test 1".to_string(),
+            title: "1".to_string(),
             tickets: vec![
                 Ticket {
                     id: 1,
@@ -54,7 +54,7 @@ pub fn physic() -> Vec<Section> {
         },
         Section {
             article: 2,
-            title: "Physic test 2".to_string(),
+            title: "2".to_string(),
             tickets: vec![
                 Ticket {
                     id: 1,
@@ -102,7 +102,7 @@ pub fn physic() -> Vec<Section> {
         },
         Section {
             article: 3,
-            title: "Physic test 3".to_string(),
+            title: "3".to_string(),
             tickets: vec![
                 Ticket {
                     id: 1,

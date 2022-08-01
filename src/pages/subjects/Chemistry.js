@@ -1,6 +1,6 @@
 import React  from "react";
 import {useHistory} from "react-router-dom";
-import Content from "../components/Content";
+import Content from "../../components/Content";
 
 const Chemistry = (props)=>{
     const history = useHistory();

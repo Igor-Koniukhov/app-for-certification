@@ -1,8 +1,8 @@
 import React from "react";
 import {useHistory} from "react-router-dom";
-import Content from "../components/Content";
+import Content from "../../components/Content";
 
-const Microbiology = (props)=>{
+const Sociology = (props)=>{
     const history = useHistory();
     let subjectName = history.location.pathname.substring(1);
 
@@ -14,4 +14,4 @@ const Microbiology = (props)=>{
     )
 }
 
-export default Microbiology;
+export default Sociology
