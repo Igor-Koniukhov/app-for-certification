@@ -70,19 +70,25 @@ pub const NFT_STANDARD_NAME: &str = "nep171";
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
+
     pub is_init: bool,
 
     //contract owner
     pub owner_id: AccountId,
 
+    //keeps track of the id_attempts vec for a given account id
     pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
 
+    //keeps track of the tickets vec for a given individual key
     tickets: UnorderedMap<String, Vec<Section>>,
 
+    //keeps track of the answers vec for a given individual key
     pub answers: UnorderedMap<String, Vec<Answer>>,
 
+    //keeps track of the result struct for a given account id
     pub results: UnorderedMap<AccountId, Result>,
 
+    //keeps track of the numbers attempts for a given account id
     pub attempt: UnorderedMap<AccountId, u8>,
 
     //keeps track of all the token IDs for a given account
@@ -151,10 +157,9 @@ pub struct Result {
 
 #[near_bindgen]
 impl Contract {
-    //this initializes the contract with default metadata (can only be called once).
+    //initialization of the contract can only be called once.
     #[init]
     pub fn new_default_meta(owner_id: AccountId) -> Self {
-        //calls the other function "new: with some default metadata and the owner_id passed in
         Self::new(
             owner_id,
             NFTContractMetadata {
@@ -208,6 +213,7 @@ impl Contract {
             attempt: 0,
         }
     }
+
     //set_tickets - set tickets from source when exam is started
     pub fn set_tickets(
         &mut self,
@@ -223,7 +229,6 @@ impl Contract {
 
         String::from("Tickets is set up")
     }
-
 
     pub fn set_answer(
         &mut self,
