@@ -29,7 +29,7 @@ const Certificate = () => {
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     });
-    const {setMetadate, isMeta }=useContext(ArticleContext)
+    const {setMetadate }=useContext(ArticleContext)
 
     const {
         nft_mint,
