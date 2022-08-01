@@ -113,7 +113,7 @@ pub enum StorageKey {
     Tickets,
     Answers,
     Results,
-    Attempt
+    Attempt,
 }
 
 
@@ -171,19 +171,16 @@ impl Contract {
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized.
-         Self {
+        Self {
             is_init: true,
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
-            token_metadata_by_id: UnorderedMap::new(
-                StorageKey::TokenMetadataById.try_to_vec().unwrap(),
-            ),
+            token_metadata_by_id: UnorderedMap::new(StorageKey::TokenMetadataById.try_to_vec().unwrap()),
             //set the owner_id field equal to the passed in owner_id.
             owner_id,
-            metadata: LazyOption::new(
-                StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
-                Some(&metadata),
+            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+                                      Some(&metadata),
             ),
 
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
@@ -364,9 +361,6 @@ impl Contract {
     pub fn get_status_init(&self) -> bool {
         self.is_init
     }
-
-
-
 }
 
 /*
