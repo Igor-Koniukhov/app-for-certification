@@ -40,7 +40,6 @@ const Certificate = () => {
     const [stateResult, setStateResult] = useState({})
     const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
 
-
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
 

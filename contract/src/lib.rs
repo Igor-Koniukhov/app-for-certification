@@ -93,7 +93,7 @@ pub struct Contract {
 
     pub answers: UnorderedMap<String, Vec<Answer>>,
 
-    pub result: UnorderedMap<AccountId, Result>,
+    pub results: UnorderedMap<AccountId, Result>,
 
     pub attempt: UnorderedMap<AccountId, u8>,
 }
@@ -109,6 +109,11 @@ pub enum StorageKey {
     TokensPerType,
     TokensPerTypeInner { token_type_hash: CryptoHash },
     TokenTypesLocked,
+    IdAttempts,
+    Tickets,
+    Answers,
+    Results,
+    Attempt
 }
 
 
@@ -166,7 +171,7 @@ impl Contract {
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         //create a variable of type Self with all the fields initialized.
-        let this = Self {
+         Self {
             is_init: true,
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
@@ -181,17 +186,12 @@ impl Contract {
                 Some(&metadata),
             ),
 
-            id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(b"s"),
-            tickets: UnorderedMap::<String, Vec<Section>>::new(b"t"),
-            answers: UnorderedMap::<String, Vec<Answer>>::new(b"a"),
-            result: UnorderedMap::<AccountId, Result>::new(b"r"),
-            attempt: UnorderedMap::<AccountId, u8>::new(b"i"),
-        };
-        //return the Contract object
-        this
-    }
-    pub fn get_status_init(&self) -> bool {
-        self.is_init
+            id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
+            tickets: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Tickets.try_to_vec().unwrap()),
+            answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
+            results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
+            attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
+        }
     }
 
     //set_tickets - set tickets from source when exam is started
@@ -209,12 +209,8 @@ impl Contract {
 
         String::from("Tickets is set up")
     }
-    pub fn get_tickets(&self, key_subject: String) -> Vec<Section> {
-        self.tickets.get(&key_subject).unwrap()
-    }
-    pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
-        self.token_metadata_by_id.to_vec()
-    }
+
+
     pub fn set_answer(
         &mut self,
         subject_name: String,
@@ -242,16 +238,6 @@ impl Contract {
             ok: true,
             message: "Subjects is set up".to_string(),
             attempt: 0,
-        }
-    }
-    pub fn get_all_tickets_of_subjects(&self) -> Vec<(String, Vec<Section>)> {
-        self.tickets.to_vec()
-    }
-
-    pub fn get_tickets_by_subject_name(&self, name: &String) -> Vec<Section> {
-        match self.tickets.get(&name) {
-            Some(tickets) => tickets,
-            None => vec![]
         }
     }
 
@@ -284,7 +270,7 @@ impl Contract {
             score,
             is_valid: score >= VALID_RESULT as f32,
         };
-        self.result.insert(&account_id, &result);
+        self.results.insert(&account_id, &result);
         let response: Response = Response {
             ok: true,
             message: "Result is set".to_string(),
@@ -293,8 +279,51 @@ impl Contract {
         response
     }
 
+    pub fn increment(&mut self, account_id: AccountId) -> Response {
+        let current_attempt = self.get_num(&account_id).clone();
+        let attempt = current_attempt + 1;
+
+        if current_attempt == 3 {
+            return Response {
+                ok: false,
+                message: String::from("You have 3 attempt already! "),
+                attempt: current_attempt,
+            };
+        }
+        self.attempt.insert(&account_id, &attempt);
+        log!("Attempt {}", attempt);
+        Response {
+            ok: true,
+            message: String::from("Success! "),
+            attempt,
+        }
+    }
+
+    pub fn reset(&mut self) {
+        let account_id = env::signer_account_id();
+        self.attempt.remove(&account_id);
+        log!("Reset attempt");
+    }
+
+
+    pub fn get_tickets(&self, key_subject: String) -> Vec<Section> {
+        self.tickets.get(&key_subject).unwrap()
+    }
+
+    pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
+        self.token_metadata_by_id.to_vec()
+    }
+
+    pub fn get_tickets_by_subject_name(&self, name: &String) -> Vec<Section> {
+        match self.tickets.get(&name) {
+            Some(tickets) => tickets,
+            None => vec![]
+        }
+    }
+
+
     pub fn get_current_result(&self, account_id: AccountId) -> Result {
-        match self.result.get(&account_id) {
+        match self.results.get(&account_id) {
             Some(result) => result,
             None => Result {
                 subject_name: String::from(""),
@@ -332,32 +361,13 @@ impl Contract {
         }
     }
 
-    pub fn increment(&mut self, account_id: AccountId) -> Response {
-        let current_attempt = self.get_num(&account_id).clone();
-        let attempt = current_attempt + 1;
+    pub fn get_status_init(&self) -> bool {
+        self.is_init
 
-        /*if current_attempt == 3 {
-            return Response {
-                ok: false,
-                message: String::from("You have 3 attempt already! "),
-                attempt: current_attempt,
-            };
-        }*/
-        self.attempt.insert(&account_id, &attempt);
-        log!("Attempt {}", attempt);
-        Response {
-            ok: true,
-            message: String::from("Success! "),
-            attempt,
-        }
     }
 
 
-    pub fn reset(&mut self) {
-        let account_id = env::signer_account_id();
-        self.attempt.remove(&account_id);
-        log!("Reset attempt");
-    }
+
 }
 
 /*
