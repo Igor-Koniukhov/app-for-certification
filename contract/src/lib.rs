@@ -70,10 +70,20 @@ pub const NFT_STANDARD_NAME: &str = "nep171";
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
+    pub is_init: bool,
+
     //contract owner
     pub owner_id: AccountId,
 
-    pub is_init: bool,
+    pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
+
+    tickets: UnorderedMap<String, Vec<Section>>,
+
+    pub answers: UnorderedMap<String, Vec<Answer>>,
+
+    pub results: UnorderedMap<AccountId, Result>,
+
+    pub attempt: UnorderedMap<AccountId, u8>,
 
     //keeps track of all the token IDs for a given account
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
@@ -87,15 +97,6 @@ pub struct Contract {
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
 
-    pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
-
-    tickets: UnorderedMap<String, Vec<Section>>,
-
-    pub answers: UnorderedMap<String, Vec<Answer>>,
-
-    pub results: UnorderedMap<AccountId, Result>,
-
-    pub attempt: UnorderedMap<AccountId, u8>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -170,24 +171,23 @@ impl Contract {
 
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
-        //create a variable of type Self with all the fields initialized.
         Self {
             is_init: true,
-            //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
-            tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
-            tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
-            token_metadata_by_id: UnorderedMap::new(StorageKey::TokenMetadataById.try_to_vec().unwrap()),
-            //set the owner_id field equal to the passed in owner_id.
             owner_id,
-            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
-                                      Some(&metadata),
-            ),
-
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
             tickets: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Tickets.try_to_vec().unwrap()),
             answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
             results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
+
+            tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
+            tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
+            token_metadata_by_id: UnorderedMap::new(StorageKey::TokenMetadataById.try_to_vec().unwrap()),
+
+            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+                                      Some(&metadata),
+            ),
+
         }
     }
 
@@ -318,7 +318,6 @@ impl Contract {
             None => vec![]
         }
     }
-
 
     pub fn get_current_result(&self, account_id: AccountId) -> Result {
         match self.results.get(&account_id) {
