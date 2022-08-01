@@ -22,7 +22,7 @@ const SubjectItemButton = (props) => {
         <div
             className="col-xl-5 col-md-5 col-sm-5 img-btn  "
             style={{
-                backgroundImage: `url(${props.image})`,
+                backgroundImage: `url(${process.env.PUBLIC_URL + `/` + props.image})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
