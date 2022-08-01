@@ -32,7 +32,6 @@ const MainNavigation = () => {
     }, [isSent]);
 const isHomepage = history.location.pathname === '/'
 
-
     return (
 
         <Fragment>
