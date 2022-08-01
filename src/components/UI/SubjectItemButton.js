@@ -11,7 +11,7 @@ const SubjectItemButton = (props) => {
 
     const moveToExamHandler = () => {
         setStateSpinner(true)
-        history.push(props.path)
+        history.push(`/app-for-certification${props.path}`)
         setStateSpinner(false)
 
 

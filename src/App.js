@@ -32,35 +32,35 @@ export default function App() {
                     <Route path='/app-for-certification' exact>
                         <Home/>
                     </Route>}
-                <Route path='/chemistry'>
+                <Route path='/app-for-certification/chemistry'>
                     <Chemistry
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/sociology'>
+                <Route path='/app-for-certification/sociology'>
                     <Sociology
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/physic'>
+                <Route path='/app-for-certification/physic'>
                     <Physic
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/microbiology'>
+                <Route path='/app-for-certification/microbiology'>
                     <Microbiology
                         isLoad={pageIsLoad}
                     />
                 </Route>
                 }
 
-                <Route path='/results'>
+                <Route path='/app-for-certification/results'>
                     <Results/>
                 </Route>
-                <Route path='/certificate'>
+                <Route path='/app-for-certification/certificate'>
                     <Certificate/>
                 </Route>
-                <Route path='/nft-collections'>
+                <Route path='/app-for-certification/nft-collections'>
                     <NFTCollections/>
                 </Route>
             </Switch>

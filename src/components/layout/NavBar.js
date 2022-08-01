@@ -58,7 +58,7 @@ const isHomepage = history.location.pathname === '/'
 
                             { isMeta &&
                                 <li>
-                                    <NavLink to='/nft-collections' className="nav-link px-2 text-white">
+                                    <NavLink to='/app-for-certification/nft-collections' className="nav-link px-2 text-white">
                                         NFT-collection
                                     </NavLink>
 
