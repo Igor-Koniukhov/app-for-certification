@@ -35524,7 +35524,7 @@ const Microbiology = props => {
 var _default = Microbiology;
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","../../components/Content":"components/Content.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "dev-1659349387093-80142965428366" || 'app-for-cert.i-koniukhov.testnet';
+const CONTRACT_NAME = "dev-1659349584489-60703916322065" || 'app-for-cert.i-koniukhov.testnet';
 
 function getConfig(env) {
   switch (env) {
@@ -57894,7 +57894,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39151" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39943" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
