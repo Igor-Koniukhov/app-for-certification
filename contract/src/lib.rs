@@ -70,13 +70,12 @@ pub const NFT_STANDARD_NAME: &str = "nep171";
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-
     pub is_init: bool,
 
     //contract owner
     pub owner_id: AccountId,
 
-    //keeps track of the id_attempts vec for a given account id
+    //keeps track of the id_attempts vec for a given account ID
     pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
 
     //keeps track of the tickets vec for a given individual key
@@ -85,10 +84,10 @@ pub struct Contract {
     //keeps track of the answers vec for a given individual key
     pub answers: UnorderedMap<String, Vec<Answer>>,
 
-    //keeps track of the result struct for a given account id
+    //keeps track of the result struct for a given account ID
     pub results: UnorderedMap<AccountId, Result>,
 
-    //keeps track of the numbers attempts for a given account id
+    //keeps track of the numbers attempts for a given account ID
     pub attempt: UnorderedMap<AccountId, u8>,
 
     //keeps track of all the token IDs for a given account
@@ -192,7 +191,6 @@ impl Contract {
             metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                                       Some(&metadata),
             ),
-
         }
     }
 
