@@ -1,5 +1,6 @@
-use crate::*;
 use near_sdk::{ext_contract, Gas};
+
+use crate::*;
 
 const GAS_FOR_NFT_APPROVE: Gas = Gas(10_000_000_000_000);
 const NO_DEPOSIT: Balance = 0;
@@ -9,7 +10,7 @@ pub trait NonFungibleTokenCore {
     fn nft_approve(&mut self, token_id: TokenId, account_id: AccountId, msg: Option<String>);
 
     //check if the passed in account has access to approve the token ID
-	fn nft_is_approved(
+    fn nft_is_approved(
         &self,
         token_id: TokenId,
         approved_account_id: AccountId,
@@ -37,7 +38,6 @@ trait NonFungibleTokenApprovalsReceiver {
 
 #[near_bindgen]
 impl NonFungibleTokenCore for Contract {
-
     //allow a specific account ID to approve a token on your behalf
     #[payable]
     fn nft_approve(&mut self, token_id: TokenId, account_id: AccountId, msg: Option<String>) {
@@ -71,7 +71,7 @@ impl NonFungibleTokenCore for Contract {
         //if it was a new approval, we need to calculate how much storage is being used to add the account.
         let storage_used = if is_new_approval {
             bytes_for_approved_account_id(&account_id)
-        //if it was not a new approval, we used no storage.
+            //if it was not a new approval, we used no storage.
         } else {
             0
         };
@@ -96,12 +96,12 @@ impl NonFungibleTokenCore for Contract {
                 NO_DEPOSIT, //NEAR deposit we attach to the call
                 env::prepaid_gas() - GAS_FOR_NFT_APPROVE, //GAS we're attaching
             )
-            .as_return(); // Returning this promise
+                .as_return(); // Returning this promise
         }
     }
 
     //check if the passed in account has access to approve the token ID
-	fn nft_is_approved(
+    fn nft_is_approved(
         &self,
         token_id: TokenId,
         approved_account_id: AccountId,
@@ -111,22 +111,22 @@ impl NonFungibleTokenCore for Contract {
         let token = self.tokens_by_id.get(&token_id).expect("No token");
 
         //get the approval number for the passed in account ID
-		let approval = token.approved_account_ids.get(&approved_account_id);
+        let approval = token.approved_account_ids.get(&approved_account_id);
 
         //if there was some approval ID found for the account ID
         if let Some(approval) = approval {
             //if a specific approval_id was passed into the function
-			if let Some(approval_id) = approval_id {
+            if let Some(approval_id) = approval_id {
                 //return if the approval ID passed in matches the actual approval ID for the account
-				approval_id == *approval
-            //if there was no approval_id passed into the function, we simply return true
-			} else {
-				true
-			}
-        //if there was no approval ID found for the account ID, we simply return false
-		} else {
-			false
-		}
+                approval_id == *approval
+                //if there was no approval_id passed into the function, we simply return true
+            } else {
+                true
+            }
+            //if there was no approval ID found for the account ID, we simply return false
+        } else {
+            false
+        }
     }
 
     //revoke a specific account from transferring the token on your behalf 

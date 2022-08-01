@@ -3,7 +3,7 @@ mod subjects_struct;
 pub use crate::subjects_struct::{Ticket, Section};
 
 pub fn sociology() -> Vec<Section> {
-    let sections: Vec<Section> = vec![
+     vec![
         Section {
             article: 1,
             title: "sociology test 1".to_string(),
@@ -163,8 +163,8 @@ pub fn sociology() -> Vec<Section> {
                 },
             ],
         },
-    ];
-    sections
+    ]
+
 }
 
 

@@ -29,7 +29,6 @@ export async function initContract() {
         // Change methods can modify the state. But you don't receive the returned value when called.
         changeMethods: [
             'set_subjects',
-            'get_all_tickets_of_subjects',
             'get_tickets',
             'set_tickets',
             'set_answer',
