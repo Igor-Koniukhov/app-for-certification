@@ -1,9 +1,8 @@
+#[allow(unused_imports)]
 extern crate time;
 
 use std::collections::HashMap;
-use std::ops::Index;
 
-use itertools::Itertools;
 use near_sdk::{
     AccountId,
     Balance,
@@ -42,7 +41,6 @@ mod internal;
 mod approval;
 mod enumeration;
 mod metadata;
-
 mod mint;
 mod nft_core;
 mod royalty;
@@ -79,7 +77,7 @@ pub struct Contract {
     pub id_attempts: UnorderedMap<AccountId, Vec<String>>,
 
     //keeps track of the tickets vec for a given individual key
-    tickets: UnorderedMap<String, Vec<Section>>,
+    subjects: UnorderedMap<String, Vec<Section>>,
 
     //keeps track of the answers vec for a given individual key
     pub answers: UnorderedMap<String, Vec<Answer>>,
@@ -116,7 +114,7 @@ pub enum StorageKey {
     TokensPerTypeInner { token_type_hash: CryptoHash },
     TokenTypesLocked,
     IdAttempts,
-    Tickets,
+    Subject,
     Answers,
     Results,
     Attempt,
@@ -179,7 +177,7 @@ impl Contract {
             is_init: true,
             owner_id,
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
-            tickets: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Tickets.try_to_vec().unwrap()),
+            subjects: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Subject.try_to_vec().unwrap()),
             answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
             results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
@@ -223,9 +221,9 @@ impl Contract {
         for section in sections {
             array_of_sections.push(section);
         };
-        self.tickets.insert(&key_subject, &array_of_sections);
+        self.subjects.insert(&key_subject, &array_of_sections);
 
-        String::from("Tickets is set up")
+        String::from("Tickets set up")
     }
 
     pub fn set_answer(
@@ -235,10 +233,12 @@ impl Contract {
         article: u8,
         answers: Vec<Answer>,
         account_id: AccountId,
-    ) {
+    ) -> String {
         let key_attempt = format!("{}{}-{}-{}", attempt, article, subject_name, account_id);
 
-        self.answers.insert(&key_attempt, &answers);
+        self.answers.insert(&key_attempt, &answers).expect("Answers do not set up!");
+
+        String::from("Answers set up")
     }
 
 
@@ -249,9 +249,9 @@ impl Contract {
         answers: Vec<Answer>,
         attempt: u8,
     ) -> Response {
-        env::log(format!("attempt from set_current_result {}", attempt).as_bytes());
         let mut num_correct: Vec<bool> = vec![];
         let mut num_in_correct: Vec<bool> = vec![];
+
         for answer in &answers {
             if answer.pass == true {
                 num_correct.push(answer.pass);
@@ -272,12 +272,12 @@ impl Contract {
             is_valid: score >= VALID_RESULT as f32,
         };
         self.results.insert(&account_id, &result);
-        let response: Response = Response {
+
+        Response {
             ok: true,
             message: "Result is set".to_string(),
             attempt,
-        };
-        response
+        }
     }
 
     pub fn increment(&mut self, account_id: AccountId) -> Response {
@@ -300,15 +300,9 @@ impl Contract {
         }
     }
 
-    pub fn reset(&mut self) {
-        let account_id = env::signer_account_id();
+    pub fn reset(&mut self, account_id: AccountId) {
         self.attempt.remove(&account_id);
         log!("Reset attempt");
-    }
-
-
-    pub fn get_tickets(&self, key_subject: String) -> Vec<Section> {
-        self.tickets.get(&key_subject).unwrap()
     }
 
     pub fn get_token_metadate(&self) -> Vec<(TokenId, TokenMetadata)> {
@@ -316,7 +310,7 @@ impl Contract {
     }
 
     pub fn get_tickets_by_subject_name(&self, name: &String) -> Vec<Section> {
-        match self.tickets.get(&name) {
+        match self.subjects.get(&name) {
             Some(tickets) => tickets,
             None => vec![]
         }
@@ -340,16 +334,16 @@ impl Contract {
 
     pub fn get_answers_by_key(&self, key: &String) -> Vec<Answer> {
         match self.answers.get(&key) {
-            Some(answerArray) => answerArray,
+            Some(answer_array) => answer_array,
             None => vec![]
         }
     }
     pub fn get_answers(&self) -> Vec<(String, Vec<Answer>)> {
         self.answers.to_vec()
     }
-    pub fn get_id_attempts(&self, accaunt_id: &AccountId) -> Vec<String> {
-        match self.id_attempts.get(&accaunt_id) {
-            Some(keyArray) => keyArray,
+    pub fn get_id_attempts(&self, account_id: &AccountId) -> Vec<String> {
+        match self.id_attempts.get(&account_id) {
+            Some(key_array) => key_array,
             None => vec![]
         }
     }
@@ -360,8 +354,13 @@ impl Contract {
             None => 0,
         }
     }
+
     pub fn get_status_init(&self) -> bool {
         self.is_init
+    }
+
+    pub fn get_subjects(&self) -> Vec<(String, Vec<Section>)> {
+        self.subjects.to_vec()
     }
 }
 
@@ -378,70 +377,200 @@ impl Contract {
  */
 #[cfg(test)]
 mod tests {
-    use near_sdk::{testing_env, VMContext};
-    use near_sdk::MockedBlockchain;
+    use near_sdk::{Gas, ONE_NEAR, test_utils::*, testing_env};
 
-    use super::*;
+    use crate::*;
 
-    // mock the context for testing, notice "signer_account_id" that was accessed above from env::
-    fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
-        VMContext {
-            current_account_id: "alice_near".to_string(),
-            signer_account_id: "bob_near".to_string(),
-            signer_account_pk: vec![0, 1, 2],
-            predecessor_account_id: "carol_near".to_string(),
-            input,
-            block_index: 0,
-            block_timestamp: 0,
-            account_balance: 0,
-            account_locked_balance: 0,
-            storage_usage: 0,
-            attached_deposit: 0,
-            prepaid_gas: 10u64.pow(18),
-            random_seed: vec![0, 1, 2],
-            is_view,
-            output_data_receivers: vec![],
-            epoch_height: 19,
-        }
+    fn account_id() -> AccountId {
+        "certificator.testnet".parse::<AccountId>().expect("Can't get AccountID")
+    }
+
+    fn owner_id() -> AccountId {
+        "owner.testnet".parse::<AccountId>().unwrap()
+    }
+
+
+    fn get_context(signer: &AccountId, deposit: Option<u128>) -> VMContextBuilder {
+        let mut contex = VMContextBuilder::new();
+        contex
+            .current_account_id(account_id())
+            .account_balance(100 * ONE_NEAR)
+            .signer_account_id(signer.clone())
+            .attached_deposit(deposit.unwrap_or(0))
+            .prepaid_gas(Gas(30_000_000_000_000))
+            .is_view(false);
+        contex
     }
 
     #[test]
-    fn set_then_get_greeting() {
-        let context = get_context(vec![], false);
-        testing_env!(context);
-        let mut contract = Welcome::default();
-        contract.set_greeting("howdy".to_string());
+    fn get_status_init() {
+        let context = get_context(&owner_id(), None);
+        testing_env!(context.build());
+        let contract = Contract::new_default_meta(owner_id());
+        let status = contract.get_status_init();
+        assert_eq!(status, true)
+    }
+
+    #[test]
+    fn set_subjects() {
+        let context = get_context(&owner_id(), None);
+        testing_env!(context.build());
+        let mut contract = Contract::new_default_meta(owner_id());
+        let chemistry = chemistry();
+        contract.set_subjects();
+
         assert_eq!(
-            "howdy".to_string(),
-            contract.get_greeting("bob_near".to_string())
+            contract.get_tickets_by_subject_name(&String::from("chemistry")).len(),
+            chemistry.len()
         );
     }
 
     #[test]
-    fn get_default_greeting() {
-        let context = get_context(vec![], true);
-        testing_env!(context);
-        let contract = Welcome::default();
-        // this test did not call set_greeting so should return the default "Hello" greeting
+    fn set_tickets() {
+        let context = get_context(&owner_id(), None);
+        testing_env!(context.build());
+        let mut contract = Contract::new_default_meta(owner_id());
+
+        let chemistry = chemistry();
+
+        contract.set_tickets(String::from("chemistry"), chemistry.clone());
+
+        let result = contract.get_tickets_by_subject_name(&String::from("chemistry"));
+
+        assert_eq!(result.len(),
+                   chemistry.len());
+    }
+
+    #[test]
+    fn set_answer() {
+        let context = get_context(&owner_id(), None);
+        testing_env!(context.build());
+        let mut contract = Contract::new_default_meta(owner_id());
+
+        let attempt = 0;
+        let article = 1;
+        let subject_name = String::from("chemistry");
+        let key_attempt = format!("{}{}-{}-{}", attempt, article, subject_name, &owner_id());
+        let answers: Vec<Answer> = vec![
+            Answer {
+                id: 1,
+                article_id: 1,
+                your_answer: "yes".to_string(),
+                correct_answer: "yes".to_string(),
+                pass: true,
+            },
+            Answer {
+                id: 1,
+                article_id: 2,
+                your_answer: "yes".to_string(),
+                correct_answer: "no".to_string(),
+                pass: false,
+            },
+            Answer {
+                id: 1,
+                article_id: 3,
+                your_answer: "".to_string(),
+                correct_answer: "".to_string(),
+                pass: false,
+            },
+        ];
+
+        contract.answers.insert(&key_attempt, &answers);
+        println!("answers {:?}", contract.get_answers_by_key(&key_attempt).len());
         assert_eq!(
-            "Hello".to_string(),
-            contract.get_greeting("francis.near".to_string())
+            contract.get_answers_by_key(&key_attempt).len(),
+            answers.len()
+        );
+    }
+
+    #[test]
+    fn set_current_result() {
+        let context = get_context(&owner_id(), None);
+        testing_env!(context.build());
+        let mut contract = Contract::new_default_meta(owner_id());
+        let name = String::from("chemistry");
+
+        let answers: Vec<Answer> = vec![
+            Answer {
+                id: 1,
+                article_id: 2,
+                your_answer: "yes".to_string(),
+                correct_answer: "no".to_string(),
+                pass: false,
+            },
+            Answer {
+                id: 2,
+                article_id: 1,
+                your_answer: "yes".to_string(),
+                correct_answer: "yes".to_string(),
+                pass: true,
+            },
+            Answer {
+                id: 3,
+                article_id: 1,
+                your_answer: "yes".to_string(),
+                correct_answer: "no".to_string(),
+                pass: false,
+            },
+        ];
+        contract.set_current_result(owner_id(), name, answers.clone(), 0);
+
+
+        assert_eq!(
+            contract.get_current_result(owner_id()).answers.len(),
+            answers.len()
         );
     }
 
     #[test]
     fn increment() {
-        // instantiate a contract variable with the counter at zero
-        let mut contract = Counter { val: 0 };
-        contract.increment();
-        assert_eq!(1, contract.get_num());
+        let mut contract = Contract::new_default_meta(owner_id());
+        contract.increment(owner_id());
+        assert_eq!(1, contract.get_num(&owner_id()));
     }
 
     #[test]
     fn increment_and_reset() {
-        let mut contract = Counter { val: 0 };
-        contract.increment();
-        contract.reset();
-        assert_eq!(0, contract.get_num());
+        let mut contract = Contract::new_default_meta(owner_id());
+        contract.increment(owner_id());
+        contract.reset(owner_id());
+        assert_eq!(0, contract.get_num(&owner_id()));
+    }
+
+    #[test]
+    fn nft_mint() {
+        let context = get_context(&owner_id(), Some(ONE_NEAR));
+        testing_env!(context.build());
+        let mut contract = Contract::new_default_meta(owner_id());
+        let token_id: TokenId = TokenId::from("101-test-id");
+
+        let metadata = TokenMetadata {
+            title: Option::from(String::from("Token title")),
+            description: Option::from(String::from("Some test description")),
+            media: None,
+            media_hash: None,
+            copies: None,
+            issued_at: None,
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        };
+
+        let mut royalty = HashMap::<AccountId, u32>::new();
+        royalty.insert(owner_id(), ONE_NEAR as u32);
+
+        contract.nft_mint(
+            token_id.clone(),
+            metadata.clone(),
+            owner_id(),
+            Some(royalty.clone()),
+        );
+        match contract.token_metadata_by_id.get(&token_id) {
+            None => {}
+            Some(meta) => assert_eq!(meta, metadata.clone())
+        };
     }
 }
