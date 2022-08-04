@@ -359,7 +359,7 @@ impl Contract {
         }
     }
 
-    //returns all answers witch equal expected attempt
+    //returns all answers which equal the expected attempt
     pub fn get_answers_by_attempt_id(&self, attempt_id: String) -> Vec<Vec<Answer>> {
         let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
         match self.key_answers_id.get(&attempt_id) {
