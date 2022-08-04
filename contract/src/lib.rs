@@ -365,7 +365,7 @@ impl Contract {
             },
         }
     }
-//returns all answers witch equal expected attempt
+    //returns all answers witch equal expected attempt
     pub fn get_answers_by_attempt_id(&self, attempt_id: String) -> Vec<Vec<Answer>> {
         let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
         match self.key_answers_id.get(&attempt_id) {
@@ -414,17 +414,7 @@ impl Contract {
     }
 }
 
-/*
- * The rest of this file holds the inline tests for the code above
- * Learn more about Rust tests: https://doc.rust-lang.org/book/ch11-01-writing-tests.html
- *
- * To run from contract directory:
- * cargo test -- --nocapture
- *
- * From project root, to run in combination with frontend tests:
- * yarn test
- *
- */
+
 #[cfg(test)]
 mod tests {
     use near_sdk::{Gas, ONE_NEAR, test_utils::*, testing_env};
@@ -611,6 +601,7 @@ mod tests {
             Some(meta) => assert_eq!(meta, metadata())
         };
     }
+
     //expected result should be equal TokenMetadata type
     #[test]
     fn get_token_metadata() {
