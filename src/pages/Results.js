@@ -31,8 +31,6 @@ const Certificate = () => {
                 setStateResult(data)
                     setStateSubjectName(data.subject_name);
                     setStateAttemptId(data.attempt_id)
-                    console.log(data, " data", data.answers, " answers")
-                console.log(data, "results")
             })
         }
         getResults();
@@ -43,10 +41,8 @@ const Certificate = () => {
         const getAndSetAnswers= async()=>{
             get_answers_by_attempt_id({attempt_id: stateAttemptId}).then((data)=>{
                 setStateAnswers(data)
-                console.log(data)
                 setCollectionAnswers(data)
             })
-
         }
         getAndSetAnswers()
     }, [stateAttemptId])

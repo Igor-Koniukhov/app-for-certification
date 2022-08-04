@@ -68,6 +68,7 @@ pub const NFT_STANDARD_NAME: &str = "nep171";
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
+    //status of initiation
     pub is_init: bool,
 
     //contract owner
@@ -183,7 +184,7 @@ impl Contract {
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
             subjects: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Subject.try_to_vec().unwrap()),
             answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
-            key_answers_id: LookupMap::new(StorageKey::KeyForResult {answer_id_hash: CryptoHash::default()}.try_to_vec().unwrap()),
+            key_answers_id: LookupMap::new(StorageKey::KeyForResult { answer_id_hash: CryptoHash::default() }.try_to_vec().unwrap()),
             results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
 
@@ -255,10 +256,9 @@ impl Contract {
             )
         });
 
-        //we insert the answer ID into the set
+        // insert the answer ID into the set
         answers_id_set.insert(&answer_id);
-
-        //we insert that set for the given account ID.
+        // insert that set for the given account ID.
         self.key_answers_id.insert(&attempt_id, &answers_id_set);
         self.answers.insert(&answer_id, &answers);
 
@@ -275,10 +275,7 @@ impl Contract {
     ) -> Response {
         let mut num_correct: Vec<bool> = vec![];
         let mut num_incorrect: Vec<bool> = vec![];
-
         let attempt_id = format!("{}-{}-{}", attempt, subject_name, account_id);
-
-
         for answer in &answers {
             if answer.pass == true {
                 num_correct.push(answer.pass);
@@ -368,8 +365,8 @@ impl Contract {
             },
         }
     }
-
-    pub fn get_answers_by_attempt_id(&self, attempt_id: String)->Vec<Vec<Answer>>{
+//returns all answers witch equal expected attempt
+    pub fn get_answers_by_attempt_id(&self, attempt_id: String) -> Vec<Vec<Answer>> {
         let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
         match self.key_answers_id.get(&attempt_id) {
             None => {}
@@ -498,6 +495,7 @@ mod tests {
         contex
     }
 
+    //check status of contract initiation after initiation, expect true
     #[test]
     fn get_status_init() {
         let context = get_context(&owner_id(), None);
@@ -507,6 +505,7 @@ mod tests {
         assert_eq!(status, true)
     }
 
+    //set subjects exam, get subject by name 'chemistry' and expect that result.length == chemistry.length
     #[test]
     fn set_subjects() {
         let context = get_context(&owner_id(), None);
@@ -521,6 +520,7 @@ mod tests {
         );
     }
 
+    //set tickets for chemistry exam and expect that result.length == chemistry.length
     #[test]
     fn set_tickets() {
         let context = get_context(&owner_id(), None);
@@ -534,6 +534,7 @@ mod tests {
                    chemistry.len());
     }
 
+    // after set answers expected  answers.result == answers.length (3)
     #[test]
     fn set_answer() {
         let context = get_context(&owner_id(), None);
@@ -553,6 +554,7 @@ mod tests {
         );
     }
 
+    //in answers struct all answer.pass == true, so we expect score 100
     #[test]
     fn set_current_result() {
         let context = get_context(&owner_id(), None);
@@ -564,10 +566,11 @@ mod tests {
 
         assert_eq!(
             contract.get_current_result(&owner_id()).score,
-            100
+            100 as f32
         );
     }
 
+    //expected increment of attempt increasing on 1
     #[test]
     fn increment() {
         let mut contract = Contract::new_default_meta(owner_id());
@@ -575,6 +578,7 @@ mod tests {
         assert_eq!(1, contract.get_num(&owner_id()));
     }
 
+    //expected 0 after increase on 1 and then reset
     #[test]
     fn increment_and_reset() {
         let mut contract = Contract::new_default_meta(owner_id());
@@ -583,6 +587,7 @@ mod tests {
         assert_eq!(0, contract.get_num(&owner_id()));
     }
 
+    // after mint expected result should be equal TokenMetadata type
     #[test]
     fn nft_mint() {
         let context = get_context(&owner_id(), Some(ONE_NEAR));
@@ -606,7 +611,7 @@ mod tests {
             Some(meta) => assert_eq!(meta, metadata())
         };
     }
-
+    //expected result should be equal TokenMetadata type
     #[test]
     fn get_token_metadata() {
         let context = get_context(&owner_id(), Some(ONE_NEAR));

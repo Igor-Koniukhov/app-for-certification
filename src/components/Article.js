@@ -37,7 +37,6 @@ const Article = (props) => {
     }, [buttonDisabled]);
 
     const sentMessage = async (answers) => {
-        console.log(answers, cnx.attempt, cnx.article)
         try {
             await set_answer({
                 subject_name: props.subJectName,
