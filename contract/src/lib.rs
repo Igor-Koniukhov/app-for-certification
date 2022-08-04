@@ -187,13 +187,10 @@ impl Contract {
             key_answers_id: LookupMap::new(StorageKey::KeyForResult { answer_id_hash: CryptoHash::default() }.try_to_vec().unwrap()),
             results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
-
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
             token_metadata_by_id: UnorderedMap::new(StorageKey::TokenMetadataById.try_to_vec().unwrap()),
-
-            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
-                                      Some(&metadata),
+            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(), Some(&metadata),
             ),
         }
     }
@@ -223,12 +220,10 @@ impl Contract {
         sections: Vec<Section>,
     ) -> String {
         let mut array_of_sections: Vec<Section> = vec![];
-
         for section in sections {
             array_of_sections.push(section);
         };
         self.subjects.insert(&key_subject, &array_of_sections);
-
         String::from("Tickets set up")
     }
 
@@ -261,10 +256,8 @@ impl Contract {
         // insert that set for the given account ID.
         self.key_answers_id.insert(&attempt_id, &answers_id_set);
         self.answers.insert(&answer_id, &answers);
-
         String::from("Answers set up")
     }
-
 
     pub fn set_current_result(
         &mut self,
@@ -365,6 +358,7 @@ impl Contract {
             },
         }
     }
+
     //returns all answers witch equal expected attempt
     pub fn get_answers_by_attempt_id(&self, attempt_id: String) -> Vec<Vec<Answer>> {
         let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
@@ -391,6 +385,7 @@ impl Contract {
     pub fn get_answers(&self) -> Vec<(String, Vec<Answer>)> {
         self.answers.to_vec()
     }
+
     pub fn get_id_attempts(&self, account_id: &AccountId) -> Vec<String> {
         match self.id_attempts.get(&account_id) {
             Some(key_array) => key_array,
@@ -471,7 +466,6 @@ mod tests {
             },
         ]
     }
-
 
     fn get_context(signer: &AccountId, deposit: Option<u128>) -> VMContextBuilder {
         let mut contex = VMContextBuilder::new();
