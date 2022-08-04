@@ -7,7 +7,6 @@ const NFTCollections = () => {
     const {get_token_metadata}=window.contract
     const [stateTokenMetadata, setStateTokenMetadata]=useState([])
     const {isMeta} = useContext(ArticleContext);
-    console.log(stateTokenMetadate)
 
     useEffect(() => {
         const getTokenMetadata = async () => {

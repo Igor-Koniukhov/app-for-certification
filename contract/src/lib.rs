@@ -82,6 +82,9 @@ pub struct Contract {
     //keeps track of the answers vec for a given individual key
     pub answers: UnorderedMap<String, Vec<Answer>>,
 
+    //keeps track of the answers_id for a given attempt_key
+    pub key_answers_id: LookupMap<String, UnorderedSet<String>>,
+
     //keeps track of the result struct for a given account ID
     pub results: UnorderedMap<AccountId, Result>,
 
@@ -116,6 +119,7 @@ pub enum StorageKey {
     IdAttempts,
     Subject,
     Answers,
+    KeyForResult { answer_id_hash: CryptoHash },
     Results,
     Attempt,
 }
@@ -144,7 +148,7 @@ pub struct Response {
 pub struct Result {
     pub subject_name: String,
     pub attempt: u8,
-    pub answers: Vec<Answer>,
+    pub attempt_id: String,
     pub number_of_questions: u8,
     pub number_of_correct_answers: u8,
     pub number_of_incorrect_answers: u8,
@@ -179,6 +183,7 @@ impl Contract {
             id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
             subjects: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Subject.try_to_vec().unwrap()),
             answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
+            key_answers_id: LookupMap::new(StorageKey::KeyForResult {answer_id_hash: CryptoHash::default()}.try_to_vec().unwrap()),
             results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
 
@@ -234,9 +239,28 @@ impl Contract {
         answers: Vec<Answer>,
         account_id: AccountId,
     ) -> String {
-        let key_attempt = format!("{}{}-{}-{}", attempt, article, subject_name, account_id);
+        let answer_id = format!("{}{}-{}-{}", attempt, article, subject_name, account_id);
+        let attempt_id = format!("{}-{}-{}", attempt, subject_name, account_id);
 
-        self.answers.insert(&key_attempt, &answers);
+        /*self.add_key_answer_to_owner_attempt(attempt_id, answer_id.clone());*/
+        let mut answers_id_set = self.key_answers_id.get(&attempt_id).unwrap_or_else(|| {
+            //if the account doesn't have any answers_id, we create a new unordered set
+            UnorderedSet::new(
+                StorageKey::KeyForResult {
+                    //we get a new unique prefix for the collection
+                    answer_id_hash: hash_answer_id(answer_id.clone()),
+                }
+                    .try_to_vec()
+                    .unwrap(),
+            )
+        });
+
+        //we insert the answer ID into the set
+        answers_id_set.insert(&answer_id);
+
+        //we insert that set for the given account ID.
+        self.key_answers_id.insert(&attempt_id, &answers_id_set);
+        self.answers.insert(&answer_id, &answers);
 
         String::from("Answers set up")
     }
@@ -250,33 +274,34 @@ impl Contract {
         attempt: u8,
     ) -> Response {
         let mut num_correct: Vec<bool> = vec![];
-        let mut num_in_correct: Vec<bool> = vec![];
+        let mut num_incorrect: Vec<bool> = vec![];
+
+        let attempt_id = format!("{}-{}-{}", attempt, subject_name, account_id);
+
 
         for answer in &answers {
             if answer.pass == true {
                 num_correct.push(answer.pass);
             } else {
-                num_in_correct.push(answer.pass);
+                num_incorrect.push(answer.pass);
             }
         }
-        let score: f32 = (num_correct.len() * 100 / (num_correct.len() + num_in_correct.len())) as f32;
-        let sum_answers: u8 = (num_correct.len() + num_in_correct.len()) as u8;
+        let score: f32 = (num_correct.len() * 100 / (num_correct.len() + num_incorrect.len())) as f32;
+        let sum_answers: u8 = (num_correct.len() + num_incorrect.len()) as u8;
         let result: Result = Result {
             subject_name,
             attempt,
-            answers,
+            attempt_id,
             number_of_questions: sum_answers,
             number_of_correct_answers: num_correct.len() as u8,
-            number_of_incorrect_answers: num_in_correct.len() as u8,
+            number_of_incorrect_answers: num_incorrect.len() as u8,
             score,
             is_valid: score >= VALID_RESULT as f32,
         };
-
         self.results.insert(&account_id, &result);
-
         Response {
             ok: true,
-            message: "Result is set up".to_string(),
+            message: "Result is set".to_string(),
             attempt,
         }
     }
@@ -328,13 +353,13 @@ impl Contract {
         }
     }
 
-    pub fn get_current_result(&self, account_id: AccountId) -> Result {
+    pub fn get_current_result(&self, account_id: &AccountId) -> Result {
         match self.results.get(&account_id) {
             Some(result) => result,
             None => Result {
                 subject_name: String::from(""),
                 attempt: 0,
-                answers: vec![],
+                attempt_id: String::from(""),
                 number_of_questions: 0,
                 number_of_incorrect_answers: 0,
                 number_of_correct_answers: 0,
@@ -344,12 +369,28 @@ impl Contract {
         }
     }
 
+    pub fn get_answers_by_attempt_id(&self, attempt_id: String)->Vec<Vec<Answer>>{
+        let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
+        match self.key_answers_id.get(&attempt_id) {
+            None => {}
+            Some(answers_id_collection) =>
+                for id in answers_id_collection.to_vec() {
+                    match self.answers.get(&id) {
+                        None => {}
+                        Some(answers) => answers_id_by_attempt.push(answers)
+                    }
+                }
+        }
+        answers_id_by_attempt
+    }
+
     pub fn get_answers_by_key(&self, key: &String) -> Vec<Answer> {
         match self.answers.get(&key) {
             Some(answer_array) => answer_array,
             None => vec![]
         }
     }
+
     pub fn get_answers(&self) -> Vec<(String, Vec<Answer>)> {
         self.answers.to_vec()
     }
@@ -425,7 +466,7 @@ mod tests {
                 article_id: 2,
                 your_answer: "yes".to_string(),
                 correct_answer: "no".to_string(),
-                pass: false,
+                pass: true,
             },
             Answer {
                 id: 2,
@@ -439,7 +480,7 @@ mod tests {
                 article_id: 1,
                 your_answer: "yes".to_string(),
                 correct_answer: "no".to_string(),
-                pass: false,
+                pass: true,
             },
         ]
     }
@@ -522,8 +563,8 @@ mod tests {
         contract.set_current_result(owner_id(), name, answers(), 0);
 
         assert_eq!(
-            contract.get_current_result(owner_id()).answers.len(),
-            answers().len()
+            contract.get_current_result(&owner_id()).score,
+            100
         );
     }
 

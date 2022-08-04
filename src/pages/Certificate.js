@@ -34,11 +34,11 @@ const Certificate = () => {
     const {
         nft_mint,
         get_current_result,
-        get_token_metadate,
+        get_token_metadata,
     } = window.contract
     const [stateDate, setStateDate] = useState('');
     const [stateResult, setStateResult] = useState({})
-    const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
+    const isResult = stateResult.score !== undefined && stateResult.score !== null;
 
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
