@@ -15,16 +15,18 @@ pub(crate) fn bytes_for_approved_account_id(account_id: &AccountId) -> u64 {
     account_id.as_str().len() as u64 + 4 + size_of::<u64>() as u64
 }
 
-//refund the storage taken up by passed in approved account IDs and send the funds to the passed in account ID. 
+//refund the storage taken up by passed in approved account IDs and send the funds to the passed in account ID.
 pub(crate) fn refund_approved_account_ids_iter<'a, I>(
     account_id: AccountId,
     approved_account_ids: I, //the approved account IDs must be passed in as an iterator
 ) -> Promise
-    where
-        I: Iterator<Item=&'a AccountId>,
+where
+    I: Iterator<Item = &'a AccountId>,
 {
     //get the storage total by going through and summing all the bytes for each approved account IDs
-    let storage_released: u64 = approved_account_ids.map(bytes_for_approved_account_id).sum();
+    let storage_released: u64 = approved_account_ids
+        .map(bytes_for_approved_account_id)
+        .sum();
     //transfer the account the storage that is released
     Promise::new(account_id).transfer(Balance::from(storage_released) * env::storage_byte_cost())
 }
@@ -55,8 +57,6 @@ pub(crate) fn hash_answer_id(answer_id: String) -> CryptoHash {
     hash.copy_from_slice(&env::sha256(answer_id.as_bytes()));
     hash
 }
-
-
 
 //used to make sure the user attached exactly 1 yoctoNEAR
 pub(crate) fn assert_one_yocto() {
@@ -113,15 +113,15 @@ impl Contract {
                     //we get a new unique prefix for the collection
                     account_id_hash: hash_account_id(&account_id),
                 }
-                    .try_to_vec()
-                    .unwrap(),
+                .try_to_vec()
+                .unwrap(),
             )
         });
 
         //we insert the token ID into the set
         tokens_set.insert(token_id);
 
-        //we insert that set for the given account ID. 
+        //we insert that set for the given account ID.
         self.tokens_per_owner.insert(account_id, &tokens_set);
     }
 
@@ -199,7 +199,7 @@ impl Contract {
         //we then add the token to the receiver_id's set
         self.internal_add_token_to_owner(receiver_id, token_id);
 
-        //we create a new token struct 
+        //we create a new token struct
         let new_token = Token {
             owner_id: receiver_id.clone(),
             //reset the approval account IDs
@@ -208,10 +208,10 @@ impl Contract {
             //we copy over the royalties from the previous token
             royalty: token.royalty.clone(),
         };
-        //insert that new token into the tokens_by_id, replacing the old entry 
+        //insert that new token into the tokens_by_id, replacing the old entry
         self.tokens_by_id.insert(token_id, &new_token);
 
-        //if there was some memo attached, we log it. 
+        //if there was some memo attached, we log it.
         if let Some(memo) = memo.as_ref() {
             env::log_str(&format!("Memo: {}", memo).to_string());
         }
@@ -250,4 +250,4 @@ impl Contract {
         //return the preivous token object that was transferred.
         token
     }
-} 
+}

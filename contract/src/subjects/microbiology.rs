@@ -3,7 +3,7 @@ mod subjects_struct;
 use crate::subjects_struct::{Section, Ticket};
 
 pub fn microbiology() -> Vec<Section> {
-   vec![
+    vec![
         Section {
             article: 1,
             title: "1".to_string(),
@@ -164,7 +164,4 @@ pub fn microbiology() -> Vec<Section> {
             ],
         },
     ]
-
 }
-
-

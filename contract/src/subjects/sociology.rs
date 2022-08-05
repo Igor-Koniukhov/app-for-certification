@@ -1,9 +1,9 @@
 mod subjects_struct;
 
-pub use crate::subjects_struct::{Ticket, Section};
+pub use crate::subjects_struct::{Section, Ticket};
 
 pub fn sociology() -> Vec<Section> {
-     vec![
+    vec![
         Section {
             article: 1,
             title: "sociology test 1".to_string(),
@@ -164,7 +164,4 @@ pub fn sociology() -> Vec<Section> {
             ],
         },
     ]
-
 }
-
-

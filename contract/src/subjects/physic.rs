@@ -163,7 +163,4 @@ pub fn physic() -> Vec<Section> {
             ],
         },
     ]
-
 }
-
-

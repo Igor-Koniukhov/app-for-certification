@@ -1,6 +1,5 @@
 use crate::*;
 use near_sdk::{ext_contract, Gas, PromiseResult};
-#[allow(unused_variables)]
 
 const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
 const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
@@ -73,7 +72,7 @@ trait NonFungibleTokenResolver {
     resolves the promise of the cross contract call to the receiver contract
     this is stored on THIS contract and is meant to analyze what happened in the cross contract call when nft_on_transfer was called
     as part of the nft_transfer_call method
-*/ 
+*/
 trait NonFungibleTokenResolver {
     fn nft_resolve_transfer(
         &mut self,
@@ -92,8 +91,7 @@ trait NonFungibleTokenResolver {
 
 #[near_bindgen]
 impl NonFungibleTokenCore for Contract {
-
-    //implementation of the nft_transfer method. This transfers the NFT from the current owner to the receiver. 
+    //implementation of the nft_transfer method. This transfers the NFT from the current owner to the receiver.
     #[payable]
     fn nft_transfer(
         &mut self,
@@ -103,19 +101,14 @@ impl NonFungibleTokenCore for Contract {
         approval_id: u64,
         memo: Option<String>,
     ) {
-        //assert that the user attached exactly 1 yoctoNEAR. This is for security and so that the user will be redirected to the NEAR wallet. 
+        //assert that the user attached exactly 1 yoctoNEAR. This is for security and so that the user will be redirected to the NEAR wallet.
         assert_one_yocto();
         //get the sender to transfer the token from the sender to the receiver
         let sender_id = env::predecessor_account_id();
 
         //call the internal transfer method and get back the previous token so we can refund the approved account IDs
-        let previous_token = self.internal_transfer(
-            &sender_id,
-            &receiver_id,
-            &token_id,
-            Some(approval_id),
-            memo,
-        );
+        let previous_token =
+            self.internal_transfer(&sender_id, &receiver_id, &token_id, Some(approval_id), memo);
 
         //we refund the owner for releasing the storage used up by the approved account IDs
         refund_approved_account_ids(
@@ -135,7 +128,7 @@ impl NonFungibleTokenCore for Contract {
         memo: Option<String>,
         msg: String,
     ) -> PromiseOrValue<bool> {
-        //assert that the user attached exactly 1 yocto for security reasons. 
+        //assert that the user attached exactly 1 yocto for security reasons.
         assert_one_yocto();
 
         //get the GAS attached to the call
@@ -153,7 +146,7 @@ impl NonFungibleTokenCore for Contract {
             MIN_GAS_FOR_NFT_TRANSFER_CALL
         );
 
-        //get the sender ID 
+        //get the sender ID
         let sender_id = env::predecessor_account_id();
 
         //transfer the token and get the previous token object
@@ -166,7 +159,7 @@ impl NonFungibleTokenCore for Contract {
         );
 
         //default the authorized_id to none
-        let mut authorized_id = None; 
+        let mut authorized_id = None;
         //if the sender isn't the owner of the token, we set the authorized ID equal to the sender.
         if sender_id != previous_token.owner_id {
             authorized_id = Some(sender_id.to_string());
@@ -179,7 +172,7 @@ impl NonFungibleTokenCore for Contract {
             token_id.clone(),
             msg,
             receiver_id.clone(), //contract account to make the call to
-            NO_DEPOSIT, //attached deposit
+            NO_DEPOSIT,          //attached deposit
             env::prepaid_gas() - GAS_FOR_NFT_TRANSFER_CALL, //attached GAS
         )
         //we then resolve the promise and call nft_resolve_transfer on our own contract
@@ -190,11 +183,12 @@ impl NonFungibleTokenCore for Contract {
             token_id,
             approval_id,
             previous_token.approved_account_ids,
-            memo, // we introduce a memo for logging in the events standard
+            memo,                      // we introduce a memo for logging in the events standard
             env::current_account_id(), //contract account to make the call to
-            NO_DEPOSIT, //attached deposit
-            GAS_FOR_RESOLVE_TRANSFER, //GAS attached to the call
-        )).into()
+            NO_DEPOSIT,                //attached deposit
+            GAS_FOR_RESOLVE_TRANSFER,  //GAS attached to the call
+        ))
+        .into()
     }
 
     //get the information for a specific token ID
@@ -211,7 +205,8 @@ impl NonFungibleTokenCore for Contract {
                 approved_account_ids: token.approved_account_ids,
                 royalty: token.royalty,
             })
-        } else { //if there wasn't a token ID in the tokens_by_id collection, we return None
+        } else {
+            //if there wasn't a token ID in the tokens_by_id collection, we return None
             None
         }
     }
@@ -242,8 +237,8 @@ impl NonFungibleTokenResolver for Contract {
             if let Ok(return_token) = near_sdk::serde_json::from_slice::<bool>(&value) {
                 //if we need don't need to return the token, we simply return true meaning everything went fine
                 if !return_token {
-                    /* 
-                        since we've already transferred the token and nft_on_transfer returned false, we don't have to 
+                    /*
+                        since we've already transferred the token and nft_on_transfer returned false, we don't have to
                         revert the original transfer and thus we can just return true since nothing went wrong.
                     */
                     //we refund the owner for releasing the storage used up by the approved account IDs
@@ -274,7 +269,7 @@ impl NonFungibleTokenResolver for Contract {
         //we add the token to the original owner
         self.internal_add_token_to_owner(&owner_id, &token_id);
 
-        //we change the token struct's owner to be the original owner 
+        //we change the token struct's owner to be the original owner
         token.owner_id = owner_id.clone();
 
         //we refund the receiver any approved account IDs that they may have set on the token

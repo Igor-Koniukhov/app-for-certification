@@ -63,7 +63,7 @@ impl NonFungibleTokenCore for Contract {
         //check if the account has been approved already for this token
         let is_new_approval = token
             .approved_account_ids
-            //insert returns none if the key was not present.  
+            //insert returns none if the key was not present.
             .insert(account_id.clone(), approval_id)
             //if the key was not present, .is_none() will return true so it is a new approval.
             .is_none();
@@ -81,22 +81,22 @@ impl NonFungibleTokenCore for Contract {
         //insert the token back into the tokens_by_id collection
         self.tokens_by_id.insert(&token_id, &token);
 
-        //refund any excess storage attached by the user. If the user didn't attach enough, panic. 
+        //refund any excess storage attached by the user. If the user didn't attach enough, panic.
         refund_deposit(storage_used);
 
         //if some message was passed into the function, we initiate a cross contract call on the
-        //account we're giving access to. 
+        //account we're giving access to.
         if let Some(msg) = msg {
             ext_non_fungible_approval_receiver::nft_on_approve(
                 token_id,
                 token.owner_id,
                 approval_id,
                 msg,
-                account_id, //contract account we're calling
-                NO_DEPOSIT, //NEAR deposit we attach to the call
+                account_id,                               //contract account we're calling
+                NO_DEPOSIT,                               //NEAR deposit we attach to the call
                 env::prepaid_gas() - GAS_FOR_NFT_APPROVE, //GAS we're attaching
             )
-                .as_return(); // Returning this promise
+            .as_return(); // Returning this promise
         }
     }
 
@@ -129,7 +129,7 @@ impl NonFungibleTokenCore for Contract {
         }
     }
 
-    //revoke a specific account from transferring the token on your behalf 
+    //revoke a specific account from transferring the token on your behalf
     #[payable]
     fn nft_revoke(&mut self, token_id: TokenId, account_id: AccountId) {
         //assert that the user attached exactly 1 yoctoNEAR for security reasons
@@ -142,11 +142,7 @@ impl NonFungibleTokenCore for Contract {
         assert_eq!(&predecessor_account_id, &token.owner_id);
 
         //if the account ID was in the token's approval, we remove it and the if statement logic executes
-        if token
-            .approved_account_ids
-            .remove(&account_id)
-            .is_some()
-        {
+        if token.approved_account_ids.remove(&account_id).is_some() {
             //refund the funds released by removing the approved_account_id to the caller of the function
             refund_approved_account_ids_iter(predecessor_account_id, [account_id].iter());
 
