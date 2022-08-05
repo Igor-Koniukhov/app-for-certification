@@ -140,6 +140,8 @@ pub struct Result {
     pub is_valid: bool,
 }
 
+
+
 #[near_bindgen]
 impl Contract {
     //initialization of the contract can only be called once.

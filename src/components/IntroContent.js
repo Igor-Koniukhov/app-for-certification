@@ -9,25 +9,18 @@ const IntroContent = () => {
             <div className="carousel-inner">
                 <div className="carousel-item active ">
                     <div className="certificate-blank-black">
-
                     </div>
-
                 </div>
                 <div className="carousel-item ">
                     <div className="certificate-blank">
-
-
                     </div>
                 </div>
                 <div className="carousel-item">
                     <div className="certificate-blank-black">
-
-
                     </div>
                 </div>
             </div>
         </div>
-
     )
 }
 

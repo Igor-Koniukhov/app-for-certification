@@ -19,7 +19,7 @@ const Home = () => {
     useEffect(()=>{
         const isInit = async () =>{
             await get_status_init({}).then((data)=>{
-                setStateIsInit(data)
+                    setStateIsInit(data)
                 }
             )
         }
@@ -63,31 +63,24 @@ const Home = () => {
         initContract();
     }
 
-
     return (
         <Fragment>
             <div className="container text-center pt-5 ">
                 <h1>Welcome to Examinator</h1>
                 { stateIsInit &&
                     <Fragment>
-                    <p>Choose your subject and start exam</p>
-                    <small>At that moment, working only on chemistry exams. On click start initialization of the
-                        Contract
-                        that fiche added temperately for the test-net period. If after initialization spinner time is to
-                        long - reload the page.
-                    </small>
-                    <div className="row justify-content-center">
-                        {subjectRange.map((sbj, index) =>
-                            <SubjectItemButton
-                                key={index}
-                                image={sbj.img}
-                                path={sbj.path}
-                            />
-                        )}
-                    </div>
-                </Fragment>}
+                        <p>Choose your subject and start exam</p>
+                        <div className="row justify-content-center">
+                            {subjectRange.map((sbj, index) =>
+                                <SubjectItemButton
+                                    key={index}
+                                    image={sbj.img}
+                                    path={sbj.path}
+                                />
+                            )}
+                        </div>
+                    </Fragment>}
                 {!stateIsInit &&
-
                     <button className="btn btn-danger mt-4" onClick={initContractHandler}>Init contract</button>
                 }
 

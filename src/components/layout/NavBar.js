@@ -19,7 +19,7 @@ const MainNavigation = () => {
     const getCounter = async () => {
         let count = await get_num({account_id: window.accountId})
             .catch(err => errorHelper(err))
-        setCountState(count === undefined ? 'calculating...' : count)
+        setCountState(count === undefined ? 0 : count)
         setAttempt(count);
     }
 
@@ -45,7 +45,7 @@ const isHomepage = history.location.pathname === '/'
                     {isSignedIn &&
                         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                             <li>
-                                <NavLink to='/app-for-certification' className="nav-link px-2 text-white">
+                                <NavLink to='/' className="nav-link px-2 text-white">
                                     Subjects
                                 </NavLink>
 
@@ -57,7 +57,7 @@ const isHomepage = history.location.pathname === '/'
 
                             { isMeta &&
                                 <li>
-                                    <NavLink to='/app-for-certification/nft-collections' className="nav-link px-2 text-white">
+                                    <NavLink to='/nft-collections' className="nav-link px-2 text-white">
                                         NFT-collection
                                     </NavLink>
 

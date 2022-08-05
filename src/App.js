@@ -29,38 +29,38 @@ export default function App() {
             <Switch>
                 {!isSignedIn && <IntroContent/>}
                 {isSignedIn &&
-                    <Route path='/app-for-certification' exact>
+                    <Route path='/' exact>
                         <Home/>
                     </Route>}
-                <Route path='/app-for-certification/chemistry'>
+                <Route path='/chemistry'>
                     <Chemistry
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/app-for-certification/sociology'>
+                <Route path='/sociology'>
                     <Sociology
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/app-for-certification/physic'>
+                <Route path='/physic'>
                     <Physic
                         isLoad={pageIsLoad}
                     />
                 </Route>
-                <Route path='/app-for-certification/microbiology'>
+                <Route path='/microbiology'>
                     <Microbiology
                         isLoad={pageIsLoad}
                     />
                 </Route>
                 }
 
-                <Route path='/app-for-certification/results'>
+                <Route path='/results'>
                     <Results/>
                 </Route>
-                <Route path='/app-for-certification/certificate'>
+                <Route path='/certificate'>
                     <Certificate/>
                 </Route>
-                <Route path='/app-for-certification/nft-collections'>
+                <Route path='/nft-collections'>
                     <NFTCollections/>
                 </Route>
             </Switch>

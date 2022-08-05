@@ -19,7 +19,8 @@ const Content = (props) => {
     const [buttonDisabledState, setButtonDisabledState] = useState(false);
     const [successState, setSuccessState] = useState(false);
     let [ticketsState, setTicketsState] = useState([]);
-    const [stateGettingResult, setStateGettingResult]=useState('Get results')
+    const [stateGettingResult, setStateGettingResult] = useState('Get results')
+    const [stateButtonColor, setStateButtonColor]= useState('btn btn-secondary mt-4')
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
@@ -28,8 +29,6 @@ const Content = (props) => {
     }
     const isTicketLoad = ticketsState.length === 0;
     const isTicketSucceed = !ticketError && !isTicketLoad
-
-
 
     useEffect(() => {
         const getTickets = async () => {
@@ -49,20 +48,19 @@ const Content = (props) => {
         }
     }, [isLoaded]);
 
-
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
-                 await set_current_result({
+                await set_current_result({
                     account_id: window.accountId,
-                     subject_name: props.subjectName,
+                    subject_name: props.subjectName,
                     answers: cnx.answers,
                     attempt: cnx.attempt,
                 }).then((data) => {
-                        if (data.ok){
-                            setStateResultMessage(true)
-                        }
-                    })
+                    if (data.ok) {
+                        setStateResultMessage(true)
+                    }
+                })
             }
             setCollectionOfAnswers();
         }
@@ -70,6 +68,7 @@ const Content = (props) => {
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
+        setStateButtonColor('btn btn-warning mt-4')
         setStateGettingResult('getting...')
         const {ok, message} = await increment({account_id: window.accountId})
         console.log(message)
@@ -99,16 +98,16 @@ const Content = (props) => {
         <div className="container pb-5 pt-5 wrapper">
             <h1>{props.subjectName.toUpperCase()}</h1>
             {articles}
-            { success && stateResultMessage &&
+            {success && stateResultMessage &&
                 <div>
                     <button
-                        className='btn btn-success mt-4'
-                        onClick={getResultsHandler}>{ success ? stateGettingResult : 'Got'}
+                        className={`${success ? stateButtonColor :'btn btn-success mt-4'}`}
+                        onClick={getResultsHandler}>{success ? stateGettingResult : 'Got'}
                     </button>
                 </div>}
             {
-                showNotification  &&
-                <Notification />}
+                showNotification &&
+                <Notification/>}
             {
                 !isTicketSucceed &&
                 (

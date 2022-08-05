@@ -4,9 +4,7 @@ import Content from "../../components/Content";
 
 const Chemistry = (props)=>{
     const history = useHistory();
-    let subjectName = history.location.pathname.substring(23);
-    console.log(subjectName, " sub name")
-
+    let subjectName = history.location.pathname.substring(1);
     return (
         <Content
             subjectName={subjectName}

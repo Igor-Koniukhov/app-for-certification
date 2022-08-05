@@ -7,17 +7,12 @@ import LoadingSpinner from "./LoadingSpinner";
 const SubjectItemButton = (props) => {
     const [stateSpinner, setStateSpinner] = useState(false);
     const history = useHistory();
-
-
     const moveToExamHandler = () => {
         setStateSpinner(true)
-        history.push(`/app-for-certification${props.path}`)
+        history.push(`${props.path}`)
         setStateSpinner(false)
-
-
     }
     let title = props.path.substring(1).toUpperCase();
-
     return (
         <div
             className="col-xl-5 col-md-5 col-sm-5 img-btn  "
@@ -43,8 +38,6 @@ const SubjectItemButton = (props) => {
             </div>
             <div className="button-title">  {title}</div>
             <div className="handler" onClick={moveToExamHandler}></div>
-
-
         </div>
     )
 }

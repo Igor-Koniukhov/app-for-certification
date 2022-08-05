@@ -95,10 +95,8 @@ const Certificate = () => {
             await get_token_metadata({account_id: window.accountId})
                 .then((data) => {
                     if (data.length > 0) {
-
                         cnx.setMetadate(data, true)
                     }
-
                 })
         }
         getTokenMetadata();
@@ -141,10 +139,8 @@ const Certificate = () => {
                     >
                         Mint NFT
                     </button>
-
                 </div>
             </div>
-
             <div id="screenshot">
                 <div className="container-frame-nft frame-nft stamp-nft">
                     <h1 className="header-title-nft">Certificate</h1>
@@ -158,7 +154,6 @@ const Certificate = () => {
                         certificator
                     </h6>
                     <h6 className="header-title-nft">date: {stateDate} </h6>
-
                 </div>
                 <div/>
             </div>
@@ -167,10 +162,7 @@ const Certificate = () => {
                     <LoadingSpinner/>
                 </div>
             }
-
         </Fragment>
-
-
     )
 }
 

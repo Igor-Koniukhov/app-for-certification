@@ -5,7 +5,7 @@ import './QuestionItem.module.css'
 const QuestionItems = (props) => {
     const artCtx = useContext(ArticleContext);
     const [buttonDisabled, setButtonDisabled] = useState(false)
-    const [shufledAnswers, setShufledAnswers] = useState([])
+    const [shuffledAnswers, setShuffledAnswers] = useState([])
 
     const answer = {
         id: "",
@@ -32,16 +32,14 @@ const QuestionItems = (props) => {
         .map(value => ({value, sort: Math.random()}))
         .sort((a, b) => a.sort - b.sort)
         .map(({value}) => value)
-
     useEffect(() => {
-        setShufledAnswers(answers)
+        setShuffledAnswers(answers)
     }, [])
-
 
     return (
         <ol>
             <h3>{props.index + 1}. {props.question}</h3>
-            {shufledAnswers.map((a, i) =>
+            {shuffledAnswers.map((a, i) =>
                 <li key={i}>
                     <input
                         className={props.id + "-" + "checked"}
