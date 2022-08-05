@@ -6,7 +6,6 @@ import ArticleContext from "../store/article-context";
 const Article = (props) => {
     const {
         set_answer,
-        get_answers,
     } = window.contract;
 
     const {tickets} = props.source;
@@ -38,7 +37,6 @@ const Article = (props) => {
     }, [buttonDisabled]);
 
     const sentMessage = async (answers) => {
-        console.log(answers, cnx.attempt, cnx.article)
         try {
             await set_answer({
                 subject_name: props.subJectName,
@@ -64,7 +62,7 @@ const Article = (props) => {
         event.preventDefault();
 
         const sentAnswers = async () => {
-                sentMessage(filteredAnswers)
+               await sentMessage(filteredAnswers)
 
             props.setShowNotification(true);
             setTimeout(() => {
@@ -72,13 +70,7 @@ const Article = (props) => {
             }, 4000);
         };
 
-        const getAnswers = async () => {
-            await get_answers({}).then((data)=>{
-                console.log(data, " answers")
-            })
 
-        };
-        await getAnswers();
         await sentAnswers();
     }
 

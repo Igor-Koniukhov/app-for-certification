@@ -1,4 +1,4 @@
-import React, {Fragment, useEffect, useRef, useState, useContext} from "react";
+import React, {Fragment, useContext, useEffect, useRef, useState} from "react";
 import "./Certificate.module.css"
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 import {useReactToPrint} from "react-to-print";
@@ -29,16 +29,16 @@ const Certificate = () => {
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     });
-    const {setMetadate }=useContext(ArticleContext)
+    const cnx = useContext(ArticleContext)
 
     const {
         nft_mint,
         get_current_result,
-        get_token_metadate,
+        get_token_metadata,
     } = window.contract
     const [stateDate, setStateDate] = useState('');
     const [stateResult, setStateResult] = useState({})
-    const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
+    const isResult = stateResult.score !== undefined && stateResult.score !== null;
 
     const [stateDataUrl, setStateDataUrl] = useState('');
     const node = document.getElementById('screenshot');
@@ -60,13 +60,13 @@ const Certificate = () => {
     today = dd + '/' + mm + '/' + yyyy;
 
     const description = ` That certificate of achievement is presented to ${window.accountId}, for passing the exam with score: ${stateResult.score}. Date: ${today}`
-
+    const token_id = `${stateResult.attempt}-${window.accountId}`
     const mintNFT = async () => {
         await nft_mint(
             {
-                token_id: `${stateResult.attempt}-${window.accountId}`,
+                token_id: token_id,
                 metadata: {
-                    title:`${stateResult.subject_name}-${window.accountId}`,
+                    title: `${stateResult.subject_name}-${window.accountId}`,
                     description: description,
                     media: stateDataUrl,
                 },
@@ -84,21 +84,26 @@ const Certificate = () => {
                 setStateResult(data)
             })
         }
-        getResults();
         setStateDate(today)
+        getResults();
+
     }, [isResult])
+
+
     useEffect(() => {
         const getTokenMetadata = async () => {
-            await get_token_metadate({}).then((data) => {
-                if (data.length > 0){
-                    setMetadate(data, true)
-                }
+            await get_token_metadata({account_id: window.accountId})
+                .then((data) => {
+                    if (data.length > 0) {
 
-            })
+                        cnx.setMetadate(data, true)
+                    }
+
+                })
         }
         getTokenMetadata();
+    }, [])
 
-    }, [isResult])
 
     return (
         <Fragment>
@@ -140,7 +145,7 @@ const Certificate = () => {
                 </div>
             </div>
 
-            <div id="screenshot" >
+            <div id="screenshot">
                 <div className="container-frame-nft frame-nft stamp-nft">
                     <h1 className="header-title-nft">Certificate</h1>
                     <p className="p-header-title-nft">for achievement in exam of {stateResult.subject_name}</p>

@@ -47,6 +47,17 @@ pub(crate) fn hash_account_id(account_id: &AccountId) -> CryptoHash {
     hash
 }
 
+//used to generate a unique prefix in our storage collections (this is to avoid data collisions)
+pub(crate) fn hash_answer_id(answer_id: String) -> CryptoHash {
+    //get the default hash
+    let mut hash = CryptoHash::default();
+    //we hash the account ID and return it
+    hash.copy_from_slice(&env::sha256(answer_id.as_bytes()));
+    hash
+}
+
+
+
 //used to make sure the user attached exactly 1 yoctoNEAR
 pub(crate) fn assert_one_yocto() {
     assert_eq!(
