@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 extern crate time;
 
 use std::collections::HashMap;
