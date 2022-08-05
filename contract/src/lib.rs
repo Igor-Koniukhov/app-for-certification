@@ -3,26 +3,13 @@ extern crate time;
 
 use std::collections::HashMap;
 
-use near_sdk::{
-    AccountId,
-    Balance,
-    CryptoHash,
-    env,
-    log,
-    near_bindgen,
-    PanicOnDefault,
-    Promise,
-    PromiseOrValue,
-};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{
-    LazyOption,
-    LookupMap,
-    UnorderedMap,
-    UnorderedSet,
-};
+use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::{
+    env, log, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue,
+};
 
 pub use crate::approval::*;
 use crate::chemistry::chemistry;
@@ -37,23 +24,23 @@ use crate::physic::physic;
 pub use crate::royalty::*;
 use crate::sociology::sociology;
 
-mod internal;
 mod approval;
 mod enumeration;
+mod events;
+mod internal;
 mod metadata;
 mod mint;
 mod nft_core;
 mod royalty;
-mod events;
 
 #[path = "subjects/chemistry.rs"]
 mod chemistry;
+#[path = "subjects/microbiology.rs"]
+mod microbiology;
 #[path = "subjects/physic.rs"]
 mod physic;
 #[path = "subjects/sociology.rs"]
 mod sociology;
-#[path = "subjects/microbiology.rs"]
-mod microbiology;
 #[path = "subjects/subjects_struct.rs"]
 mod subjects_struct;
 
@@ -63,7 +50,6 @@ const VALID_RESULT: f32 = 70 as f32;
 pub const NFT_METADATA_SPEC: &str = "1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
-
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -103,7 +89,6 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
-
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -124,7 +109,6 @@ pub enum StorageKey {
     Results,
     Attempt,
 }
-
 
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize, Debug, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -181,16 +165,34 @@ impl Contract {
         Self {
             is_init: true,
             owner_id,
-            id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(StorageKey::IdAttempts.try_to_vec().unwrap()),
-            subjects: UnorderedMap::<String, Vec<Section>>::new(StorageKey::Subject.try_to_vec().unwrap()),
-            answers: UnorderedMap::<String, Vec<Answer>>::new(StorageKey::Answers.try_to_vec().unwrap()),
-            key_answers_id: LookupMap::new(StorageKey::KeyForResult { answer_id_hash: CryptoHash::default() }.try_to_vec().unwrap()),
-            results: UnorderedMap::<AccountId, Result>::new(StorageKey::Results.try_to_vec().unwrap()),
+            id_attempts: UnorderedMap::<AccountId, Vec<String>>::new(
+                StorageKey::IdAttempts.try_to_vec().unwrap(),
+            ),
+            subjects: UnorderedMap::<String, Vec<Section>>::new(
+                StorageKey::Subject.try_to_vec().unwrap(),
+            ),
+            answers: UnorderedMap::<String, Vec<Answer>>::new(
+                StorageKey::Answers.try_to_vec().unwrap(),
+            ),
+            key_answers_id: LookupMap::new(
+                StorageKey::KeyForResult {
+                    answer_id_hash: CryptoHash::default(),
+                }
+                .try_to_vec()
+                .unwrap(),
+            ),
+            results: UnorderedMap::<AccountId, Result>::new(
+                StorageKey::Results.try_to_vec().unwrap(),
+            ),
             attempt: UnorderedMap::<AccountId, u8>::new(StorageKey::Attempt.try_to_vec().unwrap()),
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
             tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
-            token_metadata_by_id: UnorderedMap::new(StorageKey::TokenMetadataById.try_to_vec().unwrap()),
-            metadata: LazyOption::new(StorageKey::NFTContractMetadata.try_to_vec().unwrap(), Some(&metadata),
+            token_metadata_by_id: UnorderedMap::new(
+                StorageKey::TokenMetadataById.try_to_vec().unwrap(),
+            ),
+            metadata: LazyOption::new(
+                StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+                Some(&metadata),
             ),
         }
     }
@@ -214,15 +216,11 @@ impl Contract {
     }
 
     //set_tickets - set tickets from source when exam is started
-    pub fn set_tickets(
-        &mut self,
-        key_subject: String,
-        sections: Vec<Section>,
-    ) -> String {
+    pub fn set_tickets(&mut self, key_subject: String, sections: Vec<Section>) -> String {
         let mut array_of_sections: Vec<Section> = vec![];
         for section in sections {
             array_of_sections.push(section);
-        };
+        }
         self.subjects.insert(&key_subject, &array_of_sections);
         String::from("Tickets set up")
     }
@@ -246,8 +244,8 @@ impl Contract {
                     //we get a new unique prefix for the collection
                     answer_id_hash: hash_answer_id(answer_id.clone()),
                 }
-                    .try_to_vec()
-                    .unwrap(),
+                .try_to_vec()
+                .unwrap(),
             )
         });
 
@@ -276,7 +274,8 @@ impl Contract {
                 num_incorrect.push(answer.pass);
             }
         }
-        let score: f32 = (num_correct.len() * 100 / (num_correct.len() + num_incorrect.len())) as f32;
+        let score: f32 =
+            (num_correct.len() * 100 / (num_correct.len() + num_incorrect.len())) as f32;
         let sum_answers: u8 = (num_correct.len() + num_incorrect.len()) as u8;
         let result: Result = Result {
             subject_name,
@@ -325,13 +324,14 @@ impl Contract {
         let mut tokens: Vec<TokenMetadata> = vec![];
         match self.tokens_per_owner.get(&account_id) {
             None => {}
-            Some(tokens_id_collection) =>
+            Some(tokens_id_collection) => {
                 for id in tokens_id_collection.to_vec() {
                     match self.token_metadata_by_id.get(&id) {
                         None => {}
-                        Some(token) => tokens.push(token)
+                        Some(token) => tokens.push(token),
                     }
                 }
+            }
         }
         tokens
     }
@@ -339,7 +339,7 @@ impl Contract {
     pub fn get_tickets_by_subject_name(&self, name: &String) -> Vec<Section> {
         match self.subjects.get(&name) {
             Some(tickets) => tickets,
-            None => vec![]
+            None => vec![],
         }
     }
 
@@ -364,13 +364,14 @@ impl Contract {
         let mut answers_id_by_attempt: Vec<Vec<Answer>> = vec![];
         match self.key_answers_id.get(&attempt_id) {
             None => {}
-            Some(answers_id_collection) =>
+            Some(answers_id_collection) => {
                 for id in answers_id_collection.to_vec() {
                     match self.answers.get(&id) {
                         None => {}
-                        Some(answers) => answers_id_by_attempt.push(answers)
+                        Some(answers) => answers_id_by_attempt.push(answers),
                     }
                 }
+            }
         }
         answers_id_by_attempt
     }
@@ -378,7 +379,7 @@ impl Contract {
     pub fn get_answers_by_key(&self, key: &String) -> Vec<Answer> {
         match self.answers.get(&key) {
             Some(answer_array) => answer_array,
-            None => vec![]
+            None => vec![],
         }
     }
 
@@ -389,7 +390,7 @@ impl Contract {
     pub fn get_id_attempts(&self, account_id: &AccountId) -> Vec<String> {
         match self.id_attempts.get(&account_id) {
             Some(key_array) => key_array,
-            None => vec![]
+            None => vec![],
         }
     }
 
@@ -409,15 +410,14 @@ impl Contract {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use near_sdk::{Gas, ONE_NEAR, test_utils::*, testing_env};
+    use near_sdk::{test_utils::*, testing_env, Gas, ONE_NEAR};
 
     use crate::*;
 
     fn account_id() -> AccountId {
-        "certificator.testnet".parse::<AccountId>().expect("Can't get AccountID")
+        "certificator.testnet".parse::<AccountId>().unwrap()
     }
 
     fn owner_id() -> AccountId {
@@ -499,7 +499,9 @@ mod tests {
         contract.set_subjects();
 
         assert_eq!(
-            contract.get_tickets_by_subject_name(&String::from("chemistry")).len(),
+            contract
+                .get_tickets_by_subject_name(&String::from("chemistry"))
+                .len(),
             chemistry.len()
         );
     }
@@ -514,8 +516,7 @@ mod tests {
         contract.set_tickets(String::from("chemistry"), chemistry.clone());
         let result = contract.get_tickets_by_subject_name(&String::from("chemistry"));
 
-        assert_eq!(result.len(),
-                   chemistry.len());
+        assert_eq!(result.len(), chemistry.len());
     }
 
     // after set answers expected  answers.result == answers.length (3)
@@ -531,7 +532,10 @@ mod tests {
         let key_attempt = format!("{}{}-{}-{}", attempt, article, subject_name, &owner_id());
 
         contract.answers.insert(&key_attempt, &answers());
-        println!("answers {:?}", contract.get_answers_by_key(&key_attempt).len());
+        println!(
+            "answers {:?}",
+            contract.get_answers_by_key(&key_attempt).len()
+        );
         assert_eq!(
             contract.get_answers_by_key(&key_attempt).len(),
             answers().len()
@@ -548,10 +552,7 @@ mod tests {
 
         contract.set_current_result(owner_id(), name, answers(), 0);
 
-        assert_eq!(
-            contract.get_current_result(&owner_id()).score,
-            100 as f32
-        );
+        assert_eq!(contract.get_current_result(&owner_id()).score, 100 as f32);
     }
 
     //expected increment of attempt increasing on 1
@@ -592,7 +593,7 @@ mod tests {
         );
         match contract.token_metadata_by_id.get(&token_id) {
             None => {}
-            Some(meta) => assert_eq!(meta, metadata())
+            Some(meta) => assert_eq!(meta, metadata()),
         };
     }
 
