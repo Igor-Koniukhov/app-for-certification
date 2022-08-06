@@ -1,11 +1,17 @@
 import React from "react";
 
-const NFTItem =(props)=>{
+const NFTItem = (props) => {
     return (
-        <div className="col-4 d-flex justify-content-center flex-column">
-            <h3>{props.d.title}</h3>
-            <p>{props.d.description}</p>
-            <img src={props.d.media} />
+        <div
+            className="col-lg-4 col-md-4 col-sm-6 d-flex flex-column"
+
+        >
+            <strong className="text-center">{props.d.title}</strong>
+            <details style={{textAlign: "justify"}}>
+                <summary>description:</summary>
+                <p style={{fontSize: "14px"}}>{props.d.description}</p>
+            </details>
+            <img src={props.d.media}/>
         </div>
     )
 }

@@ -5,8 +5,6 @@ import ArticleContext from "../store/article-context";
 import ResultItem from "../components/ResultItem";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
-
-
 const Certificate = () => {
     const history = useHistory();
     const {isLoaded, setCollectionAnswers} = useContext(ArticleContext);
@@ -56,6 +54,7 @@ const Certificate = () => {
         answer.pass ===false
     ))
 
+
 const getCertificateHandler = ()=>{
         history.push('/certificate');
 }
@@ -72,7 +71,6 @@ const getCertificateHandler = ()=>{
 
             />
         )
-
     )
     const resultFailed = notPassed.map((data) =>
         data.map((answer, index)=>
@@ -87,18 +85,21 @@ const getCertificateHandler = ()=>{
 
             />
         )
-
     )
 
-    return <div className="container">
+    return <div style={{width: "100%", marginLeft: "auto", marginRight: "auto"}}>
         <Fragment>
             <h1 className="text-capitalize">{stateSubjectName} test results:</h1>
-            <div className="d-flex flex-row justify-content-between border">
+            <h2 className="text-center">Score: {stateResult.score}</h2>
+            <p>*Id=ArticleId/QuestionId</p>
+            <div className="d-flex flex-row justify-content-between border"
+                 style={{paddingLeft: "10px", paddingRight: "10px"}}
+            >
                 <div className="col-2 flex-column" style={{marginRight: "auto"}}>
-                     ArticleId/QuestionId
+                     Id
                 </div>
-                <div className="col-4"> Your answer: </div>
-                <div className="col-4"> Correct answer: </div>
+                <div className="col-4">Your answers</div>
+                <div className="col-4">Correct answers</div>
                 <div style={{ marginLeft: "5px",}}
                      className="col-1"
                 >
@@ -108,19 +109,17 @@ const getCertificateHandler = ()=>{
             {
                 isAnswersGot ?
                 <Fragment>
-                    {resultPassed.length !== 0 && <h3>Passed answers: </h3>}
+                    {resultPassed.length !== 0 && <h3 className="text-center">Passed answers: </h3>}
                     {resultPassed}
-                    {resultFailed.length !== 0 && <h3>Not passed answers: </h3>}
+                    {resultFailed.length !== 0 && <h3 className="text-center">Not passed answers: </h3>}
                     {resultFailed}
-                    {!stateResult.is_valid &&<button className="btn btn-warning mt-3" onClick={getCertificateHandler}>Get Certificate</button>}
+                    {!stateResult.is_valid &&<button className="btn btn-warning mt-3 d-block mx-auto" onClick={getCertificateHandler}>Get Certificate</button>}
                 </Fragment> :
                 <div className='backdrop'>
                     <LoadingSpinner/>
                 </div>
             }
-
         </Fragment>
-
     </div>
 }
 

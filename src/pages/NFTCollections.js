@@ -19,15 +19,12 @@ const NFTCollections = () => {
 
     }, [isMeta])
 
-    let nft =  stateTokenMetadata.map((data, index) =>
-            <NFTItem key={index} d={data}/>
-    )
-
     return (
         <div className="container">
             <div className="row">
             {
-               nft
+                stateTokenMetadata.map((data, index) =>
+                    <NFTItem key={index} d={data}/>)
             }
             </div>
         </div>
