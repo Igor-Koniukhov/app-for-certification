@@ -93,6 +93,18 @@ const getCertificateHandler = ()=>{
     return <div className="container">
         <Fragment>
             <h1 className="text-capitalize">{stateSubjectName} test results:</h1>
+            <div className="d-flex flex-row justify-content-between border">
+                <div className="col-2 flex-column" style={{marginRight: "auto"}}>
+                     ArticleId/QuestionId
+                </div>
+                <div className="col-4"> Your answer: </div>
+                <div className="col-4"> Correct answer: </div>
+                <div style={{ marginLeft: "5px",}}
+                     className="col-1"
+                >
+                      result
+                </div>
+            </div>
             {
                 isAnswersGot ?
                 <Fragment>
