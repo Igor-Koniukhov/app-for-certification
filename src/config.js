@@ -3,7 +3,7 @@ const CONTRACT_NAME = "ik-exam.testnet"
 function getConfig(env) {
   switch (env) {
 
-  case 'production':
+  /*case 'production':
   case 'mainnet':
     return {
       networkId: 'mainnet',
@@ -12,7 +12,7 @@ function getConfig(env) {
       walletUrl: 'https://wallet.near.org',
       helperUrl: 'https://helper.mainnet.near.org',
       explorerUrl: 'https://explorer.mainnet.near.org',
-    }
+    }*/
 
   case 'development':
   case 'testnet':
