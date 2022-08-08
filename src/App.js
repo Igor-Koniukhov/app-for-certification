@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 import React, {useEffect} from 'react';
-import {BrowserRouter, Route, Switch} from "react-router-dom";
+import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
 import './global.css'
 import IntroContent from "./components/IntroContent";
 import Sociology from "./pages/subjects/Sociology";
@@ -64,6 +64,9 @@ export default function App() {
                     <Route path='/nft-collections'>
                         <NFTCollections/>
                     </Route>
+                <Route path="*">
+                    <Redirect to="/"/>
+                </Route>
 
             </Switch>
 
