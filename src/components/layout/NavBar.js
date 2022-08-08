@@ -6,30 +6,13 @@ import ArticleContext from "../../store/article-context";
 import errorHelper from "../helper/errorHelper";
 
 
-const MainNavigation = () => {
-    const [countState, setCountState] = useState(0);
+const MainNavigation = (props) => {
     const isSignedIn = window.walletConnection.isSignedIn();
     const ctx = useContext(ArticleContext);
     const history = useHistory();
-    const {isSent, isMeta, setAttempt} = ctx
-    const {
-        get_num
-    } = window.contract
-
-    const getCounter = async () => {
-        let count = await get_num({account_id: window.accountId})
-            .catch(err => errorHelper(err))
-        setCountState(count === undefined ? 0 : count)
-        setAttempt(count);
-    }
+    const { isMeta} = ctx
 
 
-    useEffect(() => {
-        getCounter()
-
-        ctx.isSent = false
-
-    }, [isSent]);
 const isHomepage = history.location.pathname === '/'
 
     return (
@@ -67,7 +50,7 @@ const isHomepage = history.location.pathname === '/'
                     {
                         isSignedIn &&
                         <div className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none mx-5">
-                            {!isHomepage &&  <span>Attempt: <strong>{ countState}</strong> </span>}
+                            {!isHomepage &&  <span>Attempt: <strong>{ props.attempt}</strong> </span>}
                         </div>
                     }
                     <div className="text-start">

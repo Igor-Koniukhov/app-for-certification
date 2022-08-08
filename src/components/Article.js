@@ -6,6 +6,7 @@ import ArticleContext from "../store/article-context";
 const Article = (props) => {
     const {
         set_answer,
+        get_num
     } = window.contract;
 
     const {tickets} = props.source;
@@ -20,6 +21,16 @@ const Article = (props) => {
     const [buttonDisabledState, setButtonDisabledState] = useState(buttonDisabled)
     const [stateStatusSending, setStateStatusSending] = useState('sent')
     const [stateButtonColor, setStateButtonColor]= useState('btn btn-secondary me-2')
+    const [stateAttempt, setStateAttempt]=useState(0);
+
+    useEffect(()=>{
+        const getAttempt = async()=>{
+            await get_num({account_id: window.accountId}).then((data)=>{
+                setStateAttempt(data)
+            })
+        }
+        getAttempt()
+    }, [stateAttempt])
 
 
     let shuffledQuestions = tickets
@@ -37,11 +48,10 @@ const Article = (props) => {
     }, [buttonDisabled]);
 
     const sentMessage = async (answers) => {
-        console.log(answers)
         try {
             await set_answer({
                 subject_name: props.subJectName,
-                attempt: cnx.attempt,
+                attempt: stateAttempt,
                 article: cnx.article,
                 answers: answers,
                 account_id: window.accountId,
@@ -61,7 +71,6 @@ const Article = (props) => {
     };
     const handlerSubmit = async (event) => {
         event.preventDefault();
-
         const sentAnswers = async () => {
                await sentMessage(filteredAnswers)
 
@@ -70,11 +79,8 @@ const Article = (props) => {
                 props.setShowNotification(false);
             }, 4000);
         };
-
-
         await sentAnswers();
     }
-
 
     const list = shuffledQuestionsState.map((item, index) =>
         <QuestionItems

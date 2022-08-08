@@ -7,7 +7,7 @@ import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Certificate = () => {
     const history = useHistory();
-    const {isLoaded, resetState} = useContext(ArticleContext);
+    const {isLoaded} = useContext(ArticleContext);
     let [stateAnswers, setStateAnswers] = useState([])
     const [stateResult, setStateResult] = useState({})
     const [stateSubjectName, setStateSubjectName] = useState('');
@@ -37,12 +37,8 @@ const Certificate = () => {
 
     useEffect(() => {
         const getAndSetAnswers = async () => {
-            console.log(stateAttemptId)
             get_answers_by_attempt_id({attempt_id: stateAttemptId}).then((data) => {
                 setStateAnswers(data)
-                console.log(data)
-                resetState()
-
             })
         }
 

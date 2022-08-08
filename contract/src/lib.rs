@@ -292,13 +292,6 @@ impl Contract {
         let current_attempt = self.get_num(&account_id).clone();
         let attempt = current_attempt + 1;
 
-        if current_attempt == 3 {
-            return Response {
-                ok: false,
-                message: String::from("You have 3 attempt already! "),
-                attempt: current_attempt,
-            };
-        }
         self.attempt.insert(&account_id, &attempt);
         log!("Attempt {}", attempt);
         Response {
@@ -390,7 +383,7 @@ impl Contract {
     pub fn get_num(&self, account_id: &AccountId) -> u8 {
         match self.attempt.get(&account_id) {
             Some(attempt) => attempt,
-            None => 0,
+            None => 1,
         }
     }
 

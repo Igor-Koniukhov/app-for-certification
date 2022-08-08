@@ -32,7 +32,8 @@ export async function initContract() {
             'get_answers',
             'get_tickets_by_subject_name',
             'get_status_init',
-            'get_answers_by_attempt_id'
+            'get_answers_by_attempt_id',
+            'get_id_attempts'
         ],
         // Change methods can modify the state. But you don't receive the returned value when called.
         changeMethods: [

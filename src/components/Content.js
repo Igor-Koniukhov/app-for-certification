@@ -11,6 +11,7 @@ const Content = (props) => {
     const {
         get_tickets_by_subject_name,
         increment,
+        get_num,
         set_current_result,
     } = window.contract;
     const cnx = useContext(ArticleContext);
@@ -21,6 +22,7 @@ const Content = (props) => {
     let [ticketsState, setTicketsState] = useState([]);
     const [stateGettingResult, setStateGettingResult] = useState('Get results')
     const [stateButtonColor, setStateButtonColor]= useState('btn btn-secondary mt-4')
+    const [stateAttempt, setStateAttempt]=useState(0);
     const history = useHistory();
     const success = successState && buttonDisabledState;
     const ticketError = ticketsState === null || ticketsState === undefined
@@ -48,6 +50,15 @@ const Content = (props) => {
         }
     }, [isLoaded]);
 
+    useEffect(()=>{
+        const getAttempt = async()=>{
+            await get_num({account_id: window.accountId}).then((data)=>{
+                setStateAttempt(data)
+            })
+        }
+        getAttempt()
+    }, [isLoaded])
+
     useEffect(() => {
         if (success) {
             const setCollectionOfAnswers = async () => {
@@ -55,7 +66,7 @@ const Content = (props) => {
                     account_id: window.accountId,
                     subject_name: props.subjectName,
                     answers: cnx.answers,
-                    attempt: cnx.attempt,
+                    attempt: stateAttempt,
                 }).then((data) => {
                     if (data.ok) {
                         setStateResultMessage(true)
@@ -65,7 +76,6 @@ const Content = (props) => {
             setCollectionOfAnswers();
         }
     }, [success]);
-    console.log(cnx.answers, cnx.numberOfQuestions)
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
