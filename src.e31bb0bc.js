@@ -55742,29 +55742,20 @@ __exportStar(require("./browser-connect"), exports);
 require("error-polyfill");
 
 },{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "ikon-exam.testnet" || "ikon-exam.testnet";
+const CONTRACT_NAME = "ikoniukhov.near";
 
 function getConfig(env) {
   switch (env) {
     case 'production':
     case 'mainnet':
       return {
-        networkId: 'testnet',
-        nodeUrl: 'https://rpc.testnet.near.org',
+        networkId: 'mainnet',
+        nodeUrl: 'https://rpc.mainnet.near.org',
         contractName: CONTRACT_NAME,
-        walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
-        explorerUrl: 'https://explorer.testnet.near.org'
+        walletUrl: 'https://wallet.near.org',
+        helperUrl: 'https://helper.mainnet.near.org',
+        explorerUrl: 'https://explorer.mainnet.near.org'
       };
-
-    /* return {
-       networkId: 'mainnet',
-       nodeUrl: 'https://rpc.mainnet.near.org',
-       contractName: CONTRACT_NAME,
-       walletUrl: 'https://wallet.near.org',
-       helperUrl: 'https://helper.mainnet.near.org',
-       explorerUrl: 'https://explorer.mainnet.near.org',
-     }*/
 
     case 'development':
     case 'testnet':
@@ -55835,7 +55826,7 @@ var _config = _interopRequireDefault(require("./config"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const nearConfig = (0, _config.default)("development" || 'development'); // Initialize contract & set global variables
+const nearConfig = (0, _config.default)("development" || 'production'); // Initialize contract & set global variables
 
 async function initContract() {
   // Initialize connection to the NEAR testnet
@@ -57759,6 +57750,24 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 const Home = () => {
+  const {
+    new_default_data,
+    get_status_init
+  } = window.contract;
+  const [stateSpinner, setStateSpinner] = (0, _react.useState)(false);
+  const {
+    set_subjects
+  } = window.contract;
+  const [stateIsInit, setStateIsInit] = (0, _react.useState)(false);
+  (0, _react.useEffect)(() => {
+    const isInit = async () => {
+      await get_status_init({}).then(data => {
+        setStateIsInit(data);
+      });
+    };
+
+    isInit();
+  }, [stateIsInit]);
   const subjectRange = [{
     path: '/chemistry',
     img: _IUPACFeatureImage.default
@@ -57772,15 +57781,44 @@ const Home = () => {
     path: '/microbiology',
     img: _microbiology.default
   }];
+
+  const initContractHandler = () => {
+    setStateSpinner(true);
+
+    const initContract = async () => {
+      await new_default_data({
+        owner_id: window.accountId
+      }).then(data => {
+        if (data !== undefined || data !== null) {
+          setStateSpinner(false);
+          setStateIsInit(true);
+        }
+      }).then(() => {
+        const setSubjects = async () => {
+          await set_subjects({});
+        };
+
+        setSubjects();
+      });
+    };
+
+    initContract();
+  };
+
   return /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container text-center pt-5 "
-  }, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Examinator"), /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("p", null, "Choose your subject and start exam"), /*#__PURE__*/_react.default.createElement("div", {
+  }, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Examinator"), stateIsInit && /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("p", null, "Choose your subject and start exam"), /*#__PURE__*/_react.default.createElement("div", {
     className: "row justify-content-center"
   }, subjectRange.map((sbj, index) => /*#__PURE__*/_react.default.createElement(_SubjectItemButton.default, {
     key: index,
     image: sbj.img,
     path: sbj.path
-  }))))));
+  })))), !stateIsInit && /*#__PURE__*/_react.default.createElement("button", {
+    className: "btn btn-danger mt-4",
+    onClick: initContractHandler
+  }, "Init contract")), stateSpinner && /*#__PURE__*/_react.default.createElement("div", {
+    className: "backdrop"
+  }, /*#__PURE__*/_react.default.createElement(_LoadingSpinner.default, null)));
 };
 
 var _default = Home;
@@ -57999,7 +58037,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44767" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35383" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -58176,4 +58214,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
-//# sourceMappingURL=/src.e31bb0bc.js.mape31bb0bc.js.map
+//# sourceMappingURL=/src.e31bb0bc.js.map
