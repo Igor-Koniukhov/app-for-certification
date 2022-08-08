@@ -64,9 +64,6 @@ export default function App() {
                     <Route path='/nft-collections'>
                         <NFTCollections/>
                     </Route>
-                <Route path="*">
-                    <Redirect to="/"/>
-                </Route>
 
             </Switch>
 
