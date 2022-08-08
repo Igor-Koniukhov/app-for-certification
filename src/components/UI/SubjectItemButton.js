@@ -21,7 +21,7 @@ const SubjectItemButton = (props) => {
         <div
             className="col-xl-5 col-md-5 col-sm-5 img-btn  "
             style={{
-                backgroundImage: `url(${homepage}${props.image})`,
+                backgroundImage: `url(${homepage + props.image})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
