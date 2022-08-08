@@ -55742,7 +55742,7 @@ __exportStar(require("./browser-connect"), exports);
 require("error-polyfill");
 
 },{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "ikoniukhov.near";
+const CONTRACT_NAME = "ikon-exam.testnet";
 
 function getConfig(env) {
   switch (env) {
@@ -55826,7 +55826,7 @@ var _config = _interopRequireDefault(require("./config"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const nearConfig = (0, _config.default)("development" || 'production'); // Initialize contract & set global variables
+const nearConfig = (0, _config.default)("development" || 'development'); // Initialize contract & set global variables
 
 async function initContract() {
   // Initialize connection to the NEAR testnet
@@ -58006,8 +58006,11 @@ var _reactRouterDom = require("react-router-dom");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const homepage = 'https://igor-koniukhov.github.io/app-for-certification/';
 window.nearInitPromise = (0, _utils.initContract)().then(() => {
-  _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, null, /*#__PURE__*/_react.default.createElement(_App.default, null)), document.querySelector('#root'));
+  _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, {
+    basename: homepage
+  }, /*#__PURE__*/_react.default.createElement(_App.default, null)), document.querySelector('#root'));
 }).catch(console.error);
 },{"bootstrap/dist/css/bootstrap.min.css":"../node_modules/bootstrap/dist/css/bootstrap.min.css","bootstrap/dist/js/bootstrap.bundle.min":"../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js","react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./App":"App.js","./utils":"utils.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -58037,7 +58040,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "35383" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "44517" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
