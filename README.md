@@ -1,10 +1,9 @@
 app-for-certification
 ==================
 
-- This [React] app was initialized with [create-near-app]. 
-- App for education, survey, and certification. The process of learning, testing knowledge and elapsed time is hashed. The
-certificate is stored as NFT.
-
+- This [React] app was initialized with [create-near-app].
+- The application for passing tests or exams and in a case, you succeed you get certificate which you could print in PDF
+  format or mint and get your certificate with information about your results as NFT.
 
 Quick Start
 ===========
