@@ -57687,7 +57687,7 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-const homepage = "https://github.com/Igor-Koniukhov/app-for-certification/";
+const homepage = "https://igor-koniukhov.github.io/app-for-certification/";
 
 const SubjectItemButton = props => {
   const [stateSpinner, setStateSpinner] = (0, _react.useState)(false);
@@ -57705,7 +57705,7 @@ const SubjectItemButton = props => {
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "col-xl-5 col-md-5 col-sm-5 img-btn  ",
     style: {
-      backgroundImage: `url(${homepage}${props.image})`,
+      backgroundImage: `url(${homepage + props.image})`,
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'center',
       backgroundSize: 'cover',
@@ -57996,7 +57996,11 @@ function App() {
     path: "/certificate"
   }, /*#__PURE__*/_react.default.createElement(_Certificate.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/nft-collections"
-  }, /*#__PURE__*/_react.default.createElement(_NFTCollections.default, null))));
+  }, /*#__PURE__*/_react.default.createElement(_NFTCollections.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+    path: "*"
+  }, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Redirect, {
+    to: "/"
+  }))));
 }
 },{"regenerator-runtime/runtime":"../node_modules/regenerator-runtime/runtime.js","react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./global.css":"global.css","./components/IntroContent":"components/IntroContent.js","./pages/subjects/Sociology":"pages/subjects/Sociology.js","./pages/subjects/Chemistry":"pages/subjects/Chemistry.js","./pages/subjects/Physic":"pages/subjects/Physic.js","./pages/subjects/Microbiology":"pages/subjects/Microbiology.js","./pages/Results":"pages/Results.js","./components/layout/Layout":"components/layout/Layout.js","./pages/Certificate":"pages/Certificate.js","./pages/Home":"pages/Home.js","./pages/NFTCollections":"pages/NFTCollections.js"}],"index.js":[function(require,module,exports) {
 "use strict";
@@ -58019,7 +58023,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const homepage = '/app-for-certification';
 window.nearInitPromise = (0, _utils.initContract)().then(() => {
-  _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, {
+  _reactDom.default.render( /*#__PURE__*/_react.default.createElement(_reactRouterDom.HashRouter, {
     basename: homepage
   }, /*#__PURE__*/_react.default.createElement(_App.default, null)), document.querySelector('#root'));
 }).catch(console.error);
@@ -58051,7 +58055,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "41321" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42431" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
