@@ -35043,6 +35043,7 @@ const ArticleContext = _react.default.createContext({
   isSent: false,
   addAnswer: (article, article_id, answer) => {},
   getNumbersOfQuestions: length => {},
+  resetState: () => {},
   setRequestStatus: status => {},
   setCollectionAnswers: answer => {},
   setMetadate: metatada => {},
@@ -35079,7 +35080,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 const QuestionItems = props => {
   const artCtx = (0, _react.useContext)(_articleContext.default);
   const [buttonDisabled, setButtonDisabled] = (0, _react.useState)(false);
-  const [shufledAnswers, setShufledAnswers] = (0, _react.useState)([]);
+  const [shuffledAnswers, setShuffledAnswers] = (0, _react.useState)([]);
   const answer = {
     id: "",
     article_id: "",
@@ -35112,9 +35113,9 @@ const QuestionItems = props => {
     return value;
   });
   (0, _react.useEffect)(() => {
-    setShufledAnswers(answers);
+    setShuffledAnswers(answers);
   }, []);
-  return /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("h3", null, props.index + 1, ". ", props.question), shufledAnswers.map((a, i) => /*#__PURE__*/_react.default.createElement("li", {
+  return /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("h3", null, props.index + 1, ". ", props.question), shuffledAnswers.map((a, i) => /*#__PURE__*/_react.default.createElement("li", {
     key: i
   }, /*#__PURE__*/_react.default.createElement("input", {
     className: props.id + "-" + "checked",
@@ -35155,8 +35156,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 const Article = props => {
   const {
-    set_answer,
-    get_answers
+    set_answer
   } = window.contract;
   const {
     tickets
@@ -35190,7 +35190,7 @@ const Article = props => {
   }, [buttonDisabled]);
 
   const sentMessage = async answers => {
-    console.log(answers, cnx.attempt, cnx.article);
+    console.log(answers);
 
     try {
       await set_answer({
@@ -35214,20 +35214,13 @@ const Article = props => {
     event.preventDefault();
 
     const sentAnswers = async () => {
-      sentMessage(filteredAnswers);
+      await sentMessage(filteredAnswers);
       props.setShowNotification(true);
       setTimeout(() => {
         props.setShowNotification(false);
       }, 4000);
     };
 
-    const getAnswers = async () => {
-      await get_answers({}).then(data => {
-        console.log(data, " answers");
-      });
-    };
-
-    await getAnswers();
     await sentAnswers();
   };
 
@@ -35327,6 +35320,7 @@ const Content = props => {
   const [successState, setSuccessState] = (0, _react.useState)(false);
   let [ticketsState, setTicketsState] = (0, _react.useState)([]);
   const [stateGettingResult, setStateGettingResult] = (0, _react.useState)('Get results');
+  const [stateButtonColor, setStateButtonColor] = (0, _react.useState)('btn btn-secondary mt-4');
   const history = (0, _reactRouterDom.useHistory)();
   const success = successState && buttonDisabledState;
   const ticketError = ticketsState === null || ticketsState === undefined;
@@ -35372,9 +35366,11 @@ const Content = props => {
       setCollectionOfAnswers();
     }
   }, [success]);
+  console.log(cnx.answers, cnx.numberOfQuestions);
 
   const getResultsHandler = async event => {
     event.preventDefault();
+    setStateButtonColor('btn btn-warning mt-4');
     setStateGettingResult('getting...');
     const {
       ok,
@@ -35382,7 +35378,6 @@ const Content = props => {
     } = await increment({
       account_id: window.accountId
     });
-    console.log(message);
     cnx.setRequestStatus(ok);
     history.push('/results');
   };
@@ -35404,7 +35399,7 @@ const Content = props => {
   return /*#__PURE__*/_react.default.createElement("div", {
     className: "container pb-5 pt-5 wrapper"
   }, /*#__PURE__*/_react.default.createElement("h1", null, props.subjectName.toUpperCase()), articles, success && stateResultMessage && /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("button", {
-    className: "btn btn-success mt-4",
+    className: `${success ? stateButtonColor : 'btn btn-success mt-4'}`,
     onClick: getResultsHandler
   }, success ? stateGettingResult : 'Got')), showNotification && /*#__PURE__*/_react.default.createElement(_Notification.default, null), !isTicketSucceed && /*#__PURE__*/_react.default.createElement("div", {
     className: "backdrop"
@@ -35523,76 +35518,7 @@ const Microbiology = props => {
 
 var _default = Microbiology;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","../../components/Content":"components/Content.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "dev-1659349584489-60703916322065" || 'app-for-cert.i-koniukhov.testnet';
-
-function getConfig(env) {
-  switch (env) {
-    case 'production':
-    case 'mainnet':
-      return {
-        networkId: 'mainnet',
-        nodeUrl: 'https://rpc.mainnet.near.org',
-        contractName: CONTRACT_NAME,
-        walletUrl: 'https://wallet.near.org',
-        helperUrl: 'https://helper.mainnet.near.org',
-        explorerUrl: 'https://explorer.mainnet.near.org'
-      };
-
-    case 'development':
-    case 'testnet':
-      return {
-        networkId: 'testnet',
-        nodeUrl: 'https://rpc.testnet.near.org',
-        contractName: CONTRACT_NAME,
-        walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
-        explorerUrl: 'https://explorer.testnet.near.org'
-      };
-
-    case 'betanet':
-      return {
-        networkId: 'betanet',
-        nodeUrl: 'https://rpc.betanet.near.org',
-        contractName: CONTRACT_NAME,
-        walletUrl: 'https://wallet.betanet.near.org',
-        helperUrl: 'https://helper.betanet.near.org',
-        explorerUrl: 'https://explorer.betanet.near.org'
-      };
-
-    case 'local':
-      return {
-        networkId: 'local',
-        nodeUrl: 'http://localhost:3030',
-        keyPath: `${"/home/igor"}/.near/validator_key.json`,
-        walletUrl: 'http://localhost:4000/wallet',
-        contractName: CONTRACT_NAME
-      };
-
-    case 'test':
-    case 'ci':
-      return {
-        networkId: 'shared-test',
-        nodeUrl: 'https://rpc.ci-testnet.near.org',
-        contractName: CONTRACT_NAME,
-        masterAccount: 'test.near'
-      };
-
-    case 'ci-betanet':
-      return {
-        networkId: 'shared-test-staging',
-        nodeUrl: 'https://rpc.ci-betanet.near.org',
-        contractName: CONTRACT_NAME,
-        masterAccount: 'test.near'
-      };
-
-    default:
-      throw Error(`Unconfigured environment '${env}'. Can be configured in src/config.js.`);
-  }
-}
-
-module.exports = getConfig;
-},{}],"pages/Certificate.module.css":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","../../components/Content":"components/Content.js"}],"pages/Certificate.module.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -35610,10 +35536,28 @@ var _react = _interopRequireDefault(require("react"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const ResultItem = props => {
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, " ", props.index + 1, ") "), /*#__PURE__*/_react.default.createElement("span", null, " Article: ", props.artickle), /*#__PURE__*/_react.default.createElement("span", null, " Question: ", props.questionId), /*#__PURE__*/_react.default.createElement("span", null, " Your answer: ", props.your_answer), /*#__PURE__*/_react.default.createElement("span", null, " Correct answer: ", props.correct_answer), /*#__PURE__*/_react.default.createElement("span", {
+  return /*#__PURE__*/_react.default.createElement("div", {
+    className: "d-flex flex-row justify-content-between border mt-1",
     style: {
-      color: props.pass ? 'green' : 'red'
+      paddingLeft: "10px",
+      paddingRight: "10px"
     }
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-2 flex-column"
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      marginRight: "auto"
+    }
+  }, " ", props.artickle, "/", props.questionId)), /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-4k text-center"
+  }, props.your_answer), /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-4 text-center"
+  }, props.correct_answer), /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      color: props.pass ? 'green' : 'red',
+      marginLeft: "5px"
+    },
+    className: "col-1 "
   }, props.pass ? ' Passed' : ' Failed'));
 };
 
@@ -35649,13 +35593,14 @@ const Certificate = () => {
   const history = (0, _reactRouterDom.useHistory)();
   const {
     isLoaded,
-    setCollectionAnswers
+    resetState
   } = (0, _react.useContext)(_articleContext.default);
   let [stateAnswers, setStateAnswers] = (0, _react.useState)([]);
   const [stateResult, setStateResult] = (0, _react.useState)({});
   const [stateSubjectName, setStateSubjectName] = (0, _react.useState)('');
+  const [stateAttemptId, setStateAttemptId] = (0, _react.useState)('');
   const {
-    get_answers,
+    get_answers_by_attempt_id,
     get_current_result
   } = window.contract;
   const answerError = stateAnswers === null || stateAnswers === undefined;
@@ -35671,24 +35616,35 @@ const Certificate = () => {
         account_id: window.accountId
       }).then(data => {
         setStateResult(data);
-        setStateAnswers(data.answers);
-        setCollectionAnswers(data.answers);
         setStateSubjectName(data.subject_name);
-        console.log(data, " data", data.answers, " answers");
-        console.log(data, "results");
+        setStateAttemptId(data.attempt_id);
       });
     };
 
     getResults();
   }, [isLoaded]);
-  let passed = stateAnswers.filter(value => value.pass === true);
-  let notPassed = stateAnswers.filter(value => value.pass === false);
+  (0, _react.useEffect)(() => {
+    const getAndSetAnswers = async () => {
+      console.log(stateAttemptId);
+      get_answers_by_attempt_id({
+        attempt_id: stateAttemptId
+      }).then(data => {
+        setStateAnswers(data);
+        console.log(data);
+        resetState();
+      });
+    };
+
+    getAndSetAnswers();
+  }, [stateAttemptId]);
+  let passed = stateAnswers.map(array => array.filter(answer => answer.pass === true));
+  let notPassed = stateAnswers.map(array => array.filter(answer => answer.pass === false));
 
   const getCertificateHandler = () => {
     history.push('/certificate');
   };
 
-  const resultPassed = passed.map((answer, index) => /*#__PURE__*/_react.default.createElement(_ResultItem.default, {
+  const resultPassed = passed.map(data => data.map((answer, index) => /*#__PURE__*/_react.default.createElement(_ResultItem.default, {
     index: index,
     key: index,
     artickle: answer.article_id,
@@ -35696,8 +35652,8 @@ const Certificate = () => {
     your_answer: answer.your_answer,
     correct_answer: answer.correct_answer,
     pass: answer.pass
-  }));
-  const resultFailed = notPassed.map((answer, index) => /*#__PURE__*/_react.default.createElement(_ResultItem.default, {
+  })));
+  const resultFailed = notPassed.map(data => data.map((answer, index) => /*#__PURE__*/_react.default.createElement(_ResultItem.default, {
     index: index,
     key: index,
     artickle: answer.article_id,
@@ -35705,15 +35661,50 @@ const Certificate = () => {
     your_answer: answer.your_answer,
     correct_answer: answer.correct_answer,
     pass: answer.pass
-  }));
+  })));
   return /*#__PURE__*/_react.default.createElement("div", {
-    className: "container"
+    style: {
+      width: "100%",
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   }, /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("h1", {
     className: "text-capitalize"
-  }, stateSubjectName, " test results:"), isAnswersGot ? /*#__PURE__*/_react.default.createElement(_react.Fragment, null, resultPassed.length !== 0 && /*#__PURE__*/_react.default.createElement("h3", null, "Passed answers: "), resultPassed, resultFailed.length !== 0 && /*#__PURE__*/_react.default.createElement("h3", null, "Not passed answers: "), resultFailed, !stateResult.is_valid && /*#__PURE__*/_react.default.createElement("button", {
-    className: "btn btn-warning mt-3",
+  }, stateSubjectName, " test results:"), /*#__PURE__*/_react.default.createElement("h2", {
+    className: "text-center"
+  }, "Score: ", stateResult.score), /*#__PURE__*/_react.default.createElement("p", null, "*Id=ArticleId/QuestionId"), /*#__PURE__*/_react.default.createElement("div", {
+    className: "d-flex flex-row justify-content-between border",
+    style: {
+      paddingLeft: "10px",
+      paddingRight: "10px"
+    }
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-2 flex-column",
+    style: {
+      marginRight: "auto"
+    }
+  }, "Id"), /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-4"
+  }, "Your answers"), /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-4"
+  }, "Correct answers"), /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      marginLeft: "5px"
+    },
+    className: "col-1"
+  }, "result")), isAnswersGot ? /*#__PURE__*/_react.default.createElement(_react.Fragment, null, resultPassed.length !== 0 && /*#__PURE__*/_react.default.createElement("h3", {
+    className: "text-center"
+  }, "Passed answers: "), resultPassed, resultFailed.length !== 0 && /*#__PURE__*/_react.default.createElement("h3", {
+    className: "text-center"
+  }, "Not passed answers: "), resultFailed, stateResult.is_valid && /*#__PURE__*/_react.default.createElement("button", {
+    className: "btn btn-warning mt-3 d-block mx-auto",
     onClick: getCertificateHandler
-  }, "Get Certificate")) : /*#__PURE__*/_react.default.createElement("div", {
+  }, "Get Certificate"), !stateResult.is_valid && /*#__PURE__*/_react.default.createElement("p", {
+    className: "text-center mt-3 ",
+    style: {
+      color: "red"
+    }
+  }, "Required min number of score for getting a certificate - 70. Try it the next time. ")) : /*#__PURE__*/_react.default.createElement("div", {
     className: "backdrop"
   }, /*#__PURE__*/_react.default.createElement(_LoadingSpinner.default, null))));
 };
@@ -55731,7 +55722,85 @@ __exportStar(require("./common-index"), exports);
 __exportStar(require("./browser-connect"), exports);
 require("error-polyfill");
 
-},{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"utils.js":[function(require,module,exports) {
+},{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"config.js":[function(require,module,exports) {
+const CONTRACT_NAME = "dev-1659886979904-39009442358092" || "ikon-exam.testnet";
+
+function getConfig(env) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        networkId: 'testnet',
+        nodeUrl: 'https://rpc.testnet.near.org',
+        contractName: CONTRACT_NAME,
+        walletUrl: 'https://wallet.testnet.near.org',
+        helperUrl: 'https://helper.testnet.near.org',
+        explorerUrl: 'https://explorer.testnet.near.org'
+      };
+
+    /* return {
+       networkId: 'mainnet',
+       nodeUrl: 'https://rpc.mainnet.near.org',
+       contractName: CONTRACT_NAME,
+       walletUrl: 'https://wallet.near.org',
+       helperUrl: 'https://helper.mainnet.near.org',
+       explorerUrl: 'https://explorer.mainnet.near.org',
+     }*/
+
+    case 'development':
+    case 'testnet':
+      return {
+        networkId: 'testnet',
+        nodeUrl: 'https://rpc.testnet.near.org',
+        contractName: CONTRACT_NAME,
+        walletUrl: 'https://wallet.testnet.near.org',
+        helperUrl: 'https://helper.testnet.near.org',
+        explorerUrl: 'https://explorer.testnet.near.org'
+      };
+
+    case 'betanet':
+      return {
+        networkId: 'betanet',
+        nodeUrl: 'https://rpc.betanet.near.org',
+        contractName: CONTRACT_NAME,
+        walletUrl: 'https://wallet.betanet.near.org',
+        helperUrl: 'https://helper.betanet.near.org',
+        explorerUrl: 'https://explorer.betanet.near.org'
+      };
+
+    case 'local':
+      return {
+        networkId: 'local',
+        nodeUrl: 'http://localhost:3030',
+        keyPath: `${"/home/igor"}/.near/validator_key.json`,
+        walletUrl: 'http://localhost:4000/wallet',
+        contractName: CONTRACT_NAME
+      };
+
+    case 'test':
+    case 'ci':
+      return {
+        networkId: 'shared-test',
+        nodeUrl: 'https://rpc.ci-testnet.near.org',
+        contractName: CONTRACT_NAME,
+        masterAccount: 'test.near'
+      };
+
+    case 'ci-betanet':
+      return {
+        networkId: 'shared-test-staging',
+        nodeUrl: 'https://rpc.ci-betanet.near.org',
+        contractName: CONTRACT_NAME,
+        masterAccount: 'test.near'
+      };
+
+    default:
+      throw Error(`Unconfigured environment '${env}'. Can be configured in src/config.js.`);
+  }
+}
+
+module.exports = getConfig;
+},{}],"utils.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -55764,9 +55833,9 @@ async function initContract() {
 
   window.contract = await new _nearApiJs.Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['get_num', 'check_token', 'get_token_metadate', 'get_answers', 'get_tickets_by_subject_name', 'get_status_init'],
+    viewMethods: ['get_num', 'check_token', 'get_token_metadata', 'get_answers', 'get_tickets_by_subject_name', 'get_status_init', 'get_answers_by_attempt_id'],
     // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: ['set_subjects', 'get_all_tickets_of_subjects', 'get_tickets', 'set_tickets', 'set_answer', 'get_id_answers', 'increment', 'reset', 'nft_mint', 'set_current_result', 'get_current_result', 'new_default_meta']
+    changeMethods: ['set_subjects', 'get_tickets', 'set_tickets', 'set_answer', 'get_id_answers', 'increment', 'reset', 'nft_mint', 'set_current_result', 'get_current_result', 'new_default_data']
   });
 }
 
@@ -55845,7 +55914,7 @@ const MainNavigation = () => {
     let count = await get_num({
       account_id: window.accountId
     }).catch(err => (0, _errorHelper.default)(err));
-    setCountState(count === undefined ? 'calculating...' : count);
+    setCountState(count === undefined ? 0 : count);
     setAttempt(count);
   };
 
@@ -55955,6 +56024,10 @@ const articleReducer = (state, action) => {
     };
   }
 
+  if (action.type === 'RESET') {
+    return defaultArticleState;
+  }
+
   if (action.type === 'SET_STATUS') {
     const updatedStatus = action.isSent;
     return {
@@ -56034,6 +56107,12 @@ const ArticleProvider = props => {
     });
   };
 
+  const resetStateHandler = () => {
+    dispatchArticleAction({
+      type: 'RESET'
+    });
+  };
+
   const setRequestStatusHandler = isSent => {
     dispatchArticleAction({
       type: 'SET_STATUS',
@@ -56077,7 +56156,8 @@ const ArticleProvider = props => {
     setRequestStatus: setRequestStatusHandler,
     setCollectionAnswers: setCollectionAnswersHandler,
     setMetadate: setMetadataHandler,
-    setAttempt: setAttemptHandler
+    setAttempt: setAttemptHandler,
+    resetState: resetStateHandler
   };
   return /*#__PURE__*/_react.default.createElement(_articleContext.default.Provider, {
     value: articleContext
@@ -56095,8 +56175,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
-
-var _reactRouterDom = require("react-router-dom");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56116,7 +56194,7 @@ const Footer = () => {
 
 var _default = Footer;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"components/layout/Layout.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js"}],"components/layout/Layout.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57401,17 +57479,15 @@ const Certificate = () => {
   const handlePrint = (0, _reactToPrint.useReactToPrint)({
     content: () => componentRef.current
   });
-  const {
-    setMetadate
-  } = (0, _react.useContext)(_articleContext.default);
+  const cnx = (0, _react.useContext)(_articleContext.default);
   const {
     nft_mint,
     get_current_result,
-    get_token_metadate
+    get_token_metadata
   } = window.contract;
   const [stateDate, setStateDate] = (0, _react.useState)('');
   const [stateResult, setStateResult] = (0, _react.useState)({});
-  const isResult = stateResult.answers !== undefined && stateResult.answers !== null;
+  const isResult = stateResult.score !== undefined && stateResult.score !== null;
   const [stateDataUrl, setStateDataUrl] = (0, _react.useState)('');
   const node = document.getElementById('screenshot');
   (0, _react.useEffect)(() => {
@@ -57430,10 +57506,11 @@ const Certificate = () => {
   let yyyy = today.getFullYear();
   today = dd + '/' + mm + '/' + yyyy;
   const description = ` That certificate of achievement is presented to ${window.accountId}, for passing the exam with score: ${stateResult.score}. Date: ${today}`;
+  const token_id = `${stateResult.attempt}-${window.accountId}`;
 
   const mintNFT = async () => {
     await nft_mint({
-      token_id: `${stateResult.attempt}-${window.accountId}`,
+      token_id: token_id,
       metadata: {
         title: `${stateResult.subject_name}-${window.accountId}`,
         description: description,
@@ -57454,20 +57531,22 @@ const Certificate = () => {
       });
     };
 
-    getResults();
     setStateDate(today);
+    getResults();
   }, [isResult]);
   (0, _react.useEffect)(() => {
     const getTokenMetadata = async () => {
-      await get_token_metadate({}).then(data => {
+      await get_token_metadata({
+        account_id: window.accountId
+      }).then(data => {
         if (data.length > 0) {
-          setMetadate(data, true);
+          cnx.setMetadate(data, true);
         }
       });
     };
 
     getTokenMetadata();
-  }, [isResult]);
+  }, []);
   return /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("style", {
     type: "text/css",
     media: "print"
@@ -57565,6 +57644,8 @@ var _reactRouterDom = require("react-router-dom");
 
 var _LoadingSpinner = _interopRequireDefault(require("./LoadingSpinner"));
 
+var _articleContext = _interopRequireDefault(require("../../store/article-context"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -57574,10 +57655,12 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 const SubjectItemButton = props => {
   const [stateSpinner, setStateSpinner] = (0, _react.useState)(false);
   const history = (0, _reactRouterDom.useHistory)();
+  const cnx = (0, _react.useContext)(_articleContext.default);
 
   const moveToExamHandler = () => {
+    cnx.resetState();
     setStateSpinner(true);
-    history.push(props.path);
+    history.push(`${props.path}`);
     setStateSpinner(false);
   };
 
@@ -57610,7 +57693,7 @@ const SubjectItemButton = props => {
 
 var _default = SubjectItemButton;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./SubjectItemButton.module.css":"components/UI/SubjectItemButton.module.css","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./LoadingSpinner":"components/UI/LoadingSpinner.js"}],"pages/Home.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./SubjectItemButton.module.css":"components/UI/SubjectItemButton.module.css","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./LoadingSpinner":"components/UI/LoadingSpinner.js","../../store/article-context":"store/article-context.js"}],"pages/Home.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57642,7 +57725,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 const Home = () => {
   const {
-    new_default_meta,
+    new_default_data,
     get_status_init
   } = window.contract;
   const [stateSpinner, setStateSpinner] = (0, _react.useState)(false);
@@ -57677,7 +57760,7 @@ const Home = () => {
     setStateSpinner(true);
 
     const initContract = async () => {
-      await new_default_meta({
+      await new_default_data({
         owner_id: window.accountId
       }).then(data => {
         if (data !== undefined || data !== null) {
@@ -57698,7 +57781,7 @@ const Home = () => {
 
   return /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("div", {
     className: "container text-center pt-5 "
-  }, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Examinator"), stateIsInit && /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("p", null, "Choose your subject and start exam"), /*#__PURE__*/_react.default.createElement("small", null, "At that moment, working only on chemistry exams. On click start initialization of the Contract that fiche added temperately for the test-net period. If after initialization spinner time is to long - reload the page."), /*#__PURE__*/_react.default.createElement("div", {
+  }, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Examinator"), stateIsInit && /*#__PURE__*/_react.default.createElement(_react.Fragment, null, /*#__PURE__*/_react.default.createElement("p", null, "Choose your subject and start exam"), /*#__PURE__*/_react.default.createElement("div", {
     className: "row justify-content-center"
   }, subjectRange.map((sbj, index) => /*#__PURE__*/_react.default.createElement(_SubjectItemButton.default, {
     key: index,
@@ -57714,7 +57797,39 @@ const Home = () => {
 
 var _default = Home;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./Home.module.css":"pages/Home.module.css","../img/subject/IUPAC-feature-image.png":"img/subject/IUPAC-feature-image.png","../img/subject/physic.png":"img/subject/physic.png","../img/subject/sociology.png":"img/subject/sociology.png","../img/subject/microbiology.png":"img/subject/microbiology.png","../components/UI/SubjectItemButton":"components/UI/SubjectItemButton.js","../components/UI/LoadingSpinner":"components/UI/LoadingSpinner.js"}],"pages/NFTCollections.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./Home.module.css":"pages/Home.module.css","../img/subject/IUPAC-feature-image.png":"img/subject/IUPAC-feature-image.png","../img/subject/physic.png":"img/subject/physic.png","../img/subject/sociology.png":"img/subject/sociology.png","../img/subject/microbiology.png":"img/subject/microbiology.png","../components/UI/SubjectItemButton":"components/UI/SubjectItemButton.js","../components/UI/LoadingSpinner":"components/UI/LoadingSpinner.js"}],"components/NFTItem.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const NFTItem = props => {
+  return /*#__PURE__*/_react.default.createElement("div", {
+    className: "col-lg-4 col-md-4 col-sm-6 d-flex flex-column"
+  }, /*#__PURE__*/_react.default.createElement("strong", {
+    className: "text-center"
+  }, props.d.title), /*#__PURE__*/_react.default.createElement("details", {
+    style: {
+      textAlign: "justify"
+    }
+  }, /*#__PURE__*/_react.default.createElement("summary", null, "description:"), /*#__PURE__*/_react.default.createElement("p", {
+    style: {
+      fontSize: "14px"
+    }
+  }, props.d.description)), /*#__PURE__*/_react.default.createElement("img", {
+    src: props.d.media
+  }));
+};
+
+var _default = NFTItem;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"pages/NFTCollections.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57726,6 +57841,8 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _articleContext = _interopRequireDefault(require("../store/article-context"));
 
+var _NFTItem = _interopRequireDefault(require("../components/NFTItem"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -57734,16 +57851,20 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 const NFTCollections = () => {
   const {
-    get_token_metadate
+    get_token_metadata
   } = window.contract;
-  const [stateTokenMetadate, setStateTokenMetadate] = (0, _react.useState)([]);
+  const [stateTokenMetadata, setStateTokenMetadata] = (0, _react.useState)([]);
   const {
     isMeta
   } = (0, _react.useContext)(_articleContext.default);
   (0, _react.useEffect)(() => {
     const getTokenMetadata = async () => {
-      await get_token_metadate({}).then(data => {
-        setStateTokenMetadate(data);
+      await get_token_metadata({
+        account_id: window.accountId
+      }).then(data => {
+        if (data.length !== 0) {
+          setStateTokenMetadata(data);
+        }
       });
     };
 
@@ -57753,17 +57874,15 @@ const NFTCollections = () => {
     className: "container"
   }, /*#__PURE__*/_react.default.createElement("div", {
     className: "row"
-  }, stateTokenMetadate.map((data, index) => data.map(d => /*#__PURE__*/_react.default.createElement("div", {
+  }, stateTokenMetadata.map((data, index) => /*#__PURE__*/_react.default.createElement(_NFTItem.default, {
     key: index,
-    className: "col-4 d-flex justify-content-center flex-column"
-  }, /*#__PURE__*/_react.default.createElement("h3", null, d.title), /*#__PURE__*/_react.default.createElement("p", null, d.description), /*#__PURE__*/_react.default.createElement("img", {
-    src: d.media
-  }))))));
+    d: data
+  }))));
 };
 
 var _default = NFTCollections;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../store/article-context":"store/article-context.js"}],"App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../store/article-context":"store/article-context.js","../components/NFTItem":"components/NFTItem.js"}],"App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -57788,8 +57907,6 @@ var _Chemistry = _interopRequireDefault(require("./pages/subjects/Chemistry"));
 var _Physic = _interopRequireDefault(require("./pages/subjects/Physic"));
 
 var _Microbiology = _interopRequireDefault(require("./pages/subjects/Microbiology"));
-
-var _config = _interopRequireDefault(require("./config"));
 
 var _Results = _interopRequireDefault(require("./pages/Results"));
 
@@ -57844,7 +57961,7 @@ function App() {
     path: "/nft-collections"
   }, /*#__PURE__*/_react.default.createElement(_NFTCollections.default, null))));
 }
-},{"regenerator-runtime/runtime":"../node_modules/regenerator-runtime/runtime.js","react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./global.css":"global.css","./components/IntroContent":"components/IntroContent.js","./pages/subjects/Sociology":"pages/subjects/Sociology.js","./pages/subjects/Chemistry":"pages/subjects/Chemistry.js","./pages/subjects/Physic":"pages/subjects/Physic.js","./pages/subjects/Microbiology":"pages/subjects/Microbiology.js","./config":"config.js","./pages/Results":"pages/Results.js","./components/layout/Layout":"components/layout/Layout.js","./pages/Certificate":"pages/Certificate.js","./pages/Home":"pages/Home.js","./pages/NFTCollections":"pages/NFTCollections.js"}],"index.js":[function(require,module,exports) {
+},{"regenerator-runtime/runtime":"../node_modules/regenerator-runtime/runtime.js","react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./global.css":"global.css","./components/IntroContent":"components/IntroContent.js","./pages/subjects/Sociology":"pages/subjects/Sociology.js","./pages/subjects/Chemistry":"pages/subjects/Chemistry.js","./pages/subjects/Physic":"pages/subjects/Physic.js","./pages/subjects/Microbiology":"pages/subjects/Microbiology.js","./pages/Results":"pages/Results.js","./components/layout/Layout":"components/layout/Layout.js","./pages/Certificate":"pages/Certificate.js","./pages/Home":"pages/Home.js","./pages/NFTCollections":"pages/NFTCollections.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 require("bootstrap/dist/css/bootstrap.min.css");
@@ -57894,7 +58011,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39943" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37251" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
