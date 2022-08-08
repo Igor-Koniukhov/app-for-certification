@@ -15,6 +15,7 @@ const Layout = (props) => {
     const cnx = useContext(ArticleContext);
     const {isSent} = cnx
 
+
     useEffect(() => {
         const getCounter = async () => {
             await get_num({account_id: window.accountId}).then((attempt) => {
