@@ -10,3 +10,4 @@ contract-init:
 contract-deploy:
 	near deploy --wasmFile "out/main.wasm" --accountId $(CONTRACT_NAME)
 
+
