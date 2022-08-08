@@ -28,7 +28,6 @@ export default function App() {
     return (
         <Layout>
             <Switch>
-                <BrowserRouter basename="/app-for-certification">
                     {!isSignedIn && <IntroContent/>}
                     {isSignedIn &&
                         <Route path='/' exact>
@@ -65,7 +64,7 @@ export default function App() {
                     <Route path='/nft-collections'>
                         <NFTCollections/>
                     </Route>
-                </BrowserRouter>
+
             </Switch>
 
         </Layout>

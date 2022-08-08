@@ -3,7 +3,7 @@ import "./SubjectItemButton.module.css"
 import {useHistory} from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
 import ArticleContext from "../../store/article-context";
-const homepage = "https://github.com/Igor-Koniukhov/app-for-certification";
+const homepage = "https://github.com/Igor-Koniukhov/app-for-certification/";
 
 
 const SubjectItemButton = (props) => {
@@ -21,7 +21,7 @@ const SubjectItemButton = (props) => {
         <div
             className="col-xl-5 col-md-5 col-sm-5 img-btn  "
             style={{
-                backgroundImage: `url(${homepage}/${props.image})`,
+                backgroundImage: `url(${homepage}${props.image})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
