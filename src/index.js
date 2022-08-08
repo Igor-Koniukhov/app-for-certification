@@ -4,16 +4,16 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 import { initContract } from './utils'
-import {BrowserRouter} from "react-router-dom";
+import { HashRouter} from "react-router-dom";
 
 const homepage = '/app-for-certification'
 
 window.nearInitPromise = initContract()
   .then(() => {
     ReactDOM.render(
-        <BrowserRouter basename={homepage}>
+        <HashRouter basename={homepage}>
             <App />
-        </BrowserRouter>,
+        </HashRouter>,
       document.querySelector('#root')
     )
   })
