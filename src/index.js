@@ -6,12 +6,12 @@ import App from './App'
 import { initContract } from './utils'
 import {BrowserRouter} from "react-router-dom";
 
-const homepage = 'https://igor-koniukhov.github.io/app-for-certification/'
+
 
 window.nearInitPromise = initContract()
   .then(() => {
     ReactDOM.render(
-        <BrowserRouter basename={homepage}>
+        <BrowserRouter >
             <App />
         </BrowserRouter>,
       document.querySelector('#root')
