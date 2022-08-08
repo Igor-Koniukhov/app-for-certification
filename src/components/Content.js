@@ -65,16 +65,14 @@ const Content = (props) => {
             setCollectionOfAnswers();
         }
     }, [success]);
+    console.log(cnx.answers, cnx.numberOfQuestions)
 
     const getResultsHandler = async (event) => {
         event.preventDefault()
         setStateButtonColor('btn btn-warning mt-4')
         setStateGettingResult('getting...')
         const {ok, message} = await increment({account_id: window.accountId})
-        console.log(message)
         cnx.setRequestStatus(ok);
-
-
         history.push('/results')
     };
 

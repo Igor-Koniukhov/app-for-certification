@@ -11,6 +11,7 @@ const ArticleContext = React.createContext({
     isSent: false,
     addAnswer: (article, article_id, answer)=>{},
     getNumbersOfQuestions:(length)=>{},
+    resetState:()=>{},
     setRequestStatus: (status)=>{},
     setCollectionAnswers:(answer)=>{},
     setMetadate:(metatada)=>{},

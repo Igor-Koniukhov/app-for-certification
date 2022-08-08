@@ -46,7 +46,7 @@ export async function initContract() {
             'nft_mint',
             'set_current_result',
             'get_current_result',
-            'new_default_meta'
+            'new_default_data'
             ],
     })
 }

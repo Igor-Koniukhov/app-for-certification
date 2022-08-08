@@ -1,13 +1,17 @@
-import React, {useState} from "react";
+import React, {useState, useContext} from "react";
 import "./SubjectItemButton.module.css"
 import {useHistory} from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
+import ArticleContext from "../../store/article-context";
+
 
 
 const SubjectItemButton = (props) => {
     const [stateSpinner, setStateSpinner] = useState(false);
     const history = useHistory();
+    const cnx = useContext(ArticleContext);
     const moveToExamHandler = () => {
+        cnx.resetState();
         setStateSpinner(true)
         history.push(`${props.path}`)
         setStateSpinner(false)

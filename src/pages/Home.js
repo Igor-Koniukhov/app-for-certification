@@ -9,7 +9,7 @@ import SubjectItemButton from "../components/UI/SubjectItemButton";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Home = () => {
-    const {new_default_meta, get_status_init} = window.contract;
+    const {new_default_data, get_status_init} = window.contract;
     const [stateSpinner, setStateSpinner] = useState(false);
     const {
         set_subjects,
@@ -48,7 +48,7 @@ const Home = () => {
     const initContractHandler = () => {
         setStateSpinner(true)
         const initContract = async () => {
-            await new_default_meta({owner_id: window.accountId}).then((data) => {
+            await new_default_data({owner_id: window.accountId}).then((data) => {
                 if (data !== undefined || data !== null) {
                     setStateSpinner(false)
                     setStateIsInit(true)

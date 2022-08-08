@@ -37,6 +37,7 @@ const Article = (props) => {
     }, [buttonDisabled]);
 
     const sentMessage = async (answers) => {
+        console.log(answers)
         try {
             await set_answer({
                 subject_name: props.subJectName,

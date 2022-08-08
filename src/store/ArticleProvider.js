@@ -46,6 +46,9 @@ const articleReducer = (state, action) =>{
             isSent: state.isSent
         }
     }
+    if(action.type==='RESET'){
+        return defaultArticleState
+    }
     if(action.type === 'SET_STATUS'){
         const updatedStatus = action.isSent
         return {
@@ -126,6 +129,11 @@ const getNumbersOfQuestionsHandler=(length)=>{
             length: length
         })
     }
+const resetStateHandler=()=>{
+        dispatchArticleAction({
+            type: 'RESET',
+        })
+    }
 const setRequestStatusHandler = (isSent) =>{
         dispatchArticleAction({
             type: 'SET_STATUS',
@@ -169,6 +177,7 @@ const setAttemptHandler =(attempt)=>{
         setCollectionAnswers: setCollectionAnswersHandler,
         setMetadate: setMetadataHandler,
         setAttempt: setAttemptHandler,
+        resetState: resetStateHandler
     }
     return <ArticleContext.Provider value={articleContext}>
         {props.children}

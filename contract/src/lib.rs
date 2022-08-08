@@ -8,6 +8,7 @@ use near_sdk::{
 };
 
 use std::collections::HashMap;
+use time::at;
 
 
 pub use crate::approval::*;
@@ -141,28 +142,11 @@ pub struct Result {
 }
 
 
-
 #[near_bindgen]
 impl Contract {
     //initialization of the contract can only be called once.
     #[init]
-    pub fn new_default_meta(owner_id: AccountId) -> Self {
-        Self::new(
-            owner_id,
-            NFTContractMetadata {
-                spec: "nft-1.0.0".to_string(),
-                name: "NFT Contract For Certification".to_string(),
-                symbol: "CERTIFICATOR".to_string(),
-                icon: None,
-                base_uri: None,
-                reference: None,
-                reference_hash: None,
-            },
-        )
-    }
-
-    #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+    pub fn new_default_data(owner_id: AccountId) -> Self {
         Self {
             is_init: true,
             owner_id,
@@ -179,8 +163,8 @@ impl Contract {
                 StorageKey::KeyForResult {
                     answer_id_hash: CryptoHash::default(),
                 }
-                .try_to_vec()
-                .unwrap(),
+                    .try_to_vec()
+                    .unwrap(),
             ),
             results: UnorderedMap::<AccountId, Result>::new(
                 StorageKey::Results.try_to_vec().unwrap(),
@@ -193,7 +177,15 @@ impl Contract {
             ),
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
-                Some(&metadata),
+                Some(&NFTContractMetadata {
+                    spec: "nft-1.0.0".to_string(),
+                    name: "NFT Contract For Certification".to_string(),
+                    symbol: "CERTIFICATOR".to_string(),
+                    icon: None,
+                    base_uri: None,
+                    reference: None,
+                    reference_hash: None,
+                }),
             ),
         }
     }

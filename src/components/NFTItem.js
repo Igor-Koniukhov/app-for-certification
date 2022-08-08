@@ -4,7 +4,6 @@ const NFTItem = (props) => {
     return (
         <div
             className="col-lg-4 col-md-4 col-sm-6 d-flex flex-column"
-
         >
             <strong className="text-center">{props.d.title}</strong>
             <details style={{textAlign: "justify"}}>
