@@ -6,7 +6,7 @@ import App from './App'
 import { initContract } from './utils'
 import {BrowserRouter} from "react-router-dom";
 
-const homepage = 'https://igor-koniukhov.github.io/app-for-certification/'
+const homepage = '/app-for-certification'
 
 window.nearInitPromise = initContract()
   .then(() => {
