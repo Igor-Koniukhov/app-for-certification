@@ -3,7 +3,7 @@ import "./SubjectItemButton.module.css"
 import {useHistory} from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
 import ArticleContext from "../../store/article-context";
-const homepage = "https://github.com/Igor-Koniukhov/app-for-certification/";
+const homepage = "https://igor-koniukhov.github.io/app-for-certification/";
 
 
 const SubjectItemButton = (props) => {
