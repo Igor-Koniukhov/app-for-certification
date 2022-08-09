@@ -55742,7 +55742,7 @@ __exportStar(require("./browser-connect"), exports);
 require("error-polyfill");
 
 },{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "ikon-examenator.testnet";
+const CONTRACT_NAME = "ikoniukhov-exam.testnet";
 
 function getConfig(env) {
   switch (env) {
@@ -58051,7 +58051,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43807" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46751" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
