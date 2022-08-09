@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME ||'examenator-ikoniukhov.testnet'
+const CONTRACT_NAME = process.env.CONTRACT_NAME ||'examenator-iko.testnet'
 
 function getConfig(env) {
 
