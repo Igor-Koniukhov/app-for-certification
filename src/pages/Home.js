@@ -9,22 +9,6 @@ import SubjectItemButton from "../components/UI/SubjectItemButton";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const Home = () => {
-    const {new_default_data, get_status_init} = window.contract;
-    const [stateSpinner, setStateSpinner] = useState(false);
-    const {
-        set_subjects,
-    } = window.contract;
-    const [stateIsInit, setStateIsInit]=useState(false);
-
-    useEffect(()=>{
-        const isInit = async () =>{
-            await get_status_init({}).then((data)=>{
-                    setStateIsInit(data)
-                }
-            )
-        }
-        isInit();
-    }, [stateIsInit])
 
     const subjectRange = [
         {
@@ -67,7 +51,6 @@ const Home = () => {
         <Fragment>
             <div className="container text-center pt-5 ">
                 <h1>Welcome to Examinator</h1>
-                { stateIsInit &&
                     <Fragment>
                         <p>Choose your subject and start exam</p>
                         <div className="row justify-content-center">
@@ -79,19 +62,9 @@ const Home = () => {
                                 />
                             )}
                         </div>
-                    </Fragment>}
-                {!stateIsInit &&
-                    <button className="btn btn-danger mt-4" onClick={initContractHandler}>Init contract</button>
-                }
+                    </Fragment>
 
             </div>
-            {stateSpinner &&
-                (
-                    <div className='backdrop'>
-                        <LoadingSpinner/>
-                    </div>
-                )
-            }
 
         </Fragment>
     )

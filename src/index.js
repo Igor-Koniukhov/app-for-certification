@@ -6,12 +6,10 @@ import App from './App'
 import { initContract } from './utils'
 import { HashRouter} from "react-router-dom";
 
-const homepage = '/app-for-certification'
-
 window.nearInitPromise = initContract()
   .then(() => {
     ReactDOM.render(
-        <HashRouter basename={homepage}>
+        <HashRouter>
             <App />
         </HashRouter>,
       document.querySelector('#root')
