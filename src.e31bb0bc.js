@@ -57996,11 +57996,7 @@ function App() {
     path: "/certificate"
   }, /*#__PURE__*/_react.default.createElement(_Certificate.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/nft-collections"
-  }, /*#__PURE__*/_react.default.createElement(_NFTCollections.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
-    path: "*"
-  }, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Redirect, {
-    to: "/"
-  }))));
+  }, /*#__PURE__*/_react.default.createElement(_NFTCollections.default, null))));
 }
 },{"regenerator-runtime/runtime":"../node_modules/regenerator-runtime/runtime.js","react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./global.css":"global.css","./components/IntroContent":"components/IntroContent.js","./pages/subjects/Sociology":"pages/subjects/Sociology.js","./pages/subjects/Chemistry":"pages/subjects/Chemistry.js","./pages/subjects/Physic":"pages/subjects/Physic.js","./pages/subjects/Microbiology":"pages/subjects/Microbiology.js","./pages/Results":"pages/Results.js","./components/layout/Layout":"components/layout/Layout.js","./pages/Certificate":"pages/Certificate.js","./pages/Home":"pages/Home.js","./pages/NFTCollections":"pages/NFTCollections.js"}],"index.js":[function(require,module,exports) {
 "use strict";
@@ -58055,7 +58051,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42431" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "43807" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
