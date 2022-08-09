@@ -147,6 +147,23 @@ impl Contract {
     //initialization of the contract can only be called once.
     #[init]
     pub fn new_default_data(owner_id: AccountId) -> Self {
+        Self::new(
+            owner_id,
+            NFTContractMetadata {
+                spec: "nft-1.0.0".to_string(),
+                name: "NFT Contract For Certification".to_string(),
+                symbol: "CERTIFICATOR".to_string(),
+                icon: None,
+                base_uri: None,
+                reference: None,
+                reference_hash: None,
+            },
+        )
+    }
+
+
+    #[init]
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
         Self {
             is_init: true,
             owner_id,
@@ -177,17 +194,10 @@ impl Contract {
             ),
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
-                Some(&NFTContractMetadata {
-                    spec: "nft-1.0.0".to_string(),
-                    name: "NFT Contract For Certification".to_string(),
-                    symbol: "CERTIFICATOR".to_string(),
-                    icon: None,
-                    base_uri: None,
-                    reference: None,
-                    reference_hash: None,
-                }),
+                Some(&metadata),
             ),
         }
+
     }
 
     pub fn set_subjects(&mut self) -> Response {
