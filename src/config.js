@@ -1,4 +1,4 @@
-const CONTRACT_NAME = "ikon-examenator.testnet"
+const CONTRACT_NAME = "ikoniukhov-exam.testnet"
 
 function getConfig(env) {
   switch (env) {

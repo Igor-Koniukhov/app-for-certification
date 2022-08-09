@@ -5,7 +5,6 @@ import LoadingSpinner from "./LoadingSpinner";
 import ArticleContext from "../../store/article-context";
 const homepage = "https://igor-koniukhov.github.io/app-for-certification/";
 
-
 const SubjectItemButton = (props) => {
     const [stateSpinner, setStateSpinner] = useState(false);
     const history = useHistory();
